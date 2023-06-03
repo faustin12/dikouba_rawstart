@@ -894,7 +894,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                         ShowEventParticipantWidget(
                                                             widget.evenementModel,
                                                             _userModel,
-                                                            customAppTheme),
+                                                            customAppTheme, analytics: widget.analytics, observer: widget.observer,),
                                             ],
                                           ),
                                         ),

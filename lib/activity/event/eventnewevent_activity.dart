@@ -39,12 +39,12 @@ import 'package:geocoding/geocoding.dart';
 
 class EvenNewEventActivity extends StatefulWidget {
   EvenNewEventActivity(
-      {Key? key, required this.analytics, required this.observer, required this.selectedLocation})
+      {Key? key, required this.analytics, required this.observer, this.selectedLocation})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-  final FirebaseLocationModel selectedLocation;
+  final FirebaseLocationModel? selectedLocation;
 
   @override
   EvenNewEventActivityState createState() => EvenNewEventActivityState();
@@ -899,7 +899,7 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
   }
 
   void _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
+    /*Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     _kGooglePlex = CameraPosition(
       target: LatLng(position.latitude, position.longitude),
@@ -908,7 +908,7 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
       print('${_currentPosition}');
-    });
+    });*/
   }
 
   Future<void> getPickedInfo(dynamic _pickSuggestion) async {
@@ -1145,14 +1145,11 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
                                                         )),
                                                 suggestionsCallback:
                                                     (pattern) async {
-                                                  print(
-                                                      "suggestionsCallback pattern=$pattern");
+                                                  print("suggestionsCallback pattern=$pattern");
                                                   var response =
-                                                      await googleSearchByAddress(
-                                                          pattern.toString());
-                                                  print(
-                                                      "suggestionsCallback response=$response");
-                                                  return response;
+                                                      await googleSearchByAddress(pattern.toString());
+                                                  print("suggestionsCallback response=$response");
+                                                  return response!;
                                                 },
                                                 itemBuilder:
                                                     (context, suggestion) {
@@ -1177,7 +1174,7 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
                                                         ),
                                                         Expanded(
                                                             child: Text(
-                                                          "suggestion['description']",
+                                                          suggestion['description'],
                                                           style: themeData.textTheme.bodyMedium?.copyWith(
                                                             color: themeData.colorScheme.onBackground,
                                                             fontWeight: FontWeight.w500,
@@ -1230,7 +1227,7 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
   }
 
   void updateSelectedLocation() async {
-    late LocationResult locationResult =
+    /*late LocationResult locationResult =
         await showLocationPicker(context, DikoubaUtils.MapApiKey,
             myLocationButtonEnabled: true,
             layersButtonEnabled: true,
@@ -1256,7 +1253,7 @@ class EvenNewEventActivityState extends State<EvenNewEventActivity> {
 
     setState(() {
       _selectedLocation = locationModel;
-    });
+    });*/
   }
 
   void checkEventForm(BuildContext buildContext) {
@@ -1408,7 +1405,7 @@ class SelectLocationState extends State<SelectLocation> {
   }
 
   void _getUserLocation() async {
-    late Position position = await Geolocator.getCurrentPosition(
+    /*late Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _cameraPosition = CameraPosition(
@@ -1420,7 +1417,7 @@ class SelectLocationState extends State<SelectLocation> {
     });
     if (_currentPosition != null)
       moveToEventPosition(
-          _currentPosition.latitude, _currentPosition.longitude);
+          _currentPosition.latitude, _currentPosition.longitude);*/
   }
 
   Future<void> getPickedInfo(dynamic _pickSuggestion) async {
@@ -1708,14 +1705,11 @@ class SelectLocationState extends State<SelectLocation> {
                                                           )),
                                                   suggestionsCallback:
                                                       (pattern) async {
-                                                    print(
-                                                        "suggestionsCallback pattern=$pattern");
+                                                    print("suggestionsCallback pattern=$pattern");
                                                     var response =
-                                                        await googleSearchByAddress(
-                                                            pattern.toString());
-                                                    print(
-                                                        "suggestionsCallback response=$response");
-                                                    return response;
+                                                        await googleSearchByAddress(pattern.toString());
+                                                    print("suggestionsCallback response=$response");
+                                                    return response!;
                                                   },
                                                   itemBuilder:
                                                       (context, suggestion) {
@@ -1741,7 +1735,7 @@ class SelectLocationState extends State<SelectLocation> {
                                                           ),
                                                           Expanded(
                                                               child: Text(
-                                                            "suggestion['description']",
+                                                            suggestion['description'],
                                                             style: themeData.textTheme.bodyMedium?.copyWith(
                                                               color: themeData.colorScheme.onBackground,
                                                               fontWeight: FontWeight.w500,
