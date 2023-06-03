@@ -1,19 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -27,7 +25,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class EventScanTicketScreen extends StatefulWidget {
   UserModel userModel;
-  EventScanTicketScreen(this.userModel,{this.analytics, this.observer});
+  EventScanTicketScreen(this.userModel,{required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -37,8 +35,8 @@ class EventScanTicketScreen extends StatefulWidget {
 
 class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
   static final String TAG = 'EventScanTicketScreen';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   int selectedCategory = 0;
 
@@ -52,11 +50,11 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -84,7 +82,7 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -93,17 +91,21 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
                 body: Container(
                   color: customAppTheme.bgLayer1,
                   child: _isEventFinding
-                      ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                      ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                       : (_listEvents == null || _listEvents.length == 0)
                       ? Container(
                     margin: Spacing.fromLTRB(24, 16, 24, 0),
                     child: Text("Aucun évènement trouvé",
-                      style: AppTheme.getTextStyle(
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12
+                      ),/*AppTheme.getTextStyle(
                           themeData.textTheme.caption,
                           fontSize: 12,
                           color: themeData.colorScheme.onBackground,
                           fontWeight: 500,
-                          xMuted: true),),)
+                          xMuted: true),*/),)
                       : ListView.separated(
                     padding: Spacing.zero,
                     itemCount: _listEvents.length,
@@ -132,7 +134,7 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
         child: SingleEventsWidget(
             customAppTheme,
             evenementModel,
-            width: MySize.safeWidth - MySize.size48)
+            width: MySize.safeWidth - MySize.size48, analytics: widget.analytics, observer: widget.observer,)
     );
   }
 
@@ -156,7 +158,7 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
         print(
             "${TAG}:findAnnoncer ${responseAnnoncer
                 .statusCode}|${responseAnnoncer.data}");
-        List<String> listIDevent = new List();
+        List<String> listIDevent = [];
         for (int i = 0; i <
             responseAnnoncer.data["arr_evenements"].length; i++) {
           listIDevent.add(
@@ -182,7 +184,7 @@ class _EventScanTicketScreenState extends State<EventScanTicketScreen> {
                 print(
                     "${TAG}:findMyevent ${responseEvents
                         .statusCode}|${responseEvents.data}");
-                List<EvenementModel> list = new List();
+                List<EvenementModel> list = [];
                 for (int i = 0; i < responseEvents.data.length; i++) {
                   list.add(EvenementModel.fromJson(responseEvents.data[i]));
                 }
@@ -256,9 +258,9 @@ class SingleEventsWidget extends StatefulWidget {
   @required
   double width;
   SingleEventsWidget(this.customAppTheme, this.evenementModel,
-      {@required this.width,
-        this.analytics,
-        this.observer});
+      {required this.width,
+        required this.analytics,
+        required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -270,14 +272,14 @@ class SingleEventsWidget extends StatefulWidget {
 class SingleEventsWidgetState extends State<SingleEventsWidget> {
   static final String TAG = 'SingleEventsWidgetState';
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   String _eventLocationAddress = "loading";
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+        double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     var addresses =
     await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -370,7 +372,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                           children: <Widget>[
                             SizedBox(height: 5.0),
                             Text(
-                              widget.evenementModel.title,
+                              widget.evenementModel.title!,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 17.0,
@@ -416,7 +418,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                                           const EdgeInsets.only(left: 8.0),
                                           child: Text(
                                             DateFormat('dd MMM yy HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                                                int.parse(widget.evenementModel.start_date.seconds) * 1000)),
+                                                int.parse(widget.evenementModel.start_date!.seconds) * 1000)),
                                             style: TextStyle(
                                                 fontSize: 14.0,
                                                 fontFamily: "popins",
@@ -446,8 +448,8 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
 
 class _QRViewExampleState extends State<QRViewExample> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  Barcode result;
-  QRViewController controller;
+  late Barcode result;
+  late QRViewController controller;
   bool _checkingData = false;
   bool _isPackageFinding = false;
   List<PackageModel> _listPackage = [];
@@ -457,7 +459,7 @@ class _QRViewExampleState extends State<QRViewExample> {
       _isPackageFinding = true;
     });
     API
-        .findEventPackage(widget._evenement.id_evenements)
+        .findEventPackage(widget._evenement.id_evenements!)
         .then((responsePackage) {
       if (responsePackage.statusCode == 200) {
         print(
@@ -540,12 +542,12 @@ class _QRViewExampleState extends State<QRViewExample> {
                                   Container(
                                     margin: Spacing.fromLTRB(MySize.size16, MySize.size8, MySize.size18, 0),
                                     child: Text(
-                                      widget._evenement.title,
+                                      widget._evenement.title!,
                                       maxLines: 1,
-                                      style: AppTheme.getTextStyle(
-                                          widget._themeData.textTheme.headline4,
-                                          color: result ? Colors.blueAccent : Colors.redAccent,
-                                          fontWeight: 600),
+                                      style: widget._themeData.textTheme.headlineMedium?.copyWith(
+                                        color: result? Colors.blueAccent : Colors.redAccent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -553,10 +555,10 @@ class _QRViewExampleState extends State<QRViewExample> {
                                     child: Text(
                                       _label,
                                       maxLines: 1,
-                                      style: AppTheme.getTextStyle(
-                                          widget._themeData.textTheme.headline4,
-                                          color: result ? Colors.blueAccent : Colors.redAccent,
-                                          fontWeight: 600),
+                                      style: widget._themeData.textTheme.headlineMedium?.copyWith(
+                                        color: result? Colors.blueAccent : Colors.redAccent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),]))
                       ]))).then((value) => _checkingData = false);
@@ -564,10 +566,10 @@ class _QRViewExampleState extends State<QRViewExample> {
     }
 
     try {
-      scanned_id_users = jsonDecode(readedBarcode.code)["id_users"];
-      scanned_id_tickets = jsonDecode(readedBarcode.code)["id_tickets"];
-      scanned_id_evenements = jsonDecode(readedBarcode.code)["id_evenements"];
-      scanned_id_packages = jsonDecode(readedBarcode.code)["id_packages"];
+      scanned_id_users = jsonDecode(readedBarcode.code!)["id_users"];
+      scanned_id_tickets = jsonDecode(readedBarcode.code!)["id_tickets"];
+      scanned_id_evenements = jsonDecode(readedBarcode.code!)["id_evenements"];
+      scanned_id_packages = jsonDecode(readedBarcode.code!)["id_packages"];
     } on Exception catch (_) {
       print('never reached');
     }
@@ -581,7 +583,7 @@ class _QRViewExampleState extends State<QRViewExample> {
             ( responsePackage.data["statut"] == "COMPLETE"|| responsePackage.data["statut"] == "COMPLETED"));
         _labelValue = "Check ticket ?";
         for(int idx=0; idx<_listPackage.length; idx++){
-          if(_listPackage[idx].id_packages == responsePackage.data["id_packages"]) _labelValue = "Package : " + _listPackage[idx].name;
+          if(_listPackage[idx].id_packages == responsePackage.data["id_packages"]) _labelValue = "Package : " + _listPackage[idx].name!;
         }
         showDialogResult(_goodTicket, _labelValue);
       } else {
@@ -618,7 +620,7 @@ class _QRViewExampleState extends State<QRViewExample> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                borderColor: DikoubaColors.blue['pri'],
+                borderColor: DikoubaColors.blue['pri']!,
                 borderRadius: 10,
                 borderLength: 20,
                 borderWidth: 10,

@@ -1,14 +1,13 @@
 import 'dart:async';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/activity/event/eventdetailslive_activity.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:intl/intl.dart';
-import 'package:dikouba/library/Page_Transformer_Card/page_transformer.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
+import 'package:dikouba_rawstart/library/Page_Transformer_Card/page_transformer.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shimmer/shimmer.dart';
@@ -18,7 +17,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class LiveItemFragment extends StatefulWidget {
   CustomAppTheme customAppTheme;
-  LiveItemFragment(this.customAppTheme,{this.analytics, this.observer});
+  LiveItemFragment(this.customAppTheme,{required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -35,13 +34,13 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
 
   int selectedCategory = INDEX_TERMINE;
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   ///
   /// check the condition is right or wrong for image loaded or no
   ///
   bool loadImage = false; //true;
-  Stream<List<EvenementModel>> _streamListEventMdl;
+  late Stream<List<EvenementModel>> _streamListEventMdl;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -50,11 +49,11 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -133,21 +132,23 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
                               alignment: Alignment.center,
                               child: Text(
                                 "Aucun évènement",
-                                style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                                    color: themeData.colorScheme.onBackground),
+                                style: themeData.textTheme.bodyMedium?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                ),
                               ),
                             );
                             //_loadingDataHeader(ctx);
                           } else {
-                            return snapshot.data.length > 0 ? new dataFirestore(
-                              list: snapshot.data,
-                              dataUser: 'user',
+                            return snapshot.data!.length > 0 ? new dataFirestore(
+                              list: snapshot.data!,
+                              dataUser: 'user', analytics: widget.analytics, observer: widget.observer,
                             ) : Container(
                               alignment: Alignment.center,
                               child: Text(
                                 "Aucun évènement",
-                                style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                                    color: themeData.colorScheme.onBackground),
+                                style: themeData.textTheme.bodyMedium?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                ),
                               ),
                             );
                           }
@@ -162,7 +163,7 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     );
   }
 
-  Widget singleCategory({IconData iconData, String title, int index}) {
+  Widget singleCategory({required IconData iconData, required String title, required int index}) {
     bool isSelected = (selectedCategory == index);
     return InkWell(
         onTap: () {
@@ -206,10 +207,12 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
                 margin: Spacing.left(8),
                 child: Text(
                   title,
-                  style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                      color: isSelected
-                          ? themeData.colorScheme.onPrimary
-                          : themeData.colorScheme.onBackground),
+                  style: themeData.textTheme.bodyMedium?.copyWith(
+                    color: isSelected
+                        ? themeData.colorScheme.onPrimary
+                        : themeData.colorScheme.onBackground,
+                    fontWeight: FontWeight.w600,
+                  )
                 ),
               )
             ],
@@ -225,7 +228,7 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     print(
         "${TAG}:initWidgetListview ${responseEvents.statusCode}|${responseEvents.data}");
     if(responseEvents.statusCode == 200) {
-      List<EvenementModel> list = new List();
+      List<EvenementModel> list = [];
       for (int i = 0; i < responseEvents.data.length; i++) {
         EvenementModel item = EvenementModel.fromJson(responseEvents.data[i]);
 
@@ -269,7 +272,7 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     print(
         "${TAG}:findEventsPending ${responseEvents.statusCode}|${responseEvents.data}");
     if(responseEvents.statusCode == 200) {
-      List<EvenementModel> list = new List();
+      List<EvenementModel> list = [];
       for (int i = 0; i < responseEvents.data.length; i++) {
         EvenementModel item = EvenementModel.fromJson(responseEvents.data[i]);
 
@@ -311,7 +314,7 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     print(
         "${TAG}:findEventsSoon ${responseEvents.statusCode}|${responseEvents.data}");
     if(responseEvents.statusCode == 200) {
-      List<EvenementModel> list = new List();
+      List<EvenementModel> list = [];
       for (int i = 0; i < responseEvents.data.length; i++) {
         EvenementModel item = EvenementModel.fromJson(responseEvents.data[i]);
 
@@ -354,7 +357,7 @@ class _LiveItemFragmentState extends State<LiveItemFragment> {
     print(
         "${TAG}:findEventsTermine ${responseEvents.statusCode}|${responseEvents.data}");
     if(responseEvents.statusCode == 200) {
-      List<EvenementModel> list = new List();
+      List<EvenementModel> list = [];
       for (int i = 0; i < responseEvents.data.length; i++) {
         EvenementModel item = EvenementModel.fromJson(responseEvents.data[i]);
 
@@ -429,7 +432,7 @@ Widget cardHeaderLoading(BuildContext context) {
                 blurRadius: 0.5)
           ]),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[400],
+        baseColor: Colors.grey[400]!,
         highlightColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.only(top: 320.0),
@@ -486,22 +489,22 @@ Widget cardHeaderLoading(BuildContext context) {
 
 class dataFirestore extends StatelessWidget {
   String dataUser;
-  dataFirestore({this.list, this.dataUser,this.analytics, this.observer});
+  dataFirestore({required this.list, required this.dataUser,required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   final List<EvenementModel> list;
-  PageVisibility pageVisibility;
+  PageVisibility? pageVisibility;
 
   Widget _applyTextEffects({
-    @required double translationFactor,
-    @required Widget child,
+    required double translationFactor,
+    required Widget child,
   }) {
-    final double xTranslation = pageVisibility.pagePosition * translationFactor;
+    final double xTranslation = pageVisibility!.pagePosition * translationFactor;
 
     return Opacity(
-      opacity: pageVisibility.visibleFraction,
+      opacity: pageVisibility!.visibleFraction,
       child: Transform(
         alignment: FractionalOffset.topLeft,
         transform: Matrix4.translationValues(
@@ -544,19 +547,19 @@ class dataFirestore extends StatelessWidget {
             controller: PageController(viewportFraction: 0.86),
             itemCount: list.length,
             itemBuilder: (context, i) {
-              DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(list[i].start_date.seconds) * 1000);
+              DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(list[i].start_date!.seconds) * 1000);
 
-              String title = list[i].title;
-              String category = list[i].categories.title;
+              String title = list[i].title!;
+              String category = list[i].categories!.title!;
               String imageUrl = list[i].banner_path;
-              String id = list[i].id_evenements;
-              String description = list[i].description;
+              String id = list[i].id_evenements!;
+              String description = list[i].description!;
               String price = '50';
               String hours = DateFormat('HH:mm').format(_startDate);
               String date = DateFormat('dd MMM yyyy, HH:mm').format(_startDate);
-              String location = "[${list[i].location.latitude}, ${list[i].location.longitude}]";
-              String description2 = list[i].description;
-              String description3 = list[i].description;
+              String location = "[${list[i].location!.latitude}, ${list[i].location!.longitude}]";
+              String description2 = list[i].description!;
+              String description3 = list[i].description!;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 10.0),
@@ -568,10 +571,11 @@ class dataFirestore extends StatelessWidget {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(12.0)),
                           color: Colors.grey[500],
-                          image: DecorationImage(
-                              image: (imageUrl == "" || imageUrl == "null")
-                                  ? AssetImage('./assets/logo/noimage.webp')
-                                  : NetworkImage(imageUrl), fit: BoxFit.cover),
+                          image: (imageUrl == "" || imageUrl == "null")
+                              ? DecorationImage(
+                              image:  AssetImage('./assets/logo/noimage.webp'))
+                          :DecorationImage(
+                              image: NetworkImage(imageUrl), fit: BoxFit.cover),
                           boxShadow: [
                             BoxShadow(
                                 color: Colors.black12.withOpacity(0.01),
@@ -654,7 +658,7 @@ class dataFirestore extends StatelessWidget {
                                       children: [
                                         Text(
                                           date,
-                                          style: textTheme.caption.copyWith(
+                                          style: textTheme.bodySmall?.copyWith(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 2.0,
@@ -667,7 +671,7 @@ class dataFirestore extends StatelessWidget {
                                               const EdgeInsets.only(top: 16.0),
                                           child: Text(
                                             title,
-                                            style: textTheme.title.copyWith(
+                                            style: textTheme.bodyMedium?.copyWith(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold),
                                             textAlign: TextAlign.center,

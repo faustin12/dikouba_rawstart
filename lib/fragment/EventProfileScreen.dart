@@ -1,9 +1,9 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/Generator.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/Generator.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -15,7 +15,7 @@ import 'package:firebase_analytics/observer.dart';
 class EventProfileScreen extends StatefulWidget {
   UserModel userModel;
 
-  EventProfileScreen(this.userModel,{this.analytics, this.observer});
+  EventProfileScreen(this.userModel,{required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -24,10 +24,10 @@ class EventProfileScreen extends StatefulWidget {
 }
 
 class _EventProfileScreenState extends State<EventProfileScreen> {
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  String desc;
+  late String desc;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -36,11 +36,11 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id : uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -68,7 +68,7 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -88,11 +88,15 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                             borderRadius: BorderRadius.all(
                                 Radius.circular(MySize.size50)),
                             child: widget.userModel == null
-                                ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']))
-                                : Image(
-                              image: widget.userModel.photo_url == ""
-                                  ? AssetImage('./assets/logo/user_transparent.webp')
-                                  : NetworkImage(widget.userModel.photo_url),
+                                ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!))
+                                : widget.userModel.photo_url == ""
+                                ?Image(
+                              image: AssetImage('./assets/logo/user_transparent.webp'),
+                              width: MySize.size100,
+                              height: MySize.size100,
+                              fit: BoxFit.cover,
+                            ):Image(
+                              image: NetworkImage(widget.userModel.photo_url!),
                               width: MySize.size100,
                               height: MySize.size100,
                               fit: BoxFit.cover,
@@ -105,9 +109,10 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                             "${widget.userModel.name}",
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.headline6,
-                                fontWeight: 600),
+                            style: themeData.textTheme.titleLarge?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -129,17 +134,21 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                           children: [
                             Text(
                               "My balance".toUpperCase(),
-                              style: AppTheme.getTextStyle(
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12
+                              ),/*AppTheme.getTextStyle(
                                   themeData.textTheme.caption,
                                   fontSize: 12,
                                   fontWeight: 600,
-                                  xMuted: true),
+                                  xMuted: true),*/
                             ),
                             Text(
                               "\$ 24",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText2,
-                                  fontWeight: 600),
+                              style: themeData.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -160,9 +169,10 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                                 margin: Spacing.left(8),
                                   child: Text(
                                 "Add Money",
-                                style: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText2,
-                                    color: themeData.colorScheme.primary,fontWeight: 600),
+                                style: themeData.textTheme.bodyMedium?.copyWith(
+                                  color: themeData.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ))
                             ],
                           ),
@@ -177,11 +187,15 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                       children: [
                         Text(
                           "INVITE",
-                          style: AppTheme.getTextStyle(
+                          style: themeData.textTheme.bodyMedium?.copyWith(
+                            color: themeData.colorScheme.onBackground,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11.5
+                          ),/*AppTheme.getTextStyle(
                               themeData.textTheme.caption,
                               fontSize: 11.5,
                               fontWeight: 600,
-                              xMuted: true),
+                              xMuted: true),*/
                         ),
                         Container(
                           margin: Spacing.top(16),
@@ -203,10 +217,10 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                                 margin: Spacing.left(16),
                                 child: Text(
                                   "Add Friend",
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color: themeData.colorScheme.primary,
-                                      fontWeight: 600),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               )
                             ],
@@ -243,7 +257,7 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
     );
   }
 
-  Widget singleInvite({String image, String name, String status}) {
+  Widget singleInvite({required String image, required String name, required String status}) {
     return Container(
       child: Row(
         children: [
@@ -262,16 +276,20 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
                 children: [
                   Text(
                     name,
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                        color: themeData.colorScheme.onBackground,
-                        fontWeight: 600),
+                    style: themeData.textTheme.bodyMedium?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     status,
-                    style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                    style: themeData.textTheme.bodySmall?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w500,
+                    ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                         color: themeData.colorScheme.onBackground,
                         fontWeight: 500,
-                        muted: true),
+                        muted: true),*/
                   ),
                 ],
               ),
@@ -285,10 +303,11 @@ class _EventProfileScreenState extends State<EventProfileScreen> {
             ),
             child: Text(
               "+ \$9",
-              style: AppTheme.getTextStyle(themeData.textTheme.caption,
-                  color: themeData.colorScheme.primary,
-                  letterSpacing: 0.3,
-                  fontWeight: 700),
+              style: themeData.textTheme.bodySmall?.copyWith(
+                color: themeData.colorScheme.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3
+              ),
             ),
           )
         ],

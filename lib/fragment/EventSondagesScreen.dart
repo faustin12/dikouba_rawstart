@@ -1,16 +1,15 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/activity/event/eventupdatesondage_activity.dart';
-import 'package:dikouba/fragment/EventHomeScreen.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dikouba/widget/SingleSondageWidget.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventupdatesondage_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/widget/SingleSondageWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -21,7 +20,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class EventSondagesScreen extends StatefulWidget {
   UserModel userModel;
-  EventSondagesScreen(this.userModel, {this.analytics, this.observer});
+  EventSondagesScreen(this.userModel, {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -31,13 +30,13 @@ class EventSondagesScreen extends StatefulWidget {
 
 class _EventSondagesScreenState extends State<EventSondagesScreen> {
   static final String TAG = '_EventSondagesScreenState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   int selectedCategory = 0;
 
   bool _isEventFinding = false;
-  List<SondageReponseModel> _listSondagesrep;
+  late List<SondageReponseModel> _listSondagesrep;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -47,11 +46,11 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -80,7 +79,7 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -92,7 +91,7 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                   ? Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            DikoubaColors.blue['pri']),
+                            DikoubaColors.blue['pri']!),
                       ),
                     )
                   : (_listSondagesrep == null || _listSondagesrep.length == 0)
@@ -100,12 +99,16 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                           margin: Spacing.fromLTRB(24, 16, 24, 0),
                           child: Text(
                             "Aucun sondage trouvé",
-                            style: AppTheme.getTextStyle(
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12
+                            ),/*AppTheme.getTextStyle(
                                 themeData.textTheme.caption,
                                 fontSize: 12,
                                 color: themeData.colorScheme.onBackground,
                                 fontWeight: 500,
-                                xMuted: true),
+                                xMuted: true),*/
                           ),
                         )
                       : ListView.separated(
@@ -123,12 +126,12 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                               height: 240,
                               child: SingleSondageWidget(
                                 customAppTheme,
-                                _listSondagesrep[indexCateg].sondages,
+                                _listSondagesrep[indexCateg].sondages!,
                                 widget.userModel,
                                 MySize.safeWidth,
                                 onUpdateClickListener: () {
                                   gotoUpdateSondage(
-                                      _listSondagesrep[indexCateg].sondages,
+                                      _listSondagesrep[indexCateg].sondages!,
                                       _listSondagesrep[indexCateg]
                                           .id_evenements);
                                 },
@@ -142,7 +145,7 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
   }
 
   Widget singleEvent(EvenementModel evenementModel,
-      {String image, String name, String date, String time}) {
+      {required String image, required String name, required String date, required String time}) {
     return Container(
       margin: Spacing.all(16),
       child: InkWell(
@@ -161,10 +164,14 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
             Container(
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: image.contains('assets')
-                      ? AssetImage(image)
-                      : NetworkImage(image),
+                child: image.contains('assets')
+                    ? Image(
+                  image: AssetImage(image),
+                  width: MySize.getScaledSizeHeight(80),
+                  height: MySize.size72,
+                  fit: BoxFit.cover,
+                ):Image(
+                  image: NetworkImage(image),
                   width: MySize.getScaledSizeHeight(80),
                   height: MySize.size72,
                   fit: BoxFit.cover,
@@ -185,10 +192,10 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                           name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle2,
-                              color: themeData.colorScheme.onBackground,
-                              fontWeight: 600),
+                          style: themeData.textTheme.titleSmall?.copyWith(
+                            color: themeData.colorScheme.onBackground,
+                            fontWeight: FontWeight.w600,
+                          ),
                         )),
                         InkWell(
                           onTap: () {
@@ -219,22 +226,27 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                             children: [
                               Text(
                                 "Date",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     fontSize: 12,
                                     color: themeData.colorScheme.onBackground,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   date,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               )
                             ],
@@ -244,22 +256,26 @@ class _EventSondagesScreenState extends State<EventSondagesScreen> {
                             children: [
                               Text(
                                 "Heure",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     color: themeData.colorScheme.onBackground,
                                     fontSize: 12,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   time,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                  ),
                                 ),
                               )
                             ],

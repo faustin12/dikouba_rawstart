@@ -1,31 +1,21 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/fragment/EventHomeScreen.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/firebaselocation_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/notification_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/model/notification_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-
-import 'package:geocoder/geocoder.dart';
-
-
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class UserMesNotificationsScreen extends StatefulWidget {
   UserModel userModel;
-  UserMesNotificationsScreen(this.userModel, {this.analytics, this.observer});
+  UserMesNotificationsScreen(this.userModel, {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -35,8 +25,8 @@ class UserMesNotificationsScreen extends StatefulWidget {
 
 class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen> {
   static final String TAG = '_UserMesNotificationsScreenState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   bool _isFinding = false;
   List<NotificationModel> _listNotifications = [];
@@ -48,11 +38,11 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -81,7 +71,7 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -96,11 +86,15 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
                         MySize.size16, MySize.size8, MySize.size18, MySize.size2), //16 & 8 & 18 & 0
                     child: Text(
                       "Nombre de notifications ${_listNotifications.length}",
-                      style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: MySize.size14
+                      ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                           fontSize: MySize.size14,
                           color: themeData.colorScheme.onBackground,
                           fontWeight: 500,
-                          xMuted: true),
+                          xMuted: true),*/
                     ),
                   ),
                   Expanded(
@@ -108,7 +102,7 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
                           ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             )
                           : (_listNotifications == null || _listNotifications.length == 0)
@@ -117,13 +111,17 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
                                       MySize.size8, MySize.size18, 0),
                                   child: Text(
                                     "Aucune notification trouvée",
-                                    style: AppTheme.getTextStyle(
+                                    style: themeData.textTheme.bodySmall?.copyWith(
+                                      color: themeData.colorScheme.onBackground,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12
+                                    ),/*AppTheme.getTextStyle(
                                         themeData.textTheme.caption,
                                         fontSize: 12,
                                         color:
                                             themeData.colorScheme.onBackground,
                                         fontWeight: 500,
-                                        xMuted: true),
+                                        xMuted: true),*/
                                   ),
                                 )
                               : ListView.separated(
@@ -158,7 +156,7 @@ class _UserMesNotificationsScreenState extends State<UserMesNotificationsScreen>
       child: SingleNotificationWidget(
           customAppTheme,
           notoficationModel,
-          width: MySize.safeWidth - MySize.size48)
+          width: MySize.safeWidth - MySize.size48, analytics: widget.analytics, observer: widget.observer,)
     );
   }
 
@@ -206,9 +204,9 @@ class SingleNotificationWidget extends StatefulWidget {
   @required
   double width;
   SingleNotificationWidget(this.customAppTheme, this.notificationModel,
-      {@required this.width,
-        this.analytics,
-        this.observer});
+      {required this.width,
+        required this.analytics,
+        required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -220,7 +218,7 @@ class SingleNotificationWidget extends StatefulWidget {
 class SingleNotificationWidgetState extends State<SingleNotificationWidget> {
   static final String TAG = 'SingleEventsWidgetState';
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   @override
   void initState() {
@@ -252,21 +250,24 @@ class SingleNotificationWidgetState extends State<SingleNotificationWidget> {
           Container(
             padding: Spacing.horizontal(24),
             child: Text(
-              widget.notificationModel.title,
-              style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                  color: themeData.colorScheme.onBackground, fontWeight: 600),
+              widget.notificationModel.title!,
+              style: themeData.textTheme.titleSmall?.copyWith(
+                color: themeData.colorScheme.onBackground,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           Container(
             padding: Spacing.horizontal(24),
             margin: Spacing.top(4),
             child: Text(
-              widget.notificationModel.description,
-              style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                  color: themeData.colorScheme.onBackground,
-                  letterSpacing: 0.3,
-                  fontWeight: 500,
-                  height: 1.7),
+              widget.notificationModel.description!,
+              style: themeData.textTheme.bodyMedium?.copyWith(
+                color: themeData.colorScheme.onBackground,
+                fontWeight: FontWeight.w500,
+                height: 1.7,
+                letterSpacing: 0.3
+              ),
             ),
           ),
           Container(
@@ -281,15 +282,17 @@ class SingleNotificationWidgetState extends State<SingleNotificationWidget> {
               children: <Widget>[
                 Text(
                   DateFormat('dd MMM yy').format(DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(widget.notificationModel.created_at.seconds) * 1000)),
-                  style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                      color: themeData.colorScheme.primary),
+                      int.parse(widget.notificationModel.created_at!.seconds) * 1000)),
+                  style: themeData.textTheme.bodyMedium?.copyWith(
+                    color: themeData.colorScheme.primary,
+                  ),
                 ),
                 Text(
                   DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(widget.notificationModel.created_at.seconds) * 1000)),
-                  style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                      color: themeData.colorScheme.primary),
+                      int.parse(widget.notificationModel.created_at!.seconds) * 1000)),
+                  style: themeData.textTheme.bodyMedium?.copyWith(
+                    color: themeData.colorScheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -298,10 +301,11 @@ class SingleNotificationWidgetState extends State<SingleNotificationWidget> {
             margin: Spacing.top(4),
             padding: Spacing.horizontal(24),
             child: Text(
-              widget.notificationModel.action,
-              style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                  color: themeData.colorScheme.onBackground.withAlpha(160),
-                  fontWeight: 500),
+              widget.notificationModel.action!,
+              style: themeData.textTheme.bodyMedium?.copyWith(
+                color: themeData.colorScheme.onBackground.withAlpha(160),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           )
         ],

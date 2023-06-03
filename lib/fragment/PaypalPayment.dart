@@ -1,17 +1,20 @@
 import 'dart:core';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:dikouba/provider/paypal_service.dart';
+// Import for Android features.
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+// Import for iOS features.
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:dikouba_rawstart/provider/paypal_service.dart';
 
 class PaypalPayment extends StatefulWidget {
   final Function onFinish;
   final EvenementModel evenementModel;
   final PackageModel packageModel;
 
-  PaypalPayment(this.evenementModel, this.packageModel, {this.onFinish});
+  PaypalPayment(this.evenementModel, this.packageModel, {required this.onFinish});
 
   @override
   State<StatefulWidget> createState() {
@@ -21,9 +24,9 @@ class PaypalPayment extends StatefulWidget {
 
 class PaypalPaymentState extends State<PaypalPayment> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String checkoutUrl;
-  String executeUrl;
-  String accessToken;
+  late String checkoutUrl;
+  late String executeUrl;
+  late String accessToken;
   PaypalServices services = PaypalServices();
 
   // you can change default currency according to your need
@@ -35,23 +38,115 @@ class PaypalPaymentState extends State<PaypalPayment> {
   String returnURL = 'return.example.com';
   String cancelURL= 'cancel.example.com';
 
+  late final WebViewController _controller;
 
   @override
   void initState() {
     super.initState();
 
+    // #docregion platform_features
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final WebViewController controller =
+    WebViewController.fromPlatformCreationParams(params);
+    // #enddocregion platform_features
+
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      //..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            debugPrint('WebView is loading (progress : $progress%)');
+          },
+          onPageStarted: (String url) {
+            debugPrint('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            debugPrint('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+              Page resource error:
+                code: ${error.errorCode}
+                description: ${error.description}
+                errorType: ${error.errorType}
+                isForMainFrame: ${error.isForMainFrame}
+            ''');
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.contains(returnURL)) {
+              final uri = Uri.parse(request.url);
+              final payerID = uri.queryParameters['PayerID'];
+              if (payerID != null) {
+                services
+                    .executePayment(executeUrl, payerID, accessToken)
+                    .then((id) {
+                  widget.onFinish(id);
+                  Navigator.of(context).pop();
+                });
+              } else {
+                Navigator.of(context).pop();
+              }
+              Navigator.of(context).pop();
+            }
+            if (request.url.contains(cancelURL)) {
+              Navigator.of(context).pop();
+            }
+            return NavigationDecision.navigate;
+          }/*(NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              debugPrint('blocking navigation to ${request.url}');
+              return NavigationDecision.prevent;
+            }
+            debugPrint('allowing navigation to ${request.url}');
+            return NavigationDecision.navigate;
+          }*/,
+          onUrlChange: (UrlChange change) {
+            debugPrint('url change to ${change.url}');
+          },
+        ),
+      )
+      /*..addJavaScriptChannel(
+        'Toaster',
+        onMessageReceived: (JavaScriptMessage message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message.message)),
+          );
+        },
+      )*/
+      ..loadRequest(Uri.parse(checkoutUrl));
+
+    // #docregion platform_features
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(true);
+      (controller.platform as AndroidWebViewController)
+          .setMediaPlaybackRequiresUserGesture(false);
+    }
+    // #enddocregion platform_features
+
+    _controller = controller;
+
     Future.delayed(Duration.zero, () async {
       final transactions = getOrderParams();
       try {
-        accessToken = await services.getAccessToken();
+        accessToken = (await services.getAccessToken())!;
 
 
         final res =
         await services.createPaypalPayment(transactions, accessToken);
         if (res != null) {
           setState(() {
-            checkoutUrl = res["approvalUrl"];
-            executeUrl = res["executeUrl"];
+            checkoutUrl = res["approvalUrl"]!;
+            executeUrl = res["executeUrl"]!;
           });
         }
       } catch (e) {
@@ -66,7 +161,8 @@ class PaypalPaymentState extends State<PaypalPayment> {
             },
           ),
         );
-        _scaffoldKey.currentState.showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        //_scaffoldKey.currentState?.showSnackBar(snackBar);
       }
     });
   }
@@ -78,17 +174,17 @@ class PaypalPaymentState extends State<PaypalPayment> {
   Map<String, dynamic> getOrderParams() {
     List items = [
       {
-        "name": "Package " + widget.packageModel.name,
+        "name": "Package " + widget.packageModel.name!,
         "quantity": quantity,
-        "price": (double.parse(widget.packageModel.price)/655.95).round().toString(),
+        "price": (double.parse(widget.packageModel.price!)/655.95).round().toString(),
         "currency": defaultCurrency["currency"]
       }
     ];
 
 
     // checkout invoice details
-    String totalAmount = (double.parse(widget.packageModel.price)/655.95).round().toString();
-    String subTotalAmount = (double.parse(widget.packageModel.price)/655.95).round().toString();
+    String totalAmount = (double.parse(widget.packageModel.price!)/655.95).round().toString();
+    String subTotalAmount = (double.parse(widget.packageModel.price!)/655.95).round().toString();
     String shippingCost = '0';
     int shippingDiscountCost = 0;
     String userFirstName = 'Gulshan';
@@ -166,30 +262,8 @@ class PaypalPaymentState extends State<PaypalPayment> {
             onTap: () => Navigator.pop(context),
           ),
         ),
-        body: WebView(
-          initialUrl: checkoutUrl,
-          javascriptMode: JavascriptMode.unrestricted,
-          navigationDelegate: (NavigationRequest request) {
-            if (request.url.contains(returnURL)) {
-              final uri = Uri.parse(request.url);
-              final payerID = uri.queryParameters['PayerID'];
-              if (payerID != null) {
-                services
-                    .executePayment(executeUrl, payerID, accessToken)
-                    .then((id) {
-                  widget.onFinish(id);
-                  Navigator.of(context).pop();
-                });
-              } else {
-                Navigator.of(context).pop();
-              }
-              Navigator.of(context).pop();
-            }
-            if (request.url.contains(cancelURL)) {
-              Navigator.of(context).pop();
-            }
-            return NavigationDecision.navigate;
-          },
+        body: WebViewWidget(
+          controller: _controller,
         ),
       );
     } else {
