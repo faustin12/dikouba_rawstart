@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:google_map_location_picker/generated/l10n.dart' as location_picker;
 //import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dikouba_rawstart/AppTheme.dart';
 import 'package:dikouba_rawstart/AppThemeNotifier.dart';
-import 'package:dikouba_rawstart/activity/home_activity.dart';
-import 'package:dikouba_rawstart/activity/register_activity.dart';
 import 'package:dikouba_rawstart/activity/splashscreen_activity.dart';
-import 'package:dikouba_rawstart/activity/welcome_activity.dart';
-import 'package:dikouba_rawstart/model/user_model.dart';
-import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'package:firebase_performance/firebase_performance.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-
-import 'activity/event/eventnewevent_activity.dart';
-
-import 'package:dikouba_rawstart/provider/notification_service.dart';
 
 void main() {
   //runApp(const MyApp());

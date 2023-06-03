@@ -1,21 +1,20 @@
 import 'dart:async';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/library/Page_Transformer_Card/page_transformer.dart';
-import 'package:dikouba/main.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/library/Page_Transformer_Card/page_transformer.dart';
+import 'package:dikouba_rawstart/main.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:google_map_location_picker/google_map_location_picker.dart';
+//import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +26,7 @@ import 'package:flutter_range_slider/flutter_range_slider.dart' as frs;
 
 
 class EventMapScreen extends StatefulWidget {
-  EventMapScreen({this.analytics, this.observer});
+  EventMapScreen({required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -37,8 +36,8 @@ class EventMapScreen extends StatefulWidget {
 
 class _EventMapScreenState extends State<EventMapScreen> {
   static final String TAG = '_EventMapScreenState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   int selectedCategory = 0;
 
@@ -51,19 +50,19 @@ class _EventMapScreenState extends State<EventMapScreen> {
   double _lowerValueFormatter = 20.0;
   double _upperValueFormatter = 20.0;
   double _selectedradius = 300000;
-  List<EvenementModel> _listEvents = new List();
-  List<EvenementModel> _listEventsStatic = new List();
+  List<EvenementModel> _listEvents = [];
+  List<EvenementModel> _listEventsStatic = [];
 
   Completer<GoogleMapController> _controller = Completer();
   TextEditingController searchController = new TextEditingController();
   TextEditingController searchAddressController = new TextEditingController();
 
-  static LatLng _currentPosition;
-  static LatLng _pickedPosition;
+  static LatLng? _currentPosition;
+  static LatLng? _pickedPosition;
 
   dynamic _pickSuggestion;
 
-  CameraPosition _kGooglePlex;
+  late CameraPosition _kGooglePlex;
   Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
 
   Future<void> _setCurrentScreen() async {
@@ -73,11 +72,11 @@ class _EventMapScreenState extends State<EventMapScreen> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -111,7 +110,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             navigatorKey: MyApp.MapNavigatorKey,
@@ -202,12 +201,11 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                                     padding: EdgeInsets.symmetric(vertical: MySize.size12),
                                                     alignment: Alignment.center,
                                                     child: Text("Aucun lieu trouvé",
-                                                      style: AppTheme.getTextStyle(
-                                                          themeData.textTheme.bodyText2,
-                                                          fontSize: MySize.size18,
-                                                          color: themeData
-                                                              .colorScheme.onBackground,
-                                                          fontWeight: 500),),
+                                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                                        color: themeData.colorScheme.onBackground,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: MySize.size18
+                                                      ),),
                                                   );
                                                 },
                                                 loadingBuilder: (buildContext) {
@@ -216,26 +214,23 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                                     width: double.infinity,
                                                     padding: EdgeInsets.symmetric(vertical: MySize.size12),
                                                     alignment: Alignment.center,
-                                                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),);
+                                                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),);
                                                 },
                                                 textFieldConfiguration: TextFieldConfiguration(
                                                     autofocus: true,
-                                                    style: AppTheme.getTextStyle(
-                                                        themeData.textTheme.bodyText2,
-                                                        fontSize: MySize.size18,
-                                                        color: themeData
-                                                            .colorScheme.onBackground,
-                                                        fontWeight: 500),
+                                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                                      color: themeData.colorScheme.onBackground,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: MySize.size18
+                                                    ),
                                                     textCapitalization: TextCapitalization.sentences,
                                                     decoration: InputDecoration(
                                                       fillColor: customAppTheme.bgLayer1,
-                                                      hintStyle: AppTheme.getTextStyle(
-                                                          themeData.textTheme.bodyText2,
-                                                          fontSize: MySize.size18,
-                                                          color: themeData
-                                                              .colorScheme.onBackground,
-                                                          muted: true,
-                                                          fontWeight: 500),
+                                                      hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                                        color: themeData.colorScheme.onBackground,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: MySize.size18
+                                                      ),
                                                       hintText: "Rechercher un lieu...",
                                                       border: InputBorder.none,
                                                       enabledBorder: InputBorder.none,
@@ -247,7 +242,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                                   print("suggestionsCallback pattern=$pattern");
                                                   var response = await googleSearchByAddress(pattern.toString());
                                                   print("suggestionsCallback response=$response");
-                                                  return response;
+                                                  return response!;
                                                 },
                                                 itemBuilder: (context, suggestion) {
                                                   return Container(
@@ -259,12 +254,11 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                                         Icon(Icons.location_pin, size: MySize.size24,color: Colors.black54,),
                                                         SizedBox(width: MySize.size8,),
                                                         Expanded(child: Text(suggestion['description'],
-                                                          style: AppTheme.getTextStyle(
-                                                              themeData.textTheme.bodyText2,
-                                                              fontSize: MySize.size18,
-                                                              color: themeData
-                                                                  .colorScheme.onBackground,
-                                                              fontWeight: 500),))
+                                                          style: themeData.textTheme.bodyMedium?.copyWith(
+                                                            color: themeData.colorScheme.onBackground,
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: MySize.size18
+                                                          ),))
                                                       ],
                                                     ),
                                                   );
@@ -479,7 +473,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                   _selectedradius = newUpperValue*1000;
                                 });
                                 if(_pickedPosition != null) {
-                                  findEventsNearPositionLatLong(_pickedPosition.latitude, _pickedPosition.longitude);}
+                                  findEventsNearPositionLatLong(_pickedPosition!.latitude, _pickedPosition!.longitude);}
                               },
                             ),
                           ],
@@ -501,8 +495,8 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                   onTap: () async {
                                     if(_currentPosition != null) {
                                       _pickedPosition = _currentPosition;
-                                      moveToEventPosition(_currentPosition.latitude, _currentPosition.longitude, DikoubaUtils.CODE_CURR_POSITION);
-                                      findEventsNearPositionLatLong(_currentPosition.latitude, _currentPosition.longitude);}
+                                      moveToEventPosition(_currentPosition!.latitude, _currentPosition!.longitude, DikoubaUtils.CODE_CURR_POSITION);
+                                      findEventsNearPositionLatLong(_currentPosition!.latitude, _currentPosition!.longitude);}
                                   },
                                 ),
                               ),
@@ -568,12 +562,16 @@ class _EventMapScreenState extends State<EventMapScreen> {
                               borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
                             ),
                             child: Text("Aucun évènement trouvé",
-                              style: AppTheme.getTextStyle(
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),/*AppTheme.getTextStyle(
                                   themeData.textTheme.caption,
                                   fontSize: 12,
                                   color: themeData.colorScheme.onBackground,
                                   fontWeight: 500,
-                                  xMuted: true),),)
+                                  xMuted: true),*/),)
                               : ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
@@ -582,7 +580,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                             itemBuilder: (BuildContext buildcontext, int indexCateg){
                               EvenementModel item = _listEvents[indexCateg];
 
-                              DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(item.start_date.seconds) * 1000);
+                              DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(item.start_date!.seconds) * 1000);
 
                               return singleEvent(item,
                                   image: '${item.banner_path}',
@@ -599,27 +597,27 @@ class _EventMapScreenState extends State<EventMapScreen> {
   }
 
   void _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    /*Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
       print('${_currentPosition}');
       _pickedPosition = _currentPosition;
       moveToEventPosition(_currentPosition.latitude, _currentPosition.longitude, DikoubaUtils.CODE_CURR_POSITION);
       findEventsNearPositionLatLong(position.latitude, position.longitude);
-    });
+    });*/
   }
 
   void _addMarker(EvenementModel evenementModel) {
-    DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(evenementModel.start_date.seconds) * 1000);
+    DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(evenementModel.start_date!.seconds) * 1000);
     var markerIdVal = evenementModel.id_evenements;
-    final MarkerId markerId = MarkerId(markerIdVal);
+    final MarkerId markerId = MarkerId(markerIdVal!);
 
     // creating a new MARKER
     final Marker marker = Marker(
       markerId: markerId,
       position: LatLng(
-        double.parse(evenementModel.location.latitude),
-          double.parse(evenementModel.location.longitude)
+        double.parse(evenementModel.location!.latitude),
+          double.parse(evenementModel.location!.longitude)
       ),
       infoWindow: InfoWindow(title: evenementModel.title, snippet: '${DateFormat('dd MMM, HH:mm').format(_startDate)}'),
       onTap: () {
@@ -659,8 +657,8 @@ class _EventMapScreenState extends State<EventMapScreen> {
     final Marker marker = Marker(
       markerId: markerId,icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       position: LatLng(
-          _currentPosition.latitude,
-          _currentPosition.longitude
+          _currentPosition!.latitude,
+          _currentPosition!.longitude
       ),
       infoWindow: InfoWindow(title: "Ma position actuelle"),
     );
@@ -688,7 +686,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                   blurRadius: 0.5)
             ]),
         child: Shimmer.fromColors(
-          baseColor: Colors.grey[400],
+          baseColor: Colors.grey[400]!,
           highlightColor: Colors.white,
           child: Container(
             margin: Spacing.symmetric(horizontal: MySize.size8),
@@ -753,7 +751,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
     googleMapController.showMarkerInfoWindow(MarkerId(markerId));
   }
 
-  Widget singleEvent(EvenementModel evenementModel, {String image, String name, String date, String time}) {
+  Widget singleEvent(EvenementModel evenementModel, {required String image, required String name, required String date, required String time}) {
     return Container(
       margin: Spacing.symmetric(horizontal: MySize.size8),
       padding: Spacing.symmetric(horizontal: MySize.size8, vertical: MySize.size6),
@@ -764,7 +762,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
       ),
       child: InkWell(
         onTap: () {
-          moveToEventPosition(double.parse(evenementModel.location.latitude), double.parse(evenementModel.location.longitude), evenementModel.id_evenements);
+          moveToEventPosition(double.parse(evenementModel.location!.latitude), double.parse(evenementModel.location!.longitude), evenementModel.id_evenements!);
         },
         onDoubleTap: () {
           Navigator.push(
@@ -780,8 +778,13 @@ class _EventMapScreenState extends State<EventMapScreen> {
             Container(
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: image.contains('assets') ? AssetImage(image) : NetworkImage(image),
+                child: image.contains('assets') ?Image(
+                  image: AssetImage(image),
+                  width: MySize.getScaledSizeHeight(80),
+                  height: MySize.size72,
+                  fit: BoxFit.cover,
+                ):Image(
+                  image: NetworkImage(image),
                   width: MySize.getScaledSizeHeight(80),
                   height: MySize.size72,
                   fit: BoxFit.cover,
@@ -798,19 +801,18 @@ class _EventMapScreenState extends State<EventMapScreen> {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
+                      style: themeData.textTheme.titleSmall?.copyWith(
                           color: themeData.colorScheme.onBackground,
-                          fontWeight: 600),
+                          fontWeight: FontWeight.w600
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(8),
                       child: Text(
                         "$date, $time",
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.bodyText2,
-                            color:
-                            themeData.colorScheme.onBackground),
+                        style: themeData.textTheme.bodyMedium?.copyWith(
+                            color: themeData.colorScheme.onBackground
+                        ),
                       ),
                     ),
                   ],
@@ -829,10 +831,10 @@ class _EventMapScreenState extends State<EventMapScreen> {
         builder: (BuildContext buildContext2) {
           return AlertDialog(
             title: Text('Choisir la distance',
-                style: AppTheme.getTextStyle(
-                    themeData.textTheme.subtitle2,
+                style: themeData.textTheme.titleSmall?.copyWith(
                     color: themeData.colorScheme.onBackground,
-                    fontWeight: 300)),
+                    fontWeight: FontWeight.w300
+                ),),
             content: Container(// Change as per your requirement
               child: ListView.builder(
                 shrinkWrap: true,
@@ -846,10 +848,10 @@ class _EventMapScreenState extends State<EventMapScreen> {
                     ? Icon(MdiIcons.circle, color: DikoubaColors.blue['pri'],)
                     : Icon(MdiIcons.circleOutline, color: DikoubaColors.blue['pri'],),
                     title: Text('${listDistances[index]} km',
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.subtitle2,
+                        style: themeData.textTheme.titleSmall?.copyWith(
                             color: themeData.colorScheme.onBackground,
-                            fontWeight: 600)),
+                            fontWeight: FontWeight.w600
+                        ),),
                   );
                 },
               ),
@@ -869,9 +871,9 @@ class _EventMapScreenState extends State<EventMapScreen> {
       _isEventFinding = true;
     });
     String searchStr = searchController.text;
-    List<EvenementModel> list = new List();
+    List<EvenementModel> list = [];
     for(int i=0; i < _listEventsStatic.length; i++) {
-      if(_listEventsStatic[i].title.contains(searchStr)) list.add(_listEventsStatic[i]);
+      if(_listEventsStatic[i].title!.contains(searchStr)) list.add(_listEventsStatic[i]);
     }
 
     setState(() {
@@ -888,7 +890,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:requestCustomerAddress ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         _markers.clear();
         for (int i = 0; i < responseEvents.data.length; i++) {
           EvenementModel evenementModel = EvenementModel.fromJson(responseEvents.data[i]);
@@ -903,9 +905,9 @@ class _EventMapScreenState extends State<EventMapScreen> {
           _listEventsStatic = list;
           // if(list.length > 0) moveToEventPosition(double.parse(list[0].location.latitude), double.parse(list[0].location.longitude), list[0].id_evenements);
           if(_currentPosition != null) {
-            moveToEventPosition(_currentPosition.latitude, _currentPosition.longitude, DikoubaUtils.CODE_CURR_POSITION);
+            moveToEventPosition(_currentPosition!.latitude, _currentPosition!.longitude, DikoubaUtils.CODE_CURR_POSITION);
           } else{
-            moveToEventPosition(double.parse(list[0].location.latitude), double.parse(list[0].location.longitude), list[0].id_evenements);
+            moveToEventPosition(double.parse(list[0].location!.latitude), double.parse(list[0].location!.longitude), list[0].id_evenements!);
           }
         });
       } else {
@@ -945,7 +947,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
         if (responseEvents.statusCode == 200) {
           print(
               "${TAG}:findEventsNearPosition ${responseEvents.statusCode}|${responseEvents.data}");
-          List<EvenementModel> list = new List();
+          List<EvenementModel> list = [];
           _markers.clear();
           for (int i = 0; i < responseEvents.data.length; i++) {
             EvenementModel evenementModel = EvenementModel.fromJson(responseEvents.data[i]);
@@ -1005,7 +1007,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
         if (responseEvents.statusCode == 200) {
           print(
               "${TAG}:findEventsNearPosition ${responseEvents.statusCode}|${responseEvents.data}");
-          List<EvenementModel> list = new List();
+          List<EvenementModel> list = [];
           _markers.clear();
           for (int i = 0; i < responseEvents.data.length; i++) {
             EvenementModel evenementModel = EvenementModel.fromJson(responseEvents.data[i]);
@@ -1042,12 +1044,12 @@ class _EventMapScreenState extends State<EventMapScreen> {
 
   }
 
-  Future<List<dynamic>> googleSearchByAddress(String searchAddress) async {
+  Future<List<dynamic>?> googleSearchByAddress(String searchAddress) async {
     var responseSearchAdr = await API.googleSearchAddress(searchAddress);
     if (responseSearchAdr.statusCode == 200) {
       print(
           "${TAG}:googleSearchByAddress ${responseSearchAdr.statusCode}|${responseSearchAdr.data['predictions']}");
-      List<dynamic> list = new List();
+      List<dynamic> list = [];
 
       for (int i = 0; i < responseSearchAdr.data['predictions'].length; i++) {
         list.add(responseSearchAdr.data['predictions'][i]);

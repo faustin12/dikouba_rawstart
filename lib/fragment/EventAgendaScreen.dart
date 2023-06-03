@@ -311,8 +311,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: themeData.textTheme.titleSmall?.copyWith(
-                      color: themeData.colorScheme.onBackground,
-                      fontWeight: FontWeight.w600
+                    color: themeData.colorScheme.onBackground,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(

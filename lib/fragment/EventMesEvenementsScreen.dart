@@ -1,13 +1,13 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/activity/event/eventupdate_activity.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventupdate_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -21,7 +21,7 @@ import 'package:geocoder/geocoder.dart';
 
 class EventMyEventScreen extends StatefulWidget {
   UserModel userModel;
-  EventMyEventScreen(this.userModel, {this.analytics, this.observer});
+  EventMyEventScreen(this.userModel, {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -31,8 +31,8 @@ class EventMyEventScreen extends StatefulWidget {
 
 class _EventMyEventScreenState extends State<EventMyEventScreen> {
   static final String TAG = 'EventMyEventScreen';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   int selectedCategory = 0;
 
@@ -47,11 +47,11 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -80,7 +80,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -92,7 +92,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
                   ? Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            DikoubaColors.blue['pri']),
+                            DikoubaColors.blue['pri']!),
                       ),
                     )
                   : (_listEvents == null || _listEvents.length == 0)
@@ -100,12 +100,16 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
                           margin: Spacing.fromLTRB(24, 16, 24, 0),
                           child: Text(
                             "Aucun évènement trouvé",
-                            style: AppTheme.getTextStyle(
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12
+                            ),/*AppTheme.getTextStyle(
                                 themeData.textTheme.caption,
                                 fontSize: 12,
                                 color: themeData.colorScheme.onBackground,
                                 fontWeight: 500,
-                                xMuted: true),
+                                xMuted: true),*/
                           ),
                         )
                       : ListView.separated(
@@ -133,7 +137,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
   }
 
   Widget singleEvent(EvenementModel evenementModel,
-      {String image, String name, String date, String time}) {
+      {required String image, required String name, required String date, required String time}) {
     return Container(
       margin: Spacing.all(16),
       child: InkWell(
@@ -152,10 +156,14 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
             Container(
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: image.contains('assets')
-                      ? AssetImage(image)
-                      : NetworkImage(image),
+                child: image.contains('assets')
+                    ?Image(
+                  image: AssetImage(image),
+                  width: MySize.getScaledSizeHeight(80),
+                  height: MySize.size72,
+                  fit: BoxFit.cover,
+                ):Image(
+                  image: NetworkImage(image),
                   width: MySize.getScaledSizeHeight(80),
                   height: MySize.size72,
                   fit: BoxFit.cover,
@@ -176,10 +184,10 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
                           name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle2,
+                          style: themeData.textTheme.titleSmall?.copyWith(
                               color: themeData.colorScheme.onBackground,
-                              fontWeight: 600),
+                              fontWeight: FontWeight.w600
+                          ),
                         )),
                         InkWell(
                           onTap: () {
@@ -210,22 +218,26 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
                             children: [
                               Text(
                                 "Date",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     fontSize: 12,
                                     color: themeData.colorScheme.onBackground,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   date,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                  ),
                                 ),
                               )
                             ],
@@ -235,22 +247,26 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
                             children: [
                               Text(
                                 "Heure",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     color: themeData.colorScheme.onBackground,
                                     fontSize: 12,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   time,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                  ),
                                 ),
                               )
                             ],
@@ -273,7 +289,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
         margin: Spacing.symmetric(horizontal: 2, vertical: 2), //24 & 6
         child: SingleEventsWidget(customAppTheme, evenementModel,
             width: MySize.safeWidth - MySize.size48,
-            onUpdateClickListener: gotoUpdateEvent));
+            onUpdateClickListener: gotoUpdateEvent, analytics: widget.analytics, observer: widget.observer,));
   }
 
   Future<void> gotoUpdateEvent(EvenementModel evenementItem) async {
@@ -311,7 +327,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
       if (responseAnnoncer.statusCode == 200) {
         print(
             "${TAG}:findAnnoncer ${responseAnnoncer.statusCode}|${responseAnnoncer.data}");
-        List<String> listIDevent = new List();
+        List<String> listIDevent = [];
         for (int i = 0;
             i < responseAnnoncer.data["arr_evenements"].length;
             i++) {
@@ -324,7 +340,7 @@ class _EventMyEventScreenState extends State<EventMyEventScreen> {
           if (responseEvents.statusCode == 200) {
             print(
                 "${TAG}:findMyevent ${responseEvents.statusCode}|${responseEvents.data}");
-            List<EvenementModel> list = new List();
+            List<EvenementModel> list = [];
             for (int i = 0; i < responseEvents.data.length; i++) {
               list.add(EvenementModel.fromJson(responseEvents.data[i]));
             }
@@ -374,13 +390,12 @@ class SingleEventsWidget extends StatefulWidget {
   CustomAppTheme customAppTheme;
   EvenementModel evenementModel;
   Function onUpdateClickListener;
-  @required
-  double width;
+  @required double width;
   SingleEventsWidget(this.customAppTheme, this.evenementModel,
-      {@required this.width,
-      this.analytics,
-      this.observer,
-      this.onUpdateClickListener});
+      {required this.width,
+      required this.analytics,
+      required this.observer,
+      required this.onUpdateClickListener});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -391,14 +406,14 @@ class SingleEventsWidget extends StatefulWidget {
 class SingleEventsWidgetState extends State<SingleEventsWidget> {
   static final String TAG = 'SingleEventsWidgetState';
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   String _eventLocationAddress = "loading";
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+        double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     var addresses =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -497,7 +512,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                           children: <Widget>[
                             SizedBox(height: 5.0),
                             Text(
-                              widget.evenementModel.title,
+                              widget.evenementModel.title!,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 17.0,
@@ -547,7 +562,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                                                     .fromMillisecondsSinceEpoch(
                                                         int.parse(widget
                                                                 .evenementModel
-                                                                .start_date
+                                                                .start_date!
                                                                 .seconds) *
                                                             1000)),
                                             style: TextStyle(

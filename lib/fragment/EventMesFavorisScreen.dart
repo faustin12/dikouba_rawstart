@@ -1,15 +1,12 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/fragment/EventHomeScreen.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/firebaselocation_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/favoris_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/favoris_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +20,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class EventMesFavorisScreen extends StatefulWidget {
   UserModel userModel;
-  EventMesFavorisScreen(this.userModel, {this.analytics, this.observer});
+  EventMesFavorisScreen(this.userModel, {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -33,8 +30,8 @@ class EventMesFavorisScreen extends StatefulWidget {
 
 class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
   static final String TAG = '_EventMesFavorisScreenState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   bool _isFinding = false;
   List<FavorisModel> _listFavoris = [];
@@ -47,11 +44,11 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -80,7 +77,7 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -89,17 +86,21 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                 body: Container(
                   color: customAppTheme.bgLayer1,
                   child: _isFinding
-                      ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                      ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                       : (_listFavoris == null || _listFavoris.length == 0)
                       ? Container(
                     margin: Spacing.fromLTRB(24, 16, 24, 0),
                     child: Text("Aucun favoris trouvé",
-                      style: AppTheme.getTextStyle(
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12
+                      ),/*AppTheme.getTextStyle(
                           themeData.textTheme.caption,
                           fontSize: 12,
                           color: themeData.colorScheme.onBackground,
                           fontWeight: 500,
-                          xMuted: true),),)
+                          xMuted: true),*/),)
                       : ListView.separated(
                           padding: Spacing.zero,
                           itemCount: _listFavoris.length,
@@ -126,7 +127,7 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
 
   Widget singleFavoris(FavorisModel favorisModel) {
     DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(favorisModel.evenements.start_date.seconds) * 1000);
+        int.parse(favorisModel.evenements!.start_date!.seconds) * 1000);
     return Container(
       margin:
           Spacing.symmetric(horizontal: MySize.size12, vertical: MySize.size8),
@@ -159,20 +160,26 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                 children: [
                   Text(
                     DateFormat('dd').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.headline6,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.titleLarge?.copyWith(
+                      color: DikoubaColors.blue['pri'],
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   Text(
                     DateFormat('MMM').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText1,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.bodyLarge?.copyWith(
+                      color: DikoubaColors.blue['pri'],
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   Text(
                     DateFormat('HH:mm').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.bodyMedium?.copyWith(
+                      color: DikoubaColors.blue['pri'],
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -189,13 +196,13 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                       children: [
                         Expanded(
                             child: Text(
-                          favorisModel.evenements.title,
+                          favorisModel.evenements!.title!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle2,
-                              color: themeData.colorScheme.onBackground,
-                              fontWeight: 600),
+                          style: themeData.textTheme.titleSmall?.copyWith(
+                            color: themeData.colorScheme.onBackground,
+                            fontWeight: FontWeight.w600,
+                          ),
                         )),
                         InkWell(
                           onTap: () {
@@ -228,23 +235,27 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                             children: [
                               Text(
                                 "Like",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: MySize.size12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     fontSize: MySize.size12,
                                     color: themeData.colorScheme.onBackground,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
-                                  favorisModel.evenements.nbre_likes,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  favorisModel.evenements!.nbre_likes!,
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12,
+                                  ),
                                 ),
                               )
                             ],
@@ -255,23 +266,27 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                             children: [
                               Text(
                                 "Comment",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: MySize.size12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     color: themeData.colorScheme.onBackground,
                                     fontSize: MySize.size12,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
-                                  favorisModel.evenements.nbre_comments,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  favorisModel.evenements!.nbre_comments!,
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12
+                                  ),
                                 ),
                               )
                             ],
@@ -282,23 +297,27 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
                             children: [
                               Text(
                                 "Favoris",
-                                style: AppTheme.getTextStyle(
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: MySize.size12,
+                                  letterSpacing: 0
+                                ),/*AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     color: themeData.colorScheme.onBackground,
                                     fontSize: MySize.size12,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
-                                  favorisModel.evenements.nbre_favoris,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  favorisModel.evenements!.nbre_favoris!,
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12
+                                  ),
                                 ),
                               )
                             ],
@@ -321,22 +340,22 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
       margin: Spacing.symmetric(horizontal: 2, vertical: 2), //24 & 6
       child: SingleEventsWidget(
           customAppTheme,
-          favorisModel.evenements,
-          favorisModel.id_users,
-          width: MySize.safeWidth - MySize.size48)
+          favorisModel.evenements!,
+          favorisModel.id_users!,
+          width: MySize.safeWidth - MySize.size48, analytics: widget.analytics, observer: widget.observer,)
     );
   }
 
   Widget new_singleFavoris(FavorisModel favorisModel) {
     DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(favorisModel.evenements.start_date.seconds) * 1000);
+        int.parse(favorisModel.evenements!.start_date!.seconds) * 1000);
 
     String _eventLocationAddress = "loading";
 
     Future<void> getPositionInfo() async {
       final coordinates = new Coordinates(
-          double.parse(favorisModel.evenements.latitude),
-          double.parse(favorisModel.evenements.longitude));
+          double.parse(favorisModel.evenements!.latitude!),
+          double.parse(favorisModel.evenements!.longitude!));
       var addresses =
       await Geocoder.local.findAddressesFromCoordinates(coordinates);
       var first = addresses.first;
@@ -344,19 +363,19 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
         _eventLocationAddress = first.addressLine;
       //});
     }
-    String _title = favorisModel.evenements.title;
+    String _title = favorisModel.evenements!.title!;
     String _date = DateFormat('dd').format(_startDate) + DateFormat('MMM').format(_startDate) +
                     DateFormat('yy').format(_startDate);
     String _time = DateFormat('HH:mm').format(_startDate);
-    String _img = favorisModel.evenements.banner_path;
-    String _desc = favorisModel.evenements.description;
-    String _desc2 = favorisModel.evenements.description;
-    String _desc3 = favorisModel.evenements.description;
-    String _price = favorisModel.evenements.nbre_packages;
-    String _category = favorisModel.evenements.categories.title;
-    String _id = favorisModel.evenements.id_evenements;
+    String _img = favorisModel.evenements!.banner_path;
+    String _desc = favorisModel.evenements!.description!;
+    String _desc2 = favorisModel.evenements!.description!;
+    String _desc3 = favorisModel.evenements!.description!;
+    String _price = favorisModel.evenements!.nbre_packages!;
+    String _category = favorisModel.evenements!.categories!.title!;
+    String _id = favorisModel.evenements!.id_evenements!;
     String _place = _eventLocationAddress;
-    String _userID = favorisModel.id_users;
+    String _userID = favorisModel.id_users!;
     return Container(
         margin:
         Spacing.symmetric(horizontal: MySize.size12, vertical: MySize.size8),
@@ -544,9 +563,9 @@ class SingleEventsWidget extends StatefulWidget {
   @required
   double width;
   SingleEventsWidget(this.customAppTheme, this.evenementModel, this.idUser,
-      {@required this.width,
-        this.analytics,
-        this.observer});
+      {required this.width,
+        required this.analytics,
+        required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -558,14 +577,14 @@ class SingleEventsWidget extends StatefulWidget {
 class SingleEventsWidgetState extends State<SingleEventsWidget> {
   static final String TAG = 'SingleEventsWidgetState';
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   String _eventLocationAddress = "loading";
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+        double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     var addresses =
     await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -658,7 +677,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                           children: <Widget>[
                             SizedBox(height: 5.0),
                             Text(
-                              widget.evenementModel.title,
+                              widget.evenementModel.title!,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 17.0,
@@ -704,7 +723,7 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                                           const EdgeInsets.only(left: 8.0),
                                           child: Text(
                                             DateFormat('dd MMM yy HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                                                int.parse(widget.evenementModel.start_date.seconds) * 1000)),
+                                                int.parse(widget.evenementModel.start_date!.seconds) * 1000)),
                                             style: TextStyle(
                                                 fontSize: 14.0,
                                                 fontFamily: "popins",
