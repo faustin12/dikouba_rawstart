@@ -57,8 +57,8 @@ class CalendarLogic {
 
     if (onVisibleDaysChanged != null) {
       _visibleDays!.addListener(() {
-        if (!Utils.isSameDay(_visibleDays!.value.first, _previousFirstDay) ||
-            !Utils.isSameDay(_visibleDays!.value.last, _previousLastDay)) {
+        if (!DateUtils.isSameDay(_visibleDays!.value.first, _previousFirstDay!) ||
+            !DateUtils.isSameDay(_visibleDays!.value.last, _previousLastDay!)) {
           _previousFirstDay = _visibleDays!.value.first;
           _previousLastDay = _visibleDays!.value.last;
           onVisibleDaysChanged(
@@ -103,7 +103,7 @@ class CalendarLogic {
   }
 
   bool setSelectedDay(DateTime value, {bool isAnimated = true, bool isProgrammatic = false}) {
-    if (Utils.isSameDay(value, _selectedDay)) {
+    if (DateUtils.isSameDay(value, _selectedDay!)) {
       return false;
     }
 
@@ -152,36 +152,36 @@ class CalendarLogic {
   }
 
   void _selectPreviousMonth() {
-    _focusedDay = Utils.previousMonth(_focusedDay);
+    _focusedDay = DateUtils.previousMonth(_focusedDay!);
   }
 
   void _selectNextMonth() {
-    _focusedDay = Utils.nextMonth(_focusedDay);
+    _focusedDay = DateUtils.nextMonth(_focusedDay!);
   }
 
   void _selectPreviousTwoWeeks() {
     if (_visibleDays!.value.take(7).contains(_focusedDay)) {
       // in top row
-      _focusedDay = Utils.previousWeek(_focusedDay);
+      _focusedDay = DateUtils.previousWeek(_focusedDay!);
     } else {
       // in bottom row OR not visible
-      _focusedDay = Utils.previousWeek(_focusedDay!.subtract(const Duration(days: 7)));
+      _focusedDay = DateUtils.previousWeek(_focusedDay!.subtract(const Duration(days: 7)));
     }
   }
 
   void _selectNextTwoWeeks() {
     if (!_visibleDays!.value.skip(7).contains(_focusedDay)) {
       // not in bottom row [eg: in top row OR not visible]
-      _focusedDay = Utils.nextWeek(_focusedDay);
+      _focusedDay = DateUtils.nextWeek(_focusedDay!);
     }
   }
 
   void _selectPreviousWeek() {
-    _focusedDay = Utils.previousWeek(_focusedDay);
+    _focusedDay = DateUtils.previousWeek(_focusedDay!);
   }
 
   void _selectNextWeek() {
-    _focusedDay = Utils.nextWeek(_focusedDay);
+    _focusedDay = DateUtils.nextWeek(_focusedDay!);
   }
 
   DateTime _getFirstDay({required bool includeInvisible}) {
@@ -241,14 +241,14 @@ class CalendarLogic {
     }
 
     final lastToDisplay = last.add(Duration(days: daysAfter));
-    return Utils.daysInRange(firstToDisplay, lastToDisplay).toList();
+    return DateUtils.daysInRange(firstToDisplay, lastToDisplay).toList();
   }
 
   List<DateTime> _daysInWeek(DateTime week) {
     final first = _firstDayOfWeek(week);
     final last = _lastDayOfWeek(week);
 
-    final days = Utils.daysInRange(first, last);
+    final days = DateUtils.daysInRange(first, last);
     return days.map((day) => DateTime(day.year, day.month, day.day)).toList();
   }
 
@@ -277,11 +277,11 @@ class CalendarLogic {
   }
 
   bool isSelected(DateTime day) {
-    return Utils.isSameDay(day, selectedDay);
+    return DateUtils.isSameDay(day, selectedDay!);
   }
 
   bool isToday(DateTime day) {
-    return Utils.isSameDay(day, DateTime.now());
+    return DateUtils.isSameDay(day, DateTime.now());
   }
 
   bool isWeekend(DateTime day) {

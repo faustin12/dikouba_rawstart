@@ -3,7 +3,7 @@
 
 library table_calendar;
 
-import 'package:date_utils/date_utils.dart';
+//import 'package:date_utils/date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
@@ -207,7 +207,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
   void didUpdateWidget(TableCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedDay != null && widget.selectedDay != null) {
-      if (!Utils.isSameDay(oldWidget.selectedDay, widget.selectedDay)) {
+      if (!DateUtils.isSameDay(oldWidget.selectedDay, widget.selectedDay)) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           setState(() {
             final runCallback = _calendarLogic.setSelectedDay(
@@ -218,7 +218,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
 
             if (runCallback && widget.onDaySelected != null) {
               final key = widget.events.keys.firstWhere(
-                (it) => Utils.isSameDay(it, widget.selectedDay),
+                (it) => DateUtils.isSameDay(it, widget.selectedDay),
                 //orElse: () => null,
               );
               widget.onDaySelected!(widget.selectedDay!, widget.events[key] ?? []);
@@ -252,7 +252,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
       _calendarLogic.setSelectedDay(date);
 
       if (widget.onDaySelected != null) {
-        final key = widget.events.keys.firstWhere((it) => Utils.isSameDay(it, date)//, orElse: () => null
+        final key = widget.events.keys.firstWhere((it) => DateUtils.isSameDay(it, date)//, orElse: () => null
         );
         widget.onDaySelected!(date, widget.events[key] ?? []);
       }
@@ -325,7 +325,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
         child: Text(
           widget.headerStyle.titleTextBuilder != null
               ? widget.headerStyle.titleTextBuilder!(_calendarLogic.focusedDay!, widget.locale)
-              : DateFormat.yMMMM(widget.locale).format(_calendarLogic.focusedDay),
+              : DateFormat.yMMMM(widget.locale).format(_calendarLogic.focusedDay!),
           style: widget.headerStyle.titleTextStyle,
           textAlign: widget.headerStyle.centerHeaderTitle ? TextAlign.center : TextAlign.start,
         ),
@@ -522,8 +522,8 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
 
     Widget content = _buildCellContent(date);
 
-    final eventKey = widget.events.keys.firstWhere((it) => Utils.isSameDay(it, date));//, orElse: () => null);
-    final holidayKey = widget.holidays.keys.firstWhere((it) => Utils.isSameDay(it, date));//, orElse: () => null);
+    final eventKey = widget.events.keys.firstWhere((it) => DateUtils.isSameDay(it, date));//, orElse: () => null);
+    final holidayKey = widget.holidays.keys.firstWhere((it) => DateUtils.isSameDay(it, date));//, orElse: () => null);
     final key = eventKey ?? holidayKey;
 
     if (key != null) {
@@ -574,8 +574,8 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
   }
 
   Widget _buildCellContent(DateTime date) {
-    final eventKey = widget.events.keys.firstWhere((it) => Utils.isSameDay(it, date));//, orElse: () => null);
-    final holidayKey = widget.holidays.keys.firstWhere((it) => Utils.isSameDay(it, date));//, orElse: () => null);
+    final eventKey = widget.events.keys.firstWhere((it) => DateUtils.isSameDay(it, date));//, orElse: () => null);
+    final holidayKey = widget.holidays.keys.firstWhere((it) => DateUtils.isSameDay(it, date));//, orElse: () => null);
 
     final tIsUnavailable = _isDayUnavailable(date);
     final tIsSelected = _calendarLogic.isSelected(date);

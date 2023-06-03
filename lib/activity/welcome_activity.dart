@@ -8,8 +8,8 @@ import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
+//import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+//import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -187,7 +187,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
   }
 
   void firebaseAuth() async {
-    FirebaseAuthUi.instance().launchAuth(
+    /*FirebaseAuthUi.instance().launchAuth(
       [
         AuthProvider.email(), // Login/Sign up with Email and password
         AuthProvider.google(), // Login with Google
@@ -206,7 +206,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
           firebaseUser.email,
           firebaseUser.photoUri,
           firebaseUser.isNewUser);
-    }).catchError((error) => print("Error $error"));
+    }).catchError((error) => print("Error $error"));*/
   }
 
   void createUserAccount(String phoneNumber, String firebaseuid, String name,

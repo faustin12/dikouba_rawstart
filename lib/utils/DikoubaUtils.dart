@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
-import 'package:flushbar/flushbar_helper.dart';
+//import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -30,11 +30,11 @@ class DikoubaUtils {
   static toast_infos(BuildContext buildContext, String message) {
     Future.delayed(Duration(milliseconds: 0), () {
       if (message != null && message.isNotEmpty) {
-        FlushbarHelper.createInformation(
+        /*FlushbarHelper.createInformation(
           message: message,
           title: "Info",
           duration: Duration(seconds: 3),
-        )..show(buildContext);
+        )..show(buildContext);*/
       }
     });
     return SizedBox.shrink();
@@ -43,11 +43,11 @@ class DikoubaUtils {
   static toast_success(BuildContext buildContext, String message) {
     Future.delayed(Duration(milliseconds: 0), () {
       if (message != null && message.isNotEmpty) {
-        FlushbarHelper.createSuccess(
+        /*FlushbarHelper.createSuccess(
           message: message,
           title: "Succès",
           duration: Duration(seconds: 3),
-        )..show(buildContext);
+        )..show(buildContext);*/
       }
     });
     return SizedBox.shrink();
@@ -64,11 +64,11 @@ class DikoubaUtils {
   static toast_error(BuildContext buildContext, String message) {
     Future.delayed(Duration(milliseconds: 0), () {
       if (message != null && message.isNotEmpty) {
-        FlushbarHelper.createError(
+        /*FlushbarHelper.createError(
           message: message,
           title: "Erreur",
           duration: Duration(seconds: 3),
-        )..show(buildContext);
+        )..show(buildContext);*/
       }
     });
     return SizedBox.shrink();

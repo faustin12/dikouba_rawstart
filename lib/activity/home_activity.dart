@@ -29,7 +29,7 @@ import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:dikouba_rawstart/provider/notification_service.dart';
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+//import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2411,7 +2411,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     print("$TAG:resPrompt=$resPrompt");
     if (resPrompt == null || resPrompt == "non") return;
 
-    await FirebaseAuthUi.instance().logout();
+    //await FirebaseAuthUi.instance().logout(); To be corrected
     await dbHelper.delete_user();
 
     String? fcmToken = await FirebaseMessaging.instance.getToken();

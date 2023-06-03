@@ -22,7 +22,7 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:flutter_range_slider/flutter_range_slider.dart' as frs;
+//import 'package:flutter_range_slider/flutter_range_slider.dart' as frs;
 
 
 class EventMapScreen extends StatefulWidget {
@@ -443,7 +443,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                 ),
                               ),
                             ),*/
-                            frs.RangeSlider(
+                            /*frs.RangeSlider(
                               min: 0.0,
                               max: 600.0,
                               lowerValue: _lowerValue,
@@ -475,7 +475,7 @@ class _EventMapScreenState extends State<EventMapScreen> {
                                 if(_pickedPosition != null) {
                                   findEventsNearPositionLatLong(_pickedPosition!.latitude, _pickedPosition!.longitude);}
                               },
-                            ),
+                            ),*/
                           ],
                         )),
                     Positioned(

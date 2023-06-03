@@ -4,7 +4,7 @@ import 'package:dikouba_rawstart/model/user_model.dart';
 import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+//import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -225,7 +225,7 @@ class DikoubaDrawerWidgetState extends State<DikoubaDrawerWidget> {
 
   void logoutUser(BuildContext buildContext) async {
 
-    await FirebaseAuthUi.instance().logout();
+    //await FirebaseAuthUi.instance().logout(); to be Corrected
     var dbHelper = DatabaseHelper.instance;
     await dbHelper.delete_user();
 

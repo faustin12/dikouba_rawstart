@@ -10,8 +10,8 @@ import 'package:dikouba_rawstart/provider/api_provider.dart';
 import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
+//import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+//import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
 
 
@@ -293,7 +293,7 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
   }
 
   void firebaseAuth() async {
-    FirebaseAuthUi.instance()
+    /*FirebaseAuthUi.instance()
         .launchAuth(
       [
         AuthProvider.email(), // Login/Sign up with Email and password
@@ -309,7 +309,7 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
 
     }
     )
-        .catchError((error) => print("Error $error"));
+        .catchError((error) => print("Error $error"));*/
   }
 
 
