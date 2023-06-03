@@ -1067,7 +1067,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
                                                         ),
                                                         Expanded(
                                                             child: Text(
-                                                          "suggestion['description']",
+                                                          suggestion['description'],
                                                           style: themeData.textTheme.bodyMedium?.copyWith(
                                                             color: themeData.colorScheme.onBackground,
                                                             fontWeight: FontWeight.w500,
