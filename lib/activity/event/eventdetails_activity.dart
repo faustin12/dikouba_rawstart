@@ -3,26 +3,26 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/dialogs/ShowEventCommentsDialog.dart';
-import 'package:dikouba/activity/dialogs/ShowEventLocationDialog.dart';
-import 'package:dikouba/activity/dialogs/ShowEventPackageDialog.dart';
-import 'package:dikouba/activity/dialogs/ShowEventParticipantWidget.dart';
-import 'package:dikouba/activity/event/eventnewsondage_activity.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/evenementfavoris_model.dart';
-import 'package:dikouba/model/evenementlike_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/widget/SingleSondageWidget.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/dialogs/ShowEventCommentsDialog.dart';
+import 'package:dikouba_rawstart/activity/dialogs/ShowEventLocationDialog.dart';
+import 'package:dikouba_rawstart/activity/dialogs/ShowEventPackageDialog.dart';
+import 'package:dikouba_rawstart/activity/dialogs/ShowEventParticipantWidget.dart';
+import 'package:dikouba_rawstart/activity/event/eventnewsondage_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/evenementfavoris_model.dart';
+import 'package:dikouba_rawstart/model/evenementlike_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/widget/SingleSondageWidget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -41,7 +41,7 @@ class EvenDetailsActivity extends StatefulWidget {
   EvenementModel evenementModel;
 
   EvenDetailsActivity(this.evenementModel,
-      {Key key, this.analytics, this.observer})
+      {Key? key, required this.analytics, required this.observer})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
@@ -53,11 +53,11 @@ class EvenDetailsActivity extends StatefulWidget {
 
 class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
   static final String TAG = 'EvenDetailsActivityState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  DateTime _startDate;
-  DateTime _endDate;
+  late DateTime _startDate;
+  late DateTime _endDate;
   bool _isEventFinding = false;
   bool _isEventLiking = false;
   bool _isEventFavoring = false;
@@ -65,9 +65,9 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
 
   Completer<GoogleMapController> _controller = Completer();
 
-  CameraPosition _kGooglePlex;
+  late CameraPosition _kGooglePlex;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
   List<SondageModel> _listSondages = [];
 
@@ -90,11 +90,11 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -117,8 +117,8 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+        double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     var addresses =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -135,7 +135,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
       _isPackageFinding = true;
     });
     API
-        .findEventPackage(widget.evenementModel.id_evenements)
+        .findEventPackage(widget.evenementModel.id_evenements!)
         .then((responsePackage) {
       if (responsePackage.statusCode == 200) {
         print(
@@ -191,14 +191,14 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
     getPositionInfo();
 
     _kGooglePlex = CameraPosition(
-      target: LatLng(double.parse(widget.evenementModel.location.latitude),
-          double.parse(widget.evenementModel.location.longitude)),
+      target: LatLng(double.parse(widget.evenementModel.location!.latitude),
+          double.parse(widget.evenementModel.location!.longitude)),
       zoom: 16,
     );
     _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.evenementModel.start_date.seconds) * 1000);
+        int.parse(widget.evenementModel.start_date!.seconds) * 1000);
     _endDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.evenementModel.end_date.seconds) * 1000);
+        int.parse(widget.evenementModel.end_date!.seconds) * 1000);
   }
 
   bool _isPackageFinding = false;
@@ -207,7 +207,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -217,7 +217,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                     alignment: Alignment.center,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                          DikoubaColors.blue['pri']),
+                          DikoubaColors.blue['pri']!),
                     ),
                   )
                 : Scaffold(
@@ -421,7 +421,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                         EdgeInsets.symmetric(horizontal: 12),
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          DikoubaColors.blue['pri']),
+                                          DikoubaColors.blue['pri']!),
                                     ),
                                   )
                                 : Container(
@@ -443,21 +443,18 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                   trimMode: TrimMode.Line,
                                                   trimCollapsedText: 'Plus',
                                                   trimExpandedText: 'Moins',
-                                                  style: AppTheme.getTextStyle(
-                                                      themeData
-                                                          .textTheme.headline5,
-                                                      fontSize: 22,
-                                                      color: themeData
-                                                          .colorScheme
-                                                          .onBackground,
-                                                      fontWeight: 600),
+                                                  style: themeData.textTheme.headlineSmall?.copyWith(
+                                                    color: themeData.colorScheme.onBackground,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 22,
+                                                  ),
                                                   moreStyle: TextStyle(
                                                       color: DikoubaColors
                                                           .blue['pri'],
                                                       fontSize: themeData
                                                           .textTheme
-                                                          .bodyText2
-                                                          .fontSize,
+                                                          .bodyMedium
+                                                          ?.fontSize,
                                                       fontWeight:
                                                           FontWeight.normal),
                                                   lessStyle: TextStyle(
@@ -465,8 +462,8 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                           .blue['pri'],
                                                       fontSize: themeData
                                                           .textTheme
-                                                          .bodyText2
-                                                          .fontSize,
+                                                          .bodyMedium
+                                                          ?.fontSize,
                                                       fontWeight:
                                                           FontWeight.normal),
                                                 ),
@@ -499,18 +496,18 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
 
                                                         if (widget
                                                             .evenementModel
-                                                            .has_favoris) {
+                                                            .has_favoris!) {
                                                           _sendAnalyticsEvent(
                                                               "FavEvent_Detail");
                                                           unFavorisEvent(widget
                                                               .evenementModel
-                                                              .id_evenements);
+                                                              .id_evenements!);
                                                         } else {
                                                           _sendAnalyticsEvent(
                                                               "unFavEvent_Detail");
                                                           favorisEvent(widget
                                                               .evenementModel
-                                                              .id_evenements);
+                                                              .id_evenements!);
                                                         }
                                                       },
                                                       child: Container(
@@ -529,7 +526,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                                             .size8))),
                                                         child: widget
                                                                 .evenementModel
-                                                                .has_favoris
+                                                                .has_favoris!
                                                             ? Icon(
                                                                 MdiIcons
                                                                     .bookmark,
@@ -596,18 +593,18 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
 
                                                         if (widget
                                                             .evenementModel
-                                                            .has_like) {
+                                                            .has_like!) {
                                                           _sendAnalyticsEvent(
                                                               "unLikedEvent_Detail");
                                                           unLikeEvent(widget
                                                               .evenementModel
-                                                              .id_evenements);
+                                                              .id_evenements!);
                                                         } else {
                                                           _sendAnalyticsEvent(
                                                               "likedEvent_Detail");
                                                           likeEvent(widget
                                                               .evenementModel
-                                                              .id_evenements);
+                                                              .id_evenements!);
                                                         }
                                                       },
                                                       child: Container(
@@ -626,7 +623,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                                             .size8))),
                                                         child: widget
                                                                 .evenementModel
-                                                                .has_like
+                                                                .has_like!
                                                             ? Icon(
                                                                 MdiIcons.heart,
                                                                 size: MySize
@@ -682,26 +679,18 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            "${DateFormat('EEEE dd MMMM yyyy, HH:mm').format(_startDate)}",
-                                                            style: AppTheme.getTextStyle(
-                                                                themeData
-                                                                    .textTheme
-                                                                    .caption,
-                                                                fontWeight: 600,
-                                                                color: themeData
-                                                                    .colorScheme
-                                                                    .onBackground),
+                                                            DateFormat('EEEE dd MMMM yyyy, HH:mm').format(_startDate),
+                                                            style: themeData.textTheme.bodySmall?.copyWith(
+                                                              color: themeData.colorScheme.onBackground,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
                                                           ),
                                                           Text(
-                                                            "${DateFormat('EEEE dd MMMM yyyy, HH:mm').format(_endDate)}",
-                                                            style: AppTheme.getTextStyle(
-                                                                themeData
-                                                                    .textTheme
-                                                                    .caption,
-                                                                fontWeight: 600,
-                                                                color: themeData
-                                                                    .colorScheme
-                                                                    .onBackground),
+                                                            DateFormat('EEEE dd MMMM yyyy, HH:mm').format(_endDate),
+                                                            style: themeData.textTheme.bodySmall?.copyWith(
+                                                              color: themeData.colorScheme.onBackground,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -753,15 +742,10 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                             children: [
                                                               Text(
                                                                 "Afficher le lieu",
-                                                                style: AppTheme.getTextStyle(
-                                                                    themeData
-                                                                        .textTheme
-                                                                        .caption,
-                                                                    fontWeight:
-                                                                        600,
-                                                                    color: themeData
-                                                                        .colorScheme
-                                                                        .onBackground),
+                                                                style: themeData.textTheme.bodySmall?.copyWith(
+                                                                  color: themeData.colorScheme.onBackground,
+                                                                  fontWeight: FontWeight.w600,
+                                                                ),
                                                               ),
                                                               Container(
                                                                 margin:
@@ -770,19 +754,24 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                                 child: Text(
                                                                   _eventLocationAddress,
                                                                   //"[${widget.evenementModel.location.latitude}, ${widget.evenementModel.location.longitude}]",
-                                                                  style: AppTheme.getTextStyle(
-                                                                      themeData
-                                                                          .textTheme
-                                                                          .caption,
-                                                                      fontSize:
-                                                                          12,
-                                                                      fontWeight:
-                                                                          500,
-                                                                      color: themeData
-                                                                          .colorScheme
-                                                                          .onBackground,
-                                                                      xMuted:
-                                                                          true),
+                                                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                                                          color: themeData.colorScheme.onBackground,
+                                                                          fontWeight: FontWeight.w500,
+                                                                          fontSize: 12
+                                                                        ),
+                                                                      //   AppTheme.getTextStyle(
+                                                                      // themeData
+                                                                      //     .textTheme
+                                                                      //     .caption,
+                                                                      // fontSize:
+                                                                      //     12,
+                                                                      // fontWeight:
+                                                                      //     500,
+                                                                      // color: themeData
+                                                                      //     .colorScheme
+                                                                      //     .onBackground,
+                                                                      // xMuted:
+                                                                      //     true),
                                                                 ),
                                                               ),
                                                             ],
@@ -830,20 +819,15 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                         child: Text(
                                                           widget
                                                                       .evenementModel
-                                                                      .categories
+                                                                      .categories!
                                                                       .title ==
                                                                   null
                                                               ? 'Non classifié'
-                                                              : "${widget.evenementModel.categories.title}",
-                                                          style: AppTheme
-                                                              .getTextStyle(
-                                                            themeData.textTheme
-                                                                .bodyText2,
-                                                            fontWeight: 600,
+                                                              : "${widget.evenementModel.categories!.title}",
+                                                          style: themeData.textTheme.bodyMedium?.copyWith(
+                                                            color: themeData.colorScheme.onBackground,
+                                                            fontWeight: FontWeight.w600,
                                                             letterSpacing: 0.3,
-                                                            color: themeData
-                                                                .colorScheme
-                                                                .onBackground,
                                                           ),
                                                         ),
                                                       ),
@@ -889,14 +873,10 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                               Spacing.left(16),
                                                           child: Text(
                                                             "Pakages (${widget.evenementModel.nbre_packages})",
-                                                            style: AppTheme.getTextStyle(
-                                                                themeData
-                                                                    .textTheme
-                                                                    .caption,
-                                                                fontWeight: 600,
-                                                                color: themeData
-                                                                    .colorScheme
-                                                                    .onBackground),
+                                                            style: themeData.textTheme.bodySmall?.copyWith(
+                                                              color: themeData.colorScheme.onBackground,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
@@ -923,11 +903,10 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                               Spacing.fromLTRB(24, 24, 24, 0),
                                           child: Text(
                                             "Description",
-                                            style: AppTheme.getTextStyle(
-                                                themeData.textTheme.subtitle1,
-                                                fontWeight: 700,
-                                                color: themeData
-                                                    .colorScheme.onBackground),
+                                            style: themeData.textTheme.titleMedium?.copyWith(
+                                              color: themeData.colorScheme.onBackground,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
                                         Container(
@@ -941,16 +920,15 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                             trimMode: TrimMode.Line,
                                             trimCollapsedText: 'Afficher plus',
                                             trimExpandedText: 'Afficher moins',
-                                            style: AppTheme.getTextStyle(
-                                                themeData.textTheme.bodyText2,
-                                                fontWeight: 600,
-                                                color: themeData
-                                                    .colorScheme.onBackground),
+                                            style: themeData.textTheme.bodyMedium?.copyWith(
+                                              color: themeData.colorScheme.onBackground,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                             moreStyle: TextStyle(
                                                 color:
                                                     DikoubaColors.blue['pri'],
                                                 fontSize: themeData.textTheme
-                                                    .bodyText2.fontSize,
+                                                    .bodyMedium!.fontSize,
                                                 fontWeight: FontWeight.bold),
                                           ),
                                         ),
@@ -959,11 +937,10 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                               Spacing.fromLTRB(24, 24, 24, 0),
                                           child: Text(
                                             "Localisation",
-                                            style: AppTheme.getTextStyle(
-                                                themeData.textTheme.subtitle1,
-                                                fontWeight: 700,
-                                                color: themeData
-                                                    .colorScheme.onBackground),
+                                            style: themeData.textTheme.titleMedium?.copyWith(
+                                              color: themeData.colorScheme.onBackground,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
                                         Container(
@@ -992,11 +969,10 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                               Spacing.fromLTRB(24, 24, 24, 0),
                                           child: Text(
                                             "Sondages",
-                                            style: AppTheme.getTextStyle(
-                                                themeData.textTheme.subtitle1,
-                                                fontWeight: 700,
-                                                color: themeData
-                                                    .colorScheme.onBackground),
+                                            style: themeData.textTheme.titleMedium?.copyWith(
+                                              color: themeData.colorScheme.onBackground,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
                                         _isSondagesFinding
@@ -1007,7 +983,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                       AlwaysStoppedAnimation<
                                                               Color>(
                                                           DikoubaColors
-                                                              .blue['pri']),
+                                                              .blue['pri']!),
                                                 ),
                                               )
                                             : (_listSondages == null ||
@@ -1017,17 +993,21 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                         24, 16, 24, 0),
                                                     child: Text(
                                                       "Aucun sondage trouvé",
-                                                      style:
-                                                          AppTheme.getTextStyle(
-                                                              themeData
-                                                                  .textTheme
-                                                                  .caption,
-                                                              fontSize: 12,
-                                                              color: themeData
-                                                                  .colorScheme
-                                                                  .onBackground,
-                                                              fontWeight: 500,
-                                                              xMuted: true),
+                                                      style: themeData.textTheme.bodySmall?.copyWith(
+                                                        color: themeData.colorScheme.onBackground,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 12,
+                                                      ),
+                                                      // AppTheme.getTextStyle(
+                                                      //         themeData
+                                                      //             .textTheme
+                                                      //             .caption,
+                                                      //         fontSize: 12,
+                                                      //         color: themeData
+                                                      //             .colorScheme
+                                                      //             .onBackground,
+                                                      //         fontWeight: 500,
+                                                      //         xMuted: true),
                                                     ),
                                                   )
                                                 : Container(
@@ -1053,7 +1033,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                                               _userModel,
                                                               MySize.safeWidth -
                                                                   MySize
-                                                                      .size48),
+                                                                      .size48, onUpdateClickListener: () => {}),
                                                         );
                                                       },
                                                     ),
@@ -1061,28 +1041,29 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
                                         Container(
                                           margin:
                                               Spacing.fromLTRB(24, 16, 24, 0),
-                                          child: FlatButton(
+                                          child: TextButton(
+                                            style: TextButton.styleFrom(
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(8)),
-                                            color: DikoubaColors.blue['pri'],
+                                            /* color: DikoubaColors.blue['pri'],
                                             splashColor: themeData
                                                 .colorScheme.onPrimary
                                                 .withAlpha(100),
                                             highlightColor:
-                                                themeData.colorScheme.primary,
+                                                themeData.colorScheme.primary, */
+                                            padding: Spacing.vertical(14),
+                                            ),
                                             onPressed: () {
                                               showEventCommentDialog();
                                             },
                                             child: Text(
                                               "Commentaires (${widget.evenementModel.nbre_comments})",
-                                              style: AppTheme.getTextStyle(
-                                                  themeData.textTheme.bodyText2,
-                                                  fontWeight: 600,
-                                                  color: themeData
-                                                      .colorScheme.onPrimary),
+                                              style: themeData.textTheme.bodyMedium?.copyWith(
+                                                color: themeData.colorScheme.onPrimary,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
-                                            padding: Spacing.vertical(14),
                                           ),
                                         )
                                       ],
@@ -1101,7 +1082,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
       _isEventFinding = true;
     });
     API
-        .findEventItem(widget.evenementModel.id_evenements,
+        .findEventItem(widget.evenementModel.id_evenements!,
             idUser: _userModel.id_users)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
@@ -1140,7 +1121,7 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
       _isSondagesFinding = true;
     });
     API
-        .findSondageEvent(widget.evenementModel.id_evenements)
+        .findSondageEvent(widget.evenementModel.id_evenements!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(
@@ -1318,8 +1299,8 @@ class _EvenDetailsActivityState extends State<EvenDetailsActivity> {
 
 class _QRViewExampleState extends State<QRViewExample> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  Barcode result;
-  QRViewController controller;
+  late Barcode result;
+  late QRViewController controller;
   bool _checkingData = false;
 
   Future<void> _checkResults(Barcode readedBarcode) async {
@@ -1372,14 +1353,12 @@ class _QRViewExampleState extends State<QRViewExample> {
                                 margin: Spacing.fromLTRB(MySize.size16,
                                     MySize.size8, MySize.size18, 0),
                                 child: Text(
-                                  widget._evenement.title,
+                                  widget._evenement.title!,
                                   maxLines: 1,
-                                  style: AppTheme.getTextStyle(
-                                      widget._themeData.textTheme.headline4,
-                                      color: result
-                                          ? Colors.blueAccent
-                                          : Colors.redAccent,
-                                      fontWeight: 600),
+                                  style: widget._themeData.textTheme.headlineMedium?.copyWith(
+                                    color: result ? Colors.blueAccent : Colors.redAccent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -1388,12 +1367,10 @@ class _QRViewExampleState extends State<QRViewExample> {
                                 child: Text(
                                   _label,
                                   maxLines: 1,
-                                  style: AppTheme.getTextStyle(
-                                      widget._themeData.textTheme.headline4,
-                                      color: result
-                                          ? Colors.blueAccent
-                                          : Colors.redAccent,
-                                      fontWeight: 600),
+                                  style: widget._themeData.textTheme.bodyMedium?.copyWith(
+                                        color: result ? Colors.blueAccent : Colors.redAccent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ),
                             ]))
@@ -1402,10 +1379,10 @@ class _QRViewExampleState extends State<QRViewExample> {
     }
 
     try {
-      scanned_id_users = jsonDecode(readedBarcode.code)["id_users"];
-      scanned_id_tickets = jsonDecode(readedBarcode.code)["id_tickets"];
-      scanned_id_evenements = jsonDecode(readedBarcode.code)["id_evenements"];
-      scanned_id_packages = jsonDecode(readedBarcode.code)["id_packages"];
+      scanned_id_users = jsonDecode(readedBarcode.code!)["id_users"];
+      scanned_id_tickets = jsonDecode(readedBarcode.code!)["id_tickets"];
+      scanned_id_evenements = jsonDecode(readedBarcode.code!)["id_evenements"];
+      scanned_id_packages = jsonDecode(readedBarcode.code!)["id_packages"];
     } on Exception catch (_) {
       print('never reached');
     }
@@ -1424,7 +1401,7 @@ class _QRViewExampleState extends State<QRViewExample> {
         for (int idx = 0; idx < widget._packageList.length; idx++) {
           if (widget._packageList[idx].id_packages ==
               responsePackage.data["id_packages"])
-            _labelValue = "Package : " + widget._packageList[idx].name;
+            _labelValue = "Package : " + widget._packageList[idx].name!;
         }
         showDialogResult(_goodTicket, _labelValue);
       } else {
@@ -1460,7 +1437,7 @@ class _QRViewExampleState extends State<QRViewExample> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                borderColor: DikoubaColors.blue['pri'],
+                borderColor: DikoubaColors.blue['pri']!,
                 borderRadius: 10,
                 borderLength: 20,
                 borderWidth: 10,
@@ -1497,7 +1474,7 @@ class _QRViewExampleState extends State<QRViewExample> {
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 }

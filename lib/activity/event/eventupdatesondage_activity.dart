@@ -2,21 +2,21 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventnewsondage_activity.dart';
-import 'package:dikouba/activity/eventnewsessions_activity.dart';
-import 'package:dikouba/model/category_model.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventnewsondage_activity.dart';
+import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
+import 'package:dikouba_rawstart/model/category_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,11 +34,11 @@ class EvenUpdateSondageActivity extends StatefulWidget {
   SondageModel sondageModel;
 
   EvenUpdateSondageActivity(
-      {Key key,
-      this.idEvenement,
-      this.sondageModel,
-      this.analytics,
-      this.observer})
+      {Key? key,
+      required this.idEvenement,
+      required this.sondageModel,
+      required this.analytics,
+      required this.observer})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
@@ -52,27 +52,27 @@ class EvenUpdateSondageActivity extends StatefulWidget {
 class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
   static final String TAG = 'EvenUpdateSondageActivityState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
-  Future<List<Widget>> widgetsView;
+  late Future<List<Widget>> widgetsView;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
-  GlobalKey<FormState> _formEventKey;
+  late GlobalKey<FormState> _formEventKey;
 
-  TextEditingController libelleCtrler;
-  TextEditingController descriptionCtrler;
+  late TextEditingController libelleCtrler;
+  late TextEditingController descriptionCtrler;
 
   final picker = ImagePicker();
 
   bool _isEventCreating = false;
-  DateTime _startDate;
-  DateTime _endDate;
-  PickedFile _eventbanner;
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late XFile _eventbanner;
 
   void queryUser() async {
     final userRows = await dbHelper.query_user();
@@ -91,11 +91,11 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -125,18 +125,18 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
     libelleCtrler = new TextEditingController();
     descriptionCtrler = new TextEditingController();
 
-    libelleCtrler.text = widget.sondageModel.title;
-    descriptionCtrler.text = widget.sondageModel.description;
+    libelleCtrler.text = widget.sondageModel.title!;
+    descriptionCtrler.text = widget.sondageModel.description!;
     _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.sondageModel.start_date.seconds) * 1000);
+        int.parse(widget.sondageModel.start_date!.seconds) * 1000);
     _endDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.sondageModel.end_date.seconds) * 1000);
+        int.parse(widget.sondageModel.end_date!.seconds) * 1000);
   }
 
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -160,11 +160,10 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                     margin: Spacing.fromLTRB(24, 24, 24, 0),
                                     child: Text(
                                       "Modifier sondage ${widget.sondageModel.title}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -172,26 +171,24 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                     child: TextFormField(
                                       controller: libelleCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir le titre';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.headline5,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          letterSpacing: -0.4,
-                                          fontWeight: 800),
+                                      style: themeData.textTheme.headlineSmall?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                      ),
                                       decoration: InputDecoration(
                                         fillColor:
                                             themeData.colorScheme.background,
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.headline5,
-                                            color: themeData
-                                                .colorScheme.onBackground,
-                                            letterSpacing: -0.4,
-                                            fontWeight: 800),
+                                        hintStyle: themeData.textTheme.headlineSmall?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.4
+                                        ),
                                         filled: false,
                                         hintText: "Titre du sondage",
                                         border: InputBorder.none,
@@ -199,7 +196,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                         focusedBorder: InputBorder.none,
                                       ),
                                       autocorrect: false,
-                                      autovalidate: false,
+                                      autovalidateMode: AutovalidateMode.disabled,
                                       textCapitalization:
                                           TextCapitalization.sentences,
                                     ),
@@ -209,27 +206,35 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                     child: TextFormField(
                                       controller: descriptionCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir la desription';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0
+                                      ),/* AppTheme.getTextStyle(
                                           themeData.textTheme.bodyText2,
                                           color: themeData
                                               .colorScheme.onBackground,
                                           fontWeight: 500,
                                           letterSpacing: 0,
-                                          muted: true),
+                                          muted: true), */
                                       decoration: InputDecoration(
                                         hintText: "Description",
-                                        hintStyle: AppTheme.getTextStyle(
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0
+                                        ),/* AppTheme.getTextStyle(
                                             themeData.textTheme.bodyText2,
                                             color: themeData
                                                 .colorScheme.onBackground,
                                             fontWeight: 600,
                                             letterSpacing: 0,
-                                            xMuted: true),
+                                            xMuted: true), */
                                         border: UnderlineInputBorder(
                                           borderSide: BorderSide(
                                               width: 1.5,
@@ -284,13 +289,12 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                     margin: Spacing.left(12),
                                     child: Text(
                                       "Annuler".toUpperCase(),
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
-                                          fontSize: 12,
-                                          letterSpacing: 0.7,
-                                          color:
-                                              themeData.colorScheme.onPrimary,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodySmall?.copyWith(
+                                        color: themeData.colorScheme.onPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.7,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -305,7 +309,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                       child: CircularProgressIndicator(
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                DikoubaColors.blue['pri']),
+                                                DikoubaColors.blue['pri']!),
                                       ),
                                     )
                                   : InkWell(
@@ -325,13 +329,12 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                                               margin: Spacing.left(12),
                                               child: Text(
                                                 "Modifier".toUpperCase(),
-                                                style: AppTheme.getTextStyle(
-                                                    themeData.textTheme.caption,
-                                                    fontSize: 12,
-                                                    letterSpacing: 0.7,
-                                                    color: themeData
-                                                        .colorScheme.onPrimary,
-                                                    fontWeight: 600),
+                                                style: themeData.textTheme.bodySmall?.copyWith(
+                                                  color: themeData.colorScheme.onPrimary,
+                                                  fontWeight: FontWeight.w600,
+                                                  letterSpacing: 0.7,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ),
                                             Container(
@@ -382,10 +385,10 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                   children: [
                     Text(
                       "Date",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(2),
@@ -393,12 +396,16 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                         _startDate == null
                             ? "Aucune date selectionnée"
                             : "Du ${DateFormat('dd MMM yyyy HH:mm').format(_startDate)}\nAu ${DateFormat('dd MMM yyyy HH:mm').format(_endDate)}",
-                        style: AppTheme.getTextStyle(
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),/* AppTheme.getTextStyle(
                             themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true), */
                       ),
                     )
                   ],
@@ -409,7 +416,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                 icon: Icon(
               MdiIcons.timer,
               color: DikoubaColors.blue['pri'],
-            )),
+            ), onPressed: () {  },),
           ],
         ),
       ),
@@ -436,10 +443,10 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                     Expanded(
                         child: Text(
                       "Bannière",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     IconButton(
                         icon: Icon(
@@ -460,12 +467,16 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                           alignment: Alignment.center,
                           child: Text(
                             "Aucune image selectionnée",
-                            style: AppTheme.getTextStyle(
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),/* AppTheme.getTextStyle(
                                 themeData.textTheme.caption,
                                 fontSize: 12,
                                 fontWeight: 600,
                                 color: themeData.colorScheme.onBackground,
-                                xMuted: true),
+                                xMuted: true), */
                           ),
                         )
                       : Container(
@@ -507,7 +518,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                             left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -523,7 +534,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -539,7 +550,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -553,15 +564,15 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
         });
     print("$TAG:showBottomSheetPickImage $resultAction");
     if (resultAction == 'camera') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     } else if (resultAction == 'gallerie') {
-      PickedFile pickedFile =
-          await picker.getImage(source: ImageSource.gallery);
+      XFile? pickedFile =
+          await picker.pickImage(source: ImageSource.gallery);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     }
   }
@@ -609,7 +620,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
   }
 
   void checkEventForm(BuildContext buildContext) {
-    if (_formEventKey.currentState.validate()) {
+    if (_formEventKey.currentState!.validate()) {
       if (_startDate == null || _endDate == null) {
         DikoubaUtils.toast_error(
             buildContext, "Veuillez selectionner la date de début et de fin");
@@ -639,7 +650,7 @@ class EvenUpdateSondageActivityState extends State<EvenUpdateSondageActivity> {
         DateFormat('ddMMMyyyyHHmm').format(DateTime.now()));
     print("$TAG:_saveSondage downloadLink=$downloadLink");
 
-    SondageModel sondageModel = new SondageModel();
+    SondageModel sondageModel = new SondageModel(evenements: EvenementModel(banner_path: ''), id_sondages: '', reponses: [], reponsesusers: []);
     sondageModel.banner_path = downloadLink;
     sondageModel.title = libelleCtrler.text;
     sondageModel.id_annoncers = _userModel.id_annoncers;

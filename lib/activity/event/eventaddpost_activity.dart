@@ -3,24 +3,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/eventnewsessions_activity.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/fragment/EventCreateSession.dart';
-import 'package:dikouba/model/category_model.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/firebaselocation_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/post_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/fragment/EventCreateSession.dart';
+import 'package:dikouba_rawstart/model/category_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/firebaselocation_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/post_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +36,7 @@ import 'package:geocoding/geocoding.dart';
 class EvenAddPostActivity extends StatefulWidget {
   EvenementModel evenementModel;
   EvenAddPostActivity(
-      {Key key, this.analytics, this.observer, @required this.evenementModel})
+      {Key? key, required this.analytics, required this.observer, required this.evenementModel})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
@@ -49,27 +49,27 @@ class EvenAddPostActivity extends StatefulWidget {
 class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
   static final String TAG = 'EvenAddPostActivityState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
-  GlobalKey<FormState> _formEventKey;
+  late GlobalKey<FormState> _formEventKey;
 
-  TextEditingController libelleCtrler;
-  TextEditingController descriptionCtrler;
+  late TextEditingController libelleCtrler;
+  late TextEditingController descriptionCtrler;
 
   final picker = ImagePicker();
 
   bool _isEventCreating = false;
-  PickedFile _eventbanner;
-  Uint8List _thumbNail;
-  List<bool> isSelected;
-  List<String> typePostList;
-  int indexTypePost;
+  late XFile _eventbanner;
+  late Uint8List _thumbNail;
+  late List<bool> isSelected;
+  late List<String> typePostList;
+  late int indexTypePost;
 
   void queryUser() async {
     final userRows = await dbHelper.query_user();
@@ -81,11 +81,11 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id : uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -107,7 +107,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -131,15 +131,14 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                     margin: Spacing.fromLTRB(24, 24, 24, 0),
                                     child: Text(
                                       "Nouveau post - ${widget.evenementModel.title}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.all(16),
+                                    margin: const EdgeInsets.all(16),
                                     child: ToggleButtons(
                                       fillColor: themeData.colorScheme.primary,
                                       color: Colors.transparent,
@@ -150,59 +149,6 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                           themeData.colorScheme.primary,
                                       borderColor: Colors.transparent,
                                       borderRadius: BorderRadius.circular(0),
-                                      children: <Widget>[
-                                        Container(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Texte',
-                                              style: AppTheme.getTextStyle(
-                                                themeData.textTheme.bodyText1,
-                                                fontWeight: 600,
-                                                color: isSelected[0]
-                                                    ? themeData
-                                                        .colorScheme.onSecondary
-                                                    : themeData.colorScheme
-                                                        .onBackground,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Image',
-                                              style: AppTheme.getTextStyle(
-                                                themeData.textTheme.bodyText1,
-                                                fontWeight: 600,
-                                                color: isSelected[1]
-                                                    ? themeData
-                                                        .colorScheme.onSecondary
-                                                    : themeData.colorScheme
-                                                        .onBackground,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Video',
-                                              style: AppTheme.getTextStyle(
-                                                themeData.textTheme.bodyText1,
-                                                fontWeight: 600,
-                                                color: isSelected[2]
-                                                    ? themeData
-                                                    .colorScheme.onSecondary
-                                                    : themeData.colorScheme
-                                                    .onBackground,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
                                       onPressed: (int index) {
                                         setState(() {
                                           for (int i = 0;
@@ -214,6 +160,56 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                         });
                                       },
                                       isSelected: isSelected,
+                                      children: <Widget>[
+                                        Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Texte',
+                                              style: themeData.textTheme.bodyLarge?.copyWith(
+                                                color: isSelected[0]
+                                                    ? themeData
+                                                        .colorScheme.onSecondary
+                                                    : themeData.colorScheme
+                                                        .onBackground,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Image',
+                                              style: themeData.textTheme.bodyLarge?.copyWith(
+                                                color: isSelected[1]
+                                                    ? themeData
+                                                        .colorScheme.onSecondary
+                                                    : themeData.colorScheme
+                                                        .onBackground,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Video',
+                                              style: themeData.textTheme.bodyLarge?.copyWith(
+                                                color: isSelected[2]
+                                                    ? themeData
+                                                        .colorScheme.onSecondary
+                                                    : themeData.colorScheme
+                                                        .onBackground,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   indexTypePost == 0
@@ -223,26 +219,24 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                           child: TextFormField(
                                             controller: libelleCtrler,
                                             validator: (value) {
-                                              if (value.isEmpty) {
+                                              if (value!.isEmpty) {
                                                 return 'Veuillez saisir le titre du post';
                                               }
                                               return null;
                                             },
-                                            style: AppTheme.getTextStyle(
-                                                themeData.textTheme.headline6,
-                                                color: themeData
-                                                    .colorScheme.onBackground,
-                                                letterSpacing: -0.4,
-                                                fontWeight: 800),
+                                            style: themeData.textTheme.headlineSmall?.copyWith(
+                                              color: themeData.colorScheme.onBackground,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: -0.4,
+                                            ),
                                             decoration: InputDecoration(
                                               fillColor: themeData
                                                   .colorScheme.background,
-                                              hintStyle: AppTheme.getTextStyle(
-                                                  themeData.textTheme.headline5,
-                                                  color: themeData
-                                                      .colorScheme.onBackground,
-                                                  letterSpacing: -0.4,
-                                                  fontWeight: 800),
+                                              hintStyle: themeData.textTheme.headlineSmall?.copyWith(
+                                                color: themeData.colorScheme.onBackground,
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: -0.4,
+                                              ),
                                               filled: false,
                                               hintText: "Titre du Post",
                                               border: InputBorder.none,
@@ -251,7 +245,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                             ),
                                             autocorrect: false,
                                             maxLines: 3,
-                                            autovalidate: false,
+                                            autovalidateMode: AutovalidateMode.disabled,
                                             textCapitalization:
                                                 TextCapitalization.sentences,
                                           ),
@@ -263,27 +257,37 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                     child: TextFormField(
                                       controller: descriptionCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir la desription';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 500,
-                                          letterSpacing: 0,
-                                          muted: true),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0,
+                                      ),
+                                      // AppTheme.getTextStyle(
+                                      //     themeData.textTheme.bodyText2,
+                                      //     color: themeData
+                                      //         .colorScheme.onBackground,
+                                      //     fontWeight: 500,
+                                      //     letterSpacing: 0,
+                                      //     muted: true),
                                       decoration: InputDecoration(
                                         hintText: "Description du Post",
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.bodyText2,
-                                            color: themeData
-                                                .colorScheme.onBackground,
-                                            fontWeight: 600,
-                                            letterSpacing: 0,
-                                            xMuted: true),
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0,
+                                        ),
+                                        // AppTheme.getTextStyle(
+                                        //     themeData.textTheme.bodyText2,
+                                        //     color: themeData
+                                        //         .colorScheme.onBackground,
+                                        //     fontWeight: 600,
+                                        //     letterSpacing: 0,
+                                        //     xMuted: true),
                                         border: UnderlineInputBorder(
                                           borderSide: BorderSide(
                                               width: 1.5,
@@ -337,13 +341,12 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                     margin: Spacing.left(12),
                                     child: Text(
                                       "Fermer".toUpperCase(),
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
-                                          fontSize: 12,
-                                          letterSpacing: 0.7,
-                                          color:
-                                              themeData.colorScheme.onPrimary,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodySmall?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.7,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -358,7 +361,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                       child: CircularProgressIndicator(
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                DikoubaColors.blue['pri']),
+                                                DikoubaColors.blue['pri']!),
                                       ),
                                     )
                                   : InkWell(
@@ -378,13 +381,12 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                               margin: Spacing.left(12),
                                               child: Text(
                                                 "Ajouter le Post".toUpperCase(),
-                                                style: AppTheme.getTextStyle(
-                                                    themeData.textTheme.caption,
-                                                    fontSize: 12,
-                                                    letterSpacing: 0.7,
-                                                    color: themeData
-                                                        .colorScheme.onPrimary,
-                                                    fontWeight: 600),
+                                                style: themeData.textTheme.bodySmall?.copyWith(
+                                                  color: themeData.colorScheme.onPrimary,
+                                                  fontWeight: FontWeight.w600,
+                                                  letterSpacing: 0.7,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ),
                                             Container(
@@ -434,10 +436,10 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                     Expanded(
                         child: Text(
                       "Image",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     IconButton(
                         icon: Icon(
@@ -458,12 +460,17 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                           alignment: Alignment.center,
                           child: Text(
                             "Aucune image selectionnée",
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: themeData.colorScheme.onBackground,
-                                xMuted: true),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                            // AppTheme.getTextStyle(
+                            //     themeData.textTheme.caption,
+                            //     fontSize: 12,
+                            //     fontWeight: 600,
+                            //     color: themeData.colorScheme.onBackground,
+                            //     xMuted: true),
                           ),
                         )
                       : Container(
@@ -502,10 +509,10 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                     Expanded(
                         child: Text(
                           "Vidéo",
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle2,
-                              fontWeight: 600,
-                              color: themeData.colorScheme.onBackground),
+                          style: themeData.textTheme.titleSmall?.copyWith(
+                            color: themeData.colorScheme.onBackground,
+                            fontWeight: FontWeight.w600,
+                          ),
                         )),
                     IconButton(
                         icon: Icon(
@@ -526,12 +533,17 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                     alignment: Alignment.center,
                     child: Text(
                       "Aucune vidéo selectionnée",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.caption,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground,
-                          xMuted: true),
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                      ),
+                      // AppTheme.getTextStyle(
+                      //     themeData.textTheme.caption,
+                      //     fontSize: 12,
+                      //     fontWeight: 600,
+                      //     color: themeData.colorScheme.onBackground,
+                      //     xMuted: true),
                     ),
                   )
                       : Container(
@@ -591,7 +603,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                             left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -607,7 +619,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -623,7 +635,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -638,15 +650,14 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
     print("$TAG:showBottomSheetPickImage $resultAction");
 
     if (resultAction == 'camera') {
-      PickedFile pickedFile = await  picker.getImage(source: ImageSource.camera);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     } else if (resultAction == 'gallerie') {
-      PickedFile pickedFile =
-          await picker.getImage(source: ImageSource.gallery);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     }
   }
@@ -676,7 +687,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                               left: MySize.size12, bottom: MySize.size8),
                           child: Text(
                             "Choisir a partir de",
-                            style: themeData.textTheme.caption.merge(TextStyle(
+                            style: themeData.textTheme.bodySmall!.merge(TextStyle(
                                 color: themeData.colorScheme.onBackground
                                     .withAlpha(200),
                                 letterSpacing: 0.3,
@@ -692,7 +703,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                 .withAlpha(220)),
                         title: Text(
                           "Caméra",
-                          style: themeData.textTheme.bodyText1.merge(TextStyle(
+                          style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground,
                               letterSpacing: 0.3,
                               fontWeight: FontWeight.w500)),
@@ -708,7 +719,7 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
                                 .withAlpha(220)),
                         title: Text(
                           "Gallerie",
-                          style: themeData.textTheme.bodyText1.merge(TextStyle(
+                          style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground,
                               letterSpacing: 0.3,
                               fontWeight: FontWeight.w500)),
@@ -723,34 +734,34 @@ class _EvenAddPostActivityState extends State<EvenAddPostActivity> {
     print("$TAG:showBottomSheetPickVideo $resultAction");
 
     if (resultAction == 'camera') {
-      PickedFile pickedFile = await  picker.getVideo(source: ImageSource.camera);
+      XFile? pickedFile = await picker.pickVideo(source: ImageSource.camera);
       final uint8list = await VideoThumbnail.thumbnailData(
-        video: pickedFile.path,
+        video: pickedFile!.path,
         imageFormat: ImageFormat.JPEG,
         maxWidth: 128, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
         quality: 100,
       );
       setState(() {
         _eventbanner = pickedFile;
-        _thumbNail = uint8list;
+        _thumbNail = uint8list!;
       });
     } else if (resultAction == 'gallerie') {
-      PickedFile pickedFile = await picker.getVideo(source: ImageSource.gallery);
+      XFile? pickedFile = await picker.pickVideo(source: ImageSource.gallery);
       final uint8list = await VideoThumbnail.thumbnailData(
-        video: pickedFile.path,
+        video: pickedFile!.path,
         imageFormat: ImageFormat.JPEG,
         maxWidth: 128, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
         quality: 100,
       );
       setState(() {
         _eventbanner = pickedFile;
-        _thumbNail = uint8list;
+        _thumbNail = uint8list!;
       });
     }
   }
 
   void checkEventForm(BuildContext buildContext) {
-    if (_formEventKey.currentState.validate()) {
+    if (_formEventKey.currentState!.validate()) {
       if (_eventbanner == null && indexTypePost != 0) {
         DikoubaUtils.toast_error(
             buildContext, "Veuillez selectionner un fichier");

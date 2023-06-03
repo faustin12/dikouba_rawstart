@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/eventnewsessions_activity.dart';
-import 'package:dikouba/model/category_model.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
+import 'package:dikouba_rawstart/model/category_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,7 +30,7 @@ class EvenNewSondageActivity extends StatefulWidget {
   EvenementModel evenementModel;
 
   EvenNewSondageActivity(this.evenementModel,
-      {Key key, this.analytics, this.observer})
+      {Key? key, required this.analytics, required this.observer})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
@@ -43,28 +43,28 @@ class EvenNewSondageActivity extends StatefulWidget {
 class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
   static final String TAG = 'EvenNewSondageActivityState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
-  Future<List<Widget>> widgetsView;
+  late Future<List<Widget>> widgetsView;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
-  GlobalKey<FormState> _formEventKey;
+  late GlobalKey<FormState> _formEventKey;
 
-  TextEditingController libelleCtrler;
-  TextEditingController descriptionCtrler;
+  late TextEditingController libelleCtrler;
+  late TextEditingController descriptionCtrler;
 
   final picker = ImagePicker();
 
   bool _isEventCreating = false;
-  List<SondageReponseModel> _listReponsesSdge = new List();
-  DateTime _startDate;
-  DateTime _endDate;
-  PickedFile _eventbanner;
+  List<SondageReponseModel> _listReponsesSdge = [];
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late XFile _eventbanner;
 
   void queryUser() async {
     final userRows = await dbHelper.query_user();
@@ -83,11 +83,11 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id : uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -121,7 +121,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -145,11 +145,10 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                     margin: Spacing.fromLTRB(24, 24, 24, 0),
                                     child: Text(
                                       "Nouveau sondage dans ${widget.evenementModel.title}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -157,26 +156,24 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                     child: TextFormField(
                                       controller: libelleCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir le titre';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.headline5,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          letterSpacing: -0.4,
-                                          fontWeight: 800),
+                                      style: themeData.textTheme.headlineSmall?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                      ),
                                       decoration: InputDecoration(
                                         fillColor:
                                             themeData.colorScheme.background,
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.headline5,
-                                            color: themeData
-                                                .colorScheme.onBackground,
-                                            letterSpacing: -0.4,
-                                            fontWeight: 800),
+                                        hintStyle: themeData.textTheme.headlineSmall?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.4,
+                                        ),
                                         filled: false,
                                         hintText: "Titre du sondage",
                                         border: InputBorder.none,
@@ -184,7 +181,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                         focusedBorder: InputBorder.none,
                                       ),
                                       autocorrect: false,
-                                      autovalidate: false,
+                                      autovalidateMode: AutovalidateMode.disabled,
                                       textCapitalization:
                                           TextCapitalization.sentences,
                                     ),
@@ -194,27 +191,35 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                     child: TextFormField(
                                       controller: descriptionCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir la desription';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0
+                                      ),/* AppTheme.getTextStyle(
                                           themeData.textTheme.bodyText2,
                                           color: themeData
                                               .colorScheme.onBackground,
                                           fontWeight: 500,
                                           letterSpacing: 0,
-                                          muted: true),
+                                          muted: true), */
                                       decoration: InputDecoration(
                                         hintText: "Description",
-                                        hintStyle: AppTheme.getTextStyle(
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0
+                                        ),/* AppTheme.getTextStyle(
                                             themeData.textTheme.bodyText2,
                                             color: themeData
                                                 .colorScheme.onBackground,
                                             fontWeight: 600,
                                             letterSpacing: 0,
-                                            xMuted: true),
+                                            xMuted: true), */
                                         border: UnderlineInputBorder(
                                           borderSide: BorderSide(
                                               width: 1.5,
@@ -270,13 +275,12 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                     margin: Spacing.left(12),
                                     child: Text(
                                       "Annuler".toUpperCase(),
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
-                                          fontSize: 12,
-                                          letterSpacing: 0.7,
-                                          color:
-                                              themeData.colorScheme.onPrimary,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodySmall?.copyWith(
+                                        color: themeData.colorScheme.onPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                        letterSpacing: 0.7
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -291,7 +295,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                       child: CircularProgressIndicator(
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                DikoubaColors.blue['pri']),
+                                                DikoubaColors.blue['pri']!),
                                       ),
                                     )
                                   : InkWell(
@@ -311,13 +315,12 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                                               margin: Spacing.left(12),
                                               child: Text(
                                                 "Créer sondage".toUpperCase(),
-                                                style: AppTheme.getTextStyle(
-                                                    themeData.textTheme.caption,
-                                                    fontSize: 12,
-                                                    letterSpacing: 0.7,
-                                                    color: themeData
-                                                        .colorScheme.onPrimary,
-                                                    fontWeight: 600),
+                                                style: themeData.textTheme.bodySmall?.copyWith(
+                                                  color: themeData.colorScheme.onPrimary,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12,
+                                                  letterSpacing: 0.7,
+                                                ),
                                               ),
                                             ),
                                             Container(
@@ -368,10 +371,10 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                   children: [
                     Text(
                       "Date",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(2),
@@ -379,12 +382,16 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                         _startDate == null
                             ? "Aucune date selectionnée"
                             : "Du ${DateFormat('dd MMM yyyy HH:mm').format(_startDate)}\nAu ${DateFormat('dd MMM yyyy HH:mm').format(_endDate)}",
-                        style: AppTheme.getTextStyle(
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ),/* AppTheme.getTextStyle(
                             themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true), */
                       ),
                     )
                   ],
@@ -395,7 +402,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                 icon: Icon(
               MdiIcons.timer,
               color: DikoubaColors.blue['pri'],
-            )),
+            ), onPressed: () {  },),
           ],
         ),
       ),
@@ -420,10 +427,10 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                     Expanded(
                         child: Text(
                       "Reponses",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     IconButton(
                         icon: Icon(
@@ -441,12 +448,16 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                       margin: Spacing.symmetric(vertical: 2, horizontal: 16),
                       child: Text(
                         "Aucune réponse ajoutée",
-                        style: AppTheme.getTextStyle(
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ),/* AppTheme.getTextStyle(
                             themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true), */
                       ),
                     )
                   : Container(
@@ -475,20 +486,19 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                               children: [
                                 Expanded(
                                     child: Text("${item.valeur}",
-                                        style: AppTheme.getTextStyle(
-                                            themeData.textTheme.caption,
-                                            fontSize: 14,
-                                            letterSpacing: 0.7,
-                                            color: Colors.redAccent,
-                                            fontWeight: 600))),
+                                        style: themeData.textTheme.bodySmall?.copyWith(
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14, 
+                                          letterSpacing: 0.7
+                                        ),)),
                                 Text("${item.description}",
                                     textAlign: TextAlign.left,
-                                    style: AppTheme.getTextStyle(
-                                      themeData.textTheme.caption,
+                                    style: themeData.textTheme.bodySmall?.copyWith(
+                                      color: themeData.colorScheme.primary,
                                       fontSize: 14,
                                       letterSpacing: 0.7,
-                                      color: themeData.colorScheme.primary,
-                                    ))
+                                    ),)
                               ],
                             ),
                           );
@@ -520,10 +530,10 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                     Expanded(
                         child: Text(
                       "Bannière",
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     IconButton(
                         icon: Icon(
@@ -544,12 +554,16 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                           alignment: Alignment.center,
                           child: Text(
                             "Aucune image selectionnée",
-                            style: AppTheme.getTextStyle(
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),/* AppTheme.getTextStyle(
                                 themeData.textTheme.caption,
                                 fontSize: 12,
                                 fontWeight: 600,
                                 color: themeData.colorScheme.onBackground,
-                                xMuted: true),
+                                xMuted: true), */
                           ),
                         )
                       : Container(
@@ -591,7 +605,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                             left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -607,7 +621,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -623,7 +637,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -637,15 +651,15 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
         });
     print("$TAG:showBottomSheetPickImage $resultAction");
     if (resultAction == 'camera') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     } else if (resultAction == 'gallerie') {
-      PickedFile pickedFile =
-          await picker.getImage(source: ImageSource.gallery);
+      XFile? pickedFile =
+          await picker.pickImage(source: ImageSource.gallery);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     }
   }
@@ -709,7 +723,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
   }
 
   void checkEventForm(BuildContext buildContext) {
-    if (_formEventKey.currentState.validate()) {
+    if (_formEventKey.currentState!.validate()) {
       if (_startDate == null || _endDate == null) {
         DikoubaUtils.toast_error(
             buildContext, "Veuillez selectionner la date de début et de fin");
@@ -737,7 +751,7 @@ class EvenNewSondageActivityState extends State<EvenNewSondageActivity> {
         DateFormat('ddMMMyyyyHHmm').format(DateTime.now()));
     print("$TAG:_saveSondage downloadLink=$downloadLink");
 
-    SondageModel sondageModel = new SondageModel();
+    SondageModel sondageModel = SondageModel(evenements: EvenementModel(banner_path: ''), id_sondages: '', reponses: [], reponsesusers: []);
     sondageModel.banner_path = downloadLink;
     sondageModel.title = libelleCtrler.text;
     sondageModel.id_annoncers = _userModel.id_annoncers;
@@ -807,10 +821,10 @@ class _AddSondageReponseDialog extends StatefulWidget {
 }
 
 class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
-  GlobalKey<FormState> _formKey;
+  late GlobalKey<FormState> _formKey;
 
-  TextEditingController descriptionCtrler;
-  TextEditingController valeurCtrler;
+  late TextEditingController descriptionCtrler;
+  late TextEditingController valeurCtrler;
 
   @override
   void initState() {
@@ -827,7 +841,7 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
     return new Scaffold(
       appBar: new AppBar(
         title: Text('Ajouter réponse',
-            style: themeData.appBarTheme.textTheme.headline6),
+            style: themeData.appBarTheme.textTheme?.headline6),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 16),
@@ -872,17 +886,17 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                                 TextFormField(
                                   controller: valeurCtrler,
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return 'Veuillez saisir la réponse';
                                     }
                                     return null;
                                   },
-                                  style: themeData.textTheme.subtitle2.merge(
+                                  style: themeData.textTheme.titleSmall!.merge(
                                       TextStyle(
                                           color: themeData
                                               .colorScheme.onBackground)),
                                   decoration: InputDecoration(
-                                    hintStyle: themeData.textTheme.subtitle2
+                                    hintStyle: themeData.textTheme.titleSmall!
                                         .merge(TextStyle(
                                             color: themeData
                                                 .colorScheme.onBackground)),
@@ -890,17 +904,17 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                                     border: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .border.borderSide.color),
+                                              .border!.borderSide.color),
                                     ),
                                     enabledBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .enabledBorder.borderSide.color),
+                                              .enabledBorder!.borderSide.color),
                                     ),
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .focusedBorder.borderSide.color),
+                                              .focusedBorder!.borderSide.color),
                                     ),
                                   ),
                                   keyboardType: TextInputType.text,
@@ -934,7 +948,7 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                               children: <Widget>[
                                 TextFormField(
                                   controller: descriptionCtrler,
-                                  style: themeData.textTheme.subtitle2.merge(
+                                  style: themeData.textTheme.titleSmall!.merge(
                                       TextStyle(
                                           color: themeData
                                               .colorScheme.onBackground)),
@@ -942,7 +956,7 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    hintStyle: themeData.textTheme.subtitle2
+                                    hintStyle: themeData.textTheme.titleSmall!
                                         .merge(TextStyle(
                                             color: themeData
                                                 .colorScheme.onBackground)),
@@ -950,17 +964,17 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                                     border: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .border.borderSide.color),
+                                              .border!.borderSide.color),
                                     ),
                                     enabledBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .enabledBorder.borderSide.color),
+                                              .enabledBorder!.borderSide.color),
                                     ),
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData.inputDecorationTheme
-                                              .focusedBorder.borderSide.color),
+                                              .focusedBorder!.borderSide.color),
                                     ),
                                   ),
                                   textCapitalization:
@@ -977,20 +991,22 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
                   Container(
                     margin: EdgeInsets.only(top: 16),
                     width: double.infinity,
-                    child: FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4)),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 48),
-                        color: themeData.colorScheme.primary,
-                        splashColor: Colors.white.withAlpha(150),
-                        highlightColor: themeData.colorScheme.primary,
+                    child: TextButton(
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                          padding:
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 48),
+                          /* color: themeData.colorScheme.primary,
+                          splashColor: Colors.white.withAlpha(150),
+                          highlightColor: themeData.colorScheme.primary, */
+                        ),
                         onPressed: () {
                           saveForm(context);
                         },
                         child: Text(
                           "Valider".toUpperCase(),
-                          style: themeData.textTheme.button.merge(TextStyle(
+                          style: themeData.textTheme.labelLarge!.merge(TextStyle(
                               color: themeData.colorScheme.onPrimary,
                               letterSpacing: 0.3)),
                         )),
@@ -1003,10 +1019,10 @@ class _AddSondageReponseDialogState extends State<_AddSondageReponseDialog> {
   }
 
   void saveForm(BuildContext buildContext) {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       SondageReponseModel packageModel = new SondageReponseModel(
-          description: descriptionCtrler.text, valeur: valeurCtrler.text);
-      Navigator.of(_formKey.currentContext).pop('${packageModel.toRYString()}');
+          description: descriptionCtrler.text, valeur: valeurCtrler.text, id_annoncers: '', id_evenements: '', id_reponses: '', id_sondages: '', id_users: '', nombre_vote: '');
+      Navigator.of(_formKey.currentContext!).pop('${packageModel.toRYString()}');
     }
   }
 }
@@ -1020,7 +1036,7 @@ class SelectCategoryDialogState extends State<SelectCategoryDialog> {
   static final String TAG = 'SelectCategoryDialogState';
 
   bool _isCategoryFinding = false;
-  List<CategoryModel> _listCategory = new List();
+  List<CategoryModel> _listCategory = [];
 
   int selectedIndex = -1;
 
@@ -1036,7 +1052,7 @@ class SelectCategoryDialogState extends State<SelectCategoryDialog> {
     return new Scaffold(
       appBar: new AppBar(
         title: Text('Sélectionner la catégorie',
-            style: themeData.appBarTheme.textTheme.headline6),
+            style: themeData.appBarTheme.textTheme!.headline6),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 16),
@@ -1055,7 +1071,7 @@ class SelectCategoryDialogState extends State<SelectCategoryDialog> {
             ? Center(
                 child: CircularProgressIndicator(
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),
+                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),
                 ),
               )
             : ListView.builder(
@@ -1074,11 +1090,10 @@ class SelectCategoryDialogState extends State<SelectCategoryDialog> {
                         children: [
                           Expanded(
                               child: Text('${item.title}',
-                                  style: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText1,
+                                  style: themeData.textTheme.bodyLarge?.copyWith(
                                     fontSize: 16,
                                     letterSpacing: 0.7,
-                                  ))),
+                                  ),)),
                           selectedIndex == index
                               ? Icon(
                                   MdiIcons.circle,
@@ -1122,7 +1137,7 @@ class SelectCategoryDialogState extends State<SelectCategoryDialog> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findAllCategories ${responseEvents.statusCode}|${responseEvents.data}");
-        List<CategoryModel> list = new List();
+        List<CategoryModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(CategoryModel.fromJson(responseEvents.data[i]));
         }

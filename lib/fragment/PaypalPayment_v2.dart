@@ -46,6 +46,7 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
 
   String returnURL = "https://www.dikouba.com/";
   String cancelURL= "cancel.example.com";
+  late WebViewController _controller;
 
 
   @override
@@ -61,48 +62,13 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
       params = const PlatformWebViewControllerCreationParams();
     }
 
-    final WebViewController controller =
+    this._controller =
         WebViewController.fromPlatformCreationParams(params);
     // ···
-    if (controller.platform is AndroidWebViewController) {
+    if (this._controller.platform is AndroidWebViewController) {
       AndroidWebViewController.enableDebugging(true);
-      (controller.platform as AndroidWebViewController)
+      (this._controller.platform as AndroidWebViewController)
           .setMediaPlaybackRequiresUserGesture(false);
-    }
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView(); print('android_platform ' + WebView.platform.toString());
-
-    Future.delayed(Duration.zero, () async {
-      final transactions = getOrderParams();
-      try {
-        accessToken = (await services.getAccessToken())!;
-
-
-        final res =
-        await services.createPaypalPayment(transactions, accessToken);
-        if (res != null) {
-          setState(() {
-            checkoutUrl = res["approvalUrl"]!;
-            executeUrl = res["executeUrl"]!;
-            approvalUrl = res["approvalUrl"]!;
-            print('url_for_web_view ' +checkoutUrl);
-          });
-        }
-      } catch (e) {
-        print('exception_paypal: '+e.toString() + transactions.toString());
-        final snackBar = SnackBar(
-          content: Text(e.toString()),
-          duration: Duration(seconds: 10),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              // Some code to undo the change.
-            },
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    });
-  }
 
   // item name, price and quantity
   int quantity = 1;
@@ -139,7 +105,40 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
     return temp;
   }
 
-  late WebViewController _controller = WebViewController()
+    Future.delayed(Duration.zero, () async {
+      final transactions = getOrderParams();
+      try {
+        accessToken = (await services.getAccessToken())!;
+
+
+        final res =
+        await services.createPaypalPayment(transactions, accessToken);
+        if (res != null) {
+          setState(() {
+            checkoutUrl = res["approvalUrl"]!;
+            executeUrl = res["executeUrl"]!;
+            approvalUrl = res["approvalUrl"]!;
+            print('url_for_web_view ' +checkoutUrl);
+          });
+        }
+      } catch (e) {
+        print('exception_paypal: '+e.toString() + transactions.toString());
+        final snackBar = SnackBar(
+          content: Text(e.toString()),
+          duration: Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              // Some code to undo the change.
+            },
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    });
+  }
+
+  _controller = WebViewController()
     ..loadRequest(Uri.parse(checkoutUrl))
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36")
@@ -172,13 +171,13 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
           },
       )
     );
-
+  }
+  
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-        key: _scaffoldKey,
-        body: WebViewWidget(controller: _controller),
-      );
-    }
+    return Scaffold(
+      key: _scaffoldKey,
+      body: WebViewWidget(controller: _controller),
+    );
   }
 }

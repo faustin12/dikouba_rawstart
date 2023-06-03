@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventaddpost_activity.dart';
-import 'package:dikouba/activity/event/eventnewsondage_activity.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/post_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/widget/SinglePostWidget.dart';
-import 'package:dikouba/widget/SingleSondageLiveWidget.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventaddpost_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventnewsondage_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/post_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/widget/SinglePostWidget.dart';
+import 'package:dikouba_rawstart/widget/SingleSondageLiveWidget.dart';
 
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +28,7 @@ class EvenDetailsLiveActivity extends StatefulWidget {
   EvenementModel evenementModel;
 
   EvenDetailsLiveActivity(this.evenementModel,
-      {Key key, this.analytics, this.observer})
+      {Key? key, required this.analytics, required this.observer})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
@@ -41,8 +41,8 @@ class EvenDetailsLiveActivity extends StatefulWidget {
 
 class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
   static final String TAG = 'EvenDetailsActivityState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   static const int INDEX_POST = 0;
   static const int INDEX_SONDAGE = 1;
@@ -51,7 +51,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
   List<PostModel> _listPosts = [];
   List<SondageModel> _listSondages = [];
 
-  UserModel _userModel;
+  late UserModel _userModel;
   int selectedCategory = INDEX_POST;
 
   // reference to our single class that manages the database
@@ -72,11 +72,11 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -155,7 +155,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -165,7 +165,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                     alignment: Alignment.center,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                          DikoubaColors.blue['pri']),
+                          DikoubaColors.blue['pri']!),
                     ),
                   )
                 : Scaffold(
@@ -204,10 +204,9 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                                 padding: EdgeInsets.symmetric(horizontal: 14),
                                 child: Text(
                                   "Live ~ ${widget.evenementModel.title}",
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                  ),
                                 ),
                               ))
                             ],
@@ -239,7 +238,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                                 ? Center(
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          DikoubaColors.blue['pri']),
+                                          DikoubaColors.blue['pri']!),
                                     ),
                                   )
                                 : (selectedCategory == INDEX_SONDAGE)
@@ -250,13 +249,17 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                                                 Spacing.fromLTRB(24, 16, 24, 0),
                                             child: Text(
                                               "Aucun sondage trouvé",
-                                              style: AppTheme.getTextStyle(
+                                              style: themeData.textTheme.bodySmall?.copyWith(
+                                                color: themeData.colorScheme.onBackground,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12
+                                              ),/* AppTheme.getTextStyle(
                                                   themeData.textTheme.caption,
                                                   fontSize: 12,
                                                   color: themeData
                                                       .colorScheme.onBackground,
                                                   fontWeight: 500,
-                                                  xMuted: true),
+                                                  xMuted: true), */
                                             ),
                                           )
                                         : Container(
@@ -291,13 +294,17 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                                                 Spacing.fromLTRB(24, 16, 24, 0),
                                             child: Text(
                                               "Aucun post trouvé",
-                                              style: AppTheme.getTextStyle(
+                                              style: themeData.textTheme.bodySmall?.copyWith(
+                                                color: themeData.colorScheme.onBackground,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12
+                                              ),/* AppTheme.getTextStyle(
                                                   themeData.textTheme.caption,
                                                   fontSize: 12,
                                                   color: themeData
                                                       .colorScheme.onBackground,
                                                   fontWeight: 500,
-                                                  xMuted: true),
+                                                  xMuted: true), */
                                             ),
                                           )
                                         : Container(
@@ -317,7 +324,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
                                                 DateTime _startDate = DateTime
                                                     .fromMillisecondsSinceEpoch(
                                                         int.parse(item
-                                                                .created_at
+                                                                .created_at!
                                                                 .seconds) *
                                                             1000);
 
@@ -375,13 +382,13 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
     }
   }
 
-  Widget singleCategory({IconData iconData, String title, int index}) {
+  Widget singleCategory({IconData? iconData, String? title, int? index}) {
     bool isSelected = (selectedCategory == index);
     return InkWell(
         onTap: () {
           if (!isSelected) {
             setState(() {
-              selectedCategory = index;
+              selectedCategory = index!;
               updateEventList();
             });
           }
@@ -418,11 +425,11 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
               Container(
                 margin: Spacing.left(8),
                 child: Text(
-                  title,
-                  style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                      color: isSelected
-                          ? themeData.colorScheme.onPrimary
-                          : themeData.colorScheme.onBackground),
+                  title!,
+                  style: themeData.textTheme.bodyMedium?.copyWith(
+                    color: isSelected ? themeData.colorScheme.onPrimary : themeData.colorScheme.onBackground,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               )
             ],
@@ -435,7 +442,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
       _isEventPendingFinding = true;
     });
     API
-        .findSondageEvent(widget.evenementModel.id_evenements)
+        .findSondageEvent(widget.evenementModel.id_evenements!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(
@@ -470,7 +477,7 @@ class _EvenDetailsLiveActivityState extends State<EvenDetailsLiveActivity> {
       _isEventPendingFinding = true;
     });
     API
-        .findPostsEvent(widget.evenementModel.id_evenements)
+        .findPostsEvent(widget.evenementModel.id_evenements!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(
