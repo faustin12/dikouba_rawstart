@@ -385,7 +385,7 @@ class _EventMesFavorisScreenState extends State<EventMesFavorisScreen> {
               onTap: () {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) =>
-                    EvenDetailsActivity(favorisModel.evenements,
+                    EvenDetailsActivity(favorisModel.evenements!,
                       analytics: widget.analytics,
                       observer: widget.observer,
                     )));

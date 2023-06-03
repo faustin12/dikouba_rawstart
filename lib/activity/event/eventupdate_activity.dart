@@ -19,7 +19,6 @@ import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -37,12 +36,12 @@ class EventUpdateActivity extends StatefulWidget {
       required this.evenementModel,
       required this.analytics,
       required this.observer,
-      required this.selectedLocation})
+      this.selectedLocation})
       : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-  final FirebaseLocationModel selectedLocation;
+  final FirebaseLocationModel? selectedLocation;
 
   @override
   EventUpdateActivityState createState() => EventUpdateActivityState();
@@ -143,9 +142,9 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
     });
     descriptionCtrler.text = widget.evenementModel.description.toString();
     _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.evenementModel.start_date.seconds!) * 1000);
+        int.parse(widget.evenementModel.start_date!.seconds!) * 1000);
     _endDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.evenementModel.end_date.seconds!) * 1000);
+        int.parse(widget.evenementModel.end_date!.seconds!) * 1000);
   }
 
   Widget build(BuildContext context) {
@@ -186,7 +185,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
                                     child: TextFormField(
                                       controller: libelleCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           //return 'Veuillez saisir le titre';
                                         }
                                         return null;
@@ -806,7 +805,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
   }
 
   void _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
+    /*Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     _kGooglePlex = CameraPosition(
       target: LatLng(position.latitude, position.longitude),
@@ -815,7 +814,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
       print('${_currentPosition}');
-    });
+    });*/
   }
 
   Future<void> getPickedInfo(dynamic _pickSuggestion) async {
@@ -1040,14 +1039,10 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
                                                         )),
                                                 suggestionsCallback:
                                                     (pattern) async {
-                                                  print(
-                                                      "suggestionsCallback pattern=$pattern");
-                                                  var response =
-                                                      await googleSearchByAddress(
-                                                          pattern.toString());
-                                                  print(
-                                                      "suggestionsCallback response=$response");
-                                                  return response;
+                                                  print("suggestionsCallback pattern=$pattern");
+                                                  var response = await googleSearchByAddress(pattern.toString());
+                                                  print("suggestionsCallback response=$response");
+                                                  return response!;
                                                 },
                                                 itemBuilder:
                                                     (context, suggestion) {
@@ -1125,7 +1120,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
   }
 
   void updateSelectedLocation() async {
-    LocationResult locationResult =
+    /*LocationResult locationResult =
         await showLocationPicker(context, DikoubaUtils.MapApiKey,
             myLocationButtonEnabled: true,
             layersButtonEnabled: true,
@@ -1151,7 +1146,7 @@ class EventUpdateActivityState extends State<EventUpdateActivity> {
 
     setState(() {
       _selectedLocation = locationModel;
-    });
+    });*/
   }
 
   void checkEventForm(BuildContext buildContext) {
