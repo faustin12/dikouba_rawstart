@@ -1,24 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/eventnewsessions_activity.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/fragment/EventCreateSession.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/model/category_model.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/firebaselocation_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/fragment/EventCreateSession.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/model/category_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/firebaselocation_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +35,7 @@ import 'package:firebase_analytics/observer.dart';
 class EvenNewAnnoncerActivity extends StatefulWidget {
   UserModel userModel;
 
-  EvenNewAnnoncerActivity(this.userModel, {Key key, this.analytics, this.observer}) : super(key: key);
+  EvenNewAnnoncerActivity(this.userModel, {required Key key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -47,25 +47,25 @@ class EvenNewAnnoncerActivity extends StatefulWidget {
 class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
   static final String TAG = 'EvenNewAnnoncerActivityState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
-  Future<List<Widget>> widgetsView;
+  late Future<List<Widget>> widgetsView;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
-  GlobalKey<FormState> _formEventKey;
+  late GlobalKey<FormState> _formEventKey;
 
-  TextEditingController libelleCtrler;
-  TextEditingController phoneCtrler;
+  late TextEditingController libelleCtrler;
+  late TextEditingController phoneCtrler;
 
   final picker = ImagePicker();
 
   bool _isEventCreating = false;
-  PickedFile _eventbanner;
+  late XFile _eventbanner;
 
   void queryUser() async {
     final userRows = await dbHelper.query_user();
@@ -83,11 +83,11 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -103,14 +103,14 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
     libelleCtrler = new TextEditingController();
     phoneCtrler = new TextEditingController();
 
-    libelleCtrler.text = widget.userModel.annoncer_compagny;
-    phoneCtrler.text = widget.userModel.annoncer_checkout_phone_number;
+    libelleCtrler.text = widget.userModel.annoncer_compagny!;
+    phoneCtrler.text = widget.userModel.annoncer_checkout_phone_number!;
   }
 
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -132,11 +132,10 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                     margin: Spacing.fromLTRB(24, 24, 24, 0),
                                     child: Text(
                                       "Devenir annonceur",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -144,24 +143,23 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                     child: TextFormField(
                                       controller: libelleCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir le titre';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.headline6,
-                                          color: themeData.colorScheme.onBackground,
-                                          letterSpacing: -0.4,
-                                          fontWeight: 800),
+                                      style: themeData.textTheme.titleLarge?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                      ),
                                       decoration: InputDecoration(
                                         fillColor: themeData.colorScheme.background,
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.headline5,
-                                            color:
-                                            themeData.colorScheme.onBackground,
-                                            letterSpacing: -0.4,
-                                            fontWeight: 800),
+                                        hintStyle: themeData.textTheme.headlineSmall?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.4,
+                                        ),
                                         filled: false,
                                         hintText: "Nom de l'annonceur",
                                         border: InputBorder.none,
@@ -169,7 +167,7 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                         focusedBorder: InputBorder.none,
                                       ),
                                       autocorrect: false,
-                                      autovalidate: false,
+                                      autovalidateMode: AutovalidateMode.disabled,
                                       textCapitalization:
                                       TextCapitalization.sentences,
                                     ),
@@ -179,26 +177,35 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                     child: TextFormField(
                                       controller: phoneCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir le numéro de téléphone';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0
+                                      ),/*AppTheme.getTextStyle(
                                           themeData.textTheme.bodyText2,
                                           color: themeData.colorScheme.onBackground,
                                           fontWeight: 500,
                                           letterSpacing: 0,
-                                          muted: true),
+                                          muted: true),*/
                                       decoration: InputDecoration(
                                         hintText: "Numéro de téléphone",
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.bodyText2,
-                                            color:
-                                            themeData.colorScheme.onBackground,
-                                            fontWeight: 600,
-                                            letterSpacing: 0,
-                                            xMuted: true),
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0,
+                                        ),
+                                        // AppTheme.getTextStyle(
+                                        //     themeData.textTheme.bodyText2,
+                                        //     color:
+                                        //     themeData.colorScheme.onBackground,
+                                        //     fontWeight: 600,
+                                        //     letterSpacing: 0,
+                                        //     xMuted: true),
                                         border: UnderlineInputBorder(
                                           borderSide: BorderSide(
                                               width: 1.5,
@@ -251,13 +258,12 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                     margin: Spacing.left(12),
                                     child: Text(
                                       "Retour".toUpperCase(),
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
-                                          fontSize: 12,
-                                          letterSpacing: 0.7,
-                                          color:
-                                          themeData.colorScheme.onPrimary,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodySmall?.copyWith(
+                                        color: themeData.colorScheme.onPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                        letterSpacing: 0.7,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -268,7 +274,7 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                 height: MySize.size32,
                                 alignment: Alignment.center,
                                 margin: EdgeInsets.symmetric(horizontal: 12),
-                                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                                   : InkWell(
                                 onTap: () {
                                   checkEventForm(context);
@@ -285,13 +291,12 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                                         margin: Spacing.left(12),
                                         child: Text(
                                           "Enregistrer".toUpperCase(),
-                                          style: AppTheme.getTextStyle(
-                                              themeData.textTheme.caption,
-                                              fontSize: 12,
-                                              letterSpacing: 0.7,
-                                              color:
-                                              themeData.colorScheme.onPrimary,
-                                              fontWeight: 600),
+                                          style: themeData.textTheme.bodySmall?.copyWith(
+                                            color: themeData.colorScheme.onPrimary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            letterSpacing: 0.7,
+                                          ),
                                         ),
                                       ),
                                       Container(
@@ -340,9 +345,10 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                   children: [
                     Expanded(child: Text(
                       "Bannière",
-                      style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     IconButton(icon: Icon(
                       MdiIcons.fileEdit,
@@ -370,11 +376,16 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                     margin: Spacing.symmetric(vertical: 2, horizontal: 16),
                     alignment: Alignment.center,
                     child: Text("Aucune image selectionnée",
-                      style: AppTheme.getTextStyle(themeData.textTheme.caption,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground,
-                          xMuted: true),
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                      // AppTheme.getTextStyle(themeData.textTheme.caption,
+                      //     fontSize: 12,
+                      //     fontWeight: 600,
+                      //     color: themeData.colorScheme.onBackground,
+                      //     xMuted: true),
                     ),)
                       : Container(
                     margin: Spacing.top(4),
@@ -414,7 +425,7 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                         margin: EdgeInsets.only(left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall!.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -430,7 +441,7 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge!.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -460,20 +471,20 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
         });
     print("$TAG:showBottomSheetPickImage $resultAction");
     if(resultAction == 'camera') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     } else if(resultAction == 'gallerie') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     }
   }
 
   void checkEventForm(BuildContext buildContext) {
-    if(_formEventKey.currentState.validate()) {
+    if(_formEventKey.currentState!.validate()) {
 
       print("$TAG:checkEventForm all is OK");
       saveEvent(buildContext);
@@ -542,8 +553,8 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: annoncerModel == null ? '' : annoncerModel.cover_picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: annoncerModel == null ? '' : annoncerModel.compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: annoncerModel == null ? '' : annoncerModel.checkout_phone_number,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at!.seconds,
     };
     final id = await dbHelper.update_user(row);
     print('${TAG}:updateDbAnnoncer updated row id: $id');

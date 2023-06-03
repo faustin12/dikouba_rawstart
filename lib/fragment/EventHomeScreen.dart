@@ -1,22 +1,22 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/activity/event/eventdetailslive_activity.dart';
-import 'package:dikouba/activity/event/eventnewevent_activity.dart';
-import 'package:dikouba/activity/eventnewsessions_activity.dart';
-import 'package:dikouba/main.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/evenementfavoris_model.dart';
-import 'package:dikouba/model/evenementlike_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dikouba/widget/SingleSondageWidget.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetailslive_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventnewevent_activity.dart';
+import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
+import 'package:dikouba_rawstart/main.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/evenementfavoris_model.dart';
+import 'package:dikouba_rawstart/model/evenementlike_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/widget/SingleSondageWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -32,7 +32,7 @@ import 'package:geocoder/geocoder.dart';
 class EventHomeScreen extends StatefulWidget {
   UserModel userModel;
 
-  EventHomeScreen(this.userModel, {this.analytics, this.observer});
+  EventHomeScreen(this.userModel, {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -44,13 +44,13 @@ class EventHomeScreen extends StatefulWidget {
 class _EventHomeScreenState extends State<EventHomeScreen> {
   static final String TAG = '_EventHomeScreenState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   bool _isEventAllFinding = false;
-  List<EvenementModel> _listEventsAll;
+  late List<EvenementModel> _listEventsAll;
 
-  List<Widget> _listPageWidgets = new List();
+  List<Widget> _listPageWidgets = [];
   Map<String, EvenementLikeModel> mapLikemdl = {};
   Map<String, EvenementFavorisModel> mapFavorismdl = {};
 
@@ -62,11 +62,11 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -100,7 +100,7 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             navigatorKey: MyApp.HomeNavigatorKey,
@@ -143,18 +143,19 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
                             alignment: Alignment.center,
                             child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                  DikoubaColors.blue['pri']),
+                                  DikoubaColors.blue['pri']!),
                             ),
                           ));
                         } else {
-                          if (snapshot.hasError)
+                          if (snapshot.hasError) {
                             return Center(
                                 child: Text('Erreur: ${snapshot.error}'));
-                          else
+                          } else {
                             return ListView(
                               padding: Spacing.vertical(0),
-                              children: snapshot.data,
+                              children: snapshot.data!,
                             );
+                          }
                         }
                       }),
                 )));
@@ -191,17 +192,21 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
                     child: Container(
                       margin: Spacing.left(12),
                       child: TextFormField(
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.bodyText2,
-                            color: themeData.colorScheme.onBackground,
-                            fontWeight: 500),
+                        style: themeData.textTheme.bodyMedium?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w500,
+                        ),
                         decoration: InputDecoration(
                           fillColor: customAppTheme.bgLayer1,
-                          hintStyle: AppTheme.getTextStyle(
-                              themeData.textTheme.bodyText2,
-                              color: themeData.colorScheme.onBackground,
-                              muted: true,
-                              fontWeight: 500),
+                          hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                            color: themeData.colorScheme.onBackground,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          // AppTheme.getTextStyle(
+                          //     themeData.textTheme.bodyText2,
+                          //     color: themeData.colorScheme.onBackground,
+                          //     muted: true,
+                          //     fontWeight: 500),
                           hintText: "Find Events...",
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -248,14 +253,16 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
     _listPageWidgets.add(Container(
       margin: Spacing.top(8),
       padding: Spacing.vertical(8),
-      child: MultipleEventsWidget(customAppTheme, widget.userModel),
+      child: MultipleEventsWidget(customAppTheme, widget.userModel, analytics: widget.analytics, observer: widget.observer, ),
     ));
     _listPageWidgets.add(Container(
       margin: Spacing.fromLTRB(24, 16, 24, 0),
       child: Text(
         "Tous les évènements",
-        style: AppTheme.getTextStyle(themeData.textTheme.subtitle1,
-            fontWeight: 700, color: themeData.colorScheme.onBackground),
+        style: themeData.textTheme.titleMedium?.copyWith(
+          color: themeData.colorScheme.onBackground,
+          fontWeight: FontWeight.w700,
+        )
       ),
     ));
 
@@ -271,9 +278,9 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
       for (int i = 0; i < responseEvents.data.length; i++) {
         EvenementModel item = EvenementModel.fromJson(responseEvents.data[i]);
         DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(item.start_date.seconds) * 1000);
+            int.parse(item.start_date!.seconds) * 1000);
         DateTime _endDate = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(item.end_date.seconds) * 1000);
+            int.parse(item.end_date!.seconds) * 1000);
 
         list.add(item);
         listWidgets.add(Container(
@@ -285,13 +292,13 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
               mapLikemdl.containsKey(item.id_evenements),
               mapFavorismdl.containsKey(item.id_evenements),
               title: "${item.title}",
-              image: '${item.banner_path}',
-              date: "${DateFormat('dd').format(_startDate)}",
-              month: "${DateFormat('MMM').format(_startDate)}",
+              image: item.banner_path,
+              date: DateFormat('dd').format(_startDate),
+              month: DateFormat('MMM').format(_startDate),
               subject: "${item.description}",
               time:
                   "Du ${DateFormat('dd MMM HH:mm').format(_startDate)}\nAu ${DateFormat('dd MMM HH:mm').format(_endDate)}",
-              width: MySize.safeWidth - MySize.size48),
+              width: MySize.safeWidth - MySize.size48, analytics: widget.analytics, observer: widget.observer,),
         ));
       }
       _listPageWidgets.addAll(listWidgets);
@@ -305,12 +312,12 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findUserEventLikes ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           EvenementLikeModel item =
               EvenementLikeModel.fromJson(responseEvents.data[i]);
 
-          mapLikemdl[item.id_evenements] = item;
+          mapLikemdl[item.id_evenements!] = item;
         }
 
         if (!mounted) return;
@@ -328,12 +335,12 @@ class _EventHomeScreenState extends State<EventHomeScreen> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findUserEventFavoris ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           EvenementFavorisModel item =
               EvenementFavorisModel.fromJson(responseEvents.data[i]);
 
-          mapFavorismdl[item.id_evenements] = item;
+          mapFavorismdl[item.id_evenements!] = item;
         }
 
         if (!mounted) return;
@@ -353,7 +360,7 @@ class MultipleEventsWidget extends StatefulWidget {
   CustomAppTheme customAppTheme;
   UserModel userModel;
   MultipleEventsWidget(this.customAppTheme, this.userModel,
-      {this.analytics, this.observer});
+      {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
@@ -361,7 +368,7 @@ class MultipleEventsWidget extends StatefulWidget {
 }
 
 class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
-  static final String TAG = 'MultipleEventsWidgetState';
+  static const String TAG = 'MultipleEventsWidgetState';
   static const int INDEX_POPULAR = 0;
   static const int INDEX_SONDAGE = 2;
   static const int INDEX_LIVE = 1;
@@ -372,7 +379,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
 
   int selectedCategory = INDEX_POPULAR;
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   @override
   void initState() {
@@ -440,7 +447,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
               ? Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                        DikoubaColors.blue['pri']),
+                        DikoubaColors.blue['pri']!),
                   ),
                 )
               : (selectedCategory == INDEX_SONDAGE)
@@ -449,12 +456,17 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
                           margin: Spacing.fromLTRB(24, 16, 24, 0),
                           child: Text(
                             "Aucun sondage trouvé",
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 12,
-                                color: themeData.colorScheme.onBackground,
-                                fontWeight: 500,
-                                xMuted: true),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
+                            // AppTheme.getTextStyle(
+                            //     themeData.textTheme.caption,
+                            //     fontSize: 12,
+                            //     color: themeData.colorScheme.onBackground,
+                            //     fontWeight: 500,
+                            //     xMuted: true),
                           ),
                         )
                       : Container(
@@ -472,7 +484,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
                                     widget.customAppTheme,
                                     _listSondages[indexCateg],
                                     widget.userModel,
-                                    MySize.safeWidth - MySize.size48),
+                                    MySize.safeWidth - MySize.size48, onUpdateClickListener: () => {},), // TODO : Change onUpdateClickListener
                               );
                             },
                           ),
@@ -483,12 +495,17 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
                           margin: Spacing.fromLTRB(24, 16, 24, 0),
                           child: Text(
                             "Aucun évènement trouvé",
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 12,
-                                color: themeData.colorScheme.onBackground,
-                                fontWeight: 500,
-                                xMuted: true),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.onBackground,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
+                            // AppTheme.getTextStyle(
+                            //     themeData.textTheme.caption,
+                            //     fontSize: 12,
+                            //     color: themeData.colorScheme.onBackground,
+                            //     fontWeight: 500,
+                            //     xMuted: true),
                           ),
                         )
                       : Container(
@@ -505,21 +522,21 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
 
                               DateTime _startDate =
                                   DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(item.start_date.seconds) *
+                                      int.parse(item.start_date!.seconds) *
                                           1000);
                               DateTime _endDate =
                                   DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(item.end_date.seconds) * 1000);
+                                      int.parse(item.end_date!.seconds) * 1000);
 
                               return Container(
                                 margin: Spacing.left(24),
                                 child: singleEvent(item,
                                     title: "${item.title}",
-                                    image: '${item.banner_path}',
+                                    image: item.banner_path,
                                     date:
-                                        "${DateFormat('dd').format(_startDate)}",
+                                        DateFormat('dd').format(_startDate),
                                     month:
-                                        "${DateFormat('MMM').format(_startDate)}",
+                                        DateFormat('MMM').format(_startDate),
                                     subject: "${item.description}",
                                     time:
                                         "${DateFormat('dd MMM HH:mm').format(_startDate)} - ${DateFormat('dd MMM HH:mm').format(_endDate)}",
@@ -534,13 +551,13 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
     );
   }
 
-  Widget singleCategory({IconData iconData, String title, int index}) {
+  Widget singleCategory({IconData? iconData, String? title, int? index}) {
     bool isSelected = (selectedCategory == index);
     return InkWell(
         onTap: () {
           if (!isSelected) {
             setState(() {
-              selectedCategory = index;
+              selectedCategory = index!;
               updateEventList();
             });
           }
@@ -578,11 +595,12 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
               Container(
                 margin: Spacing.left(8),
                 child: Text(
-                  title,
-                  style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                      color: isSelected
+                  title!,
+                  style: themeData.textTheme.bodyMedium?.copyWith(
+                    color: isSelected
                           ? themeData.colorScheme.onPrimary
-                          : themeData.colorScheme.onBackground),
+                          : themeData.colorScheme.onBackground,
+                  ),
                 ),
               )
             ],
@@ -591,14 +609,14 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
   }
 
   Widget singleEvent(EvenementModel evenementModel,
-      {String image,
-      String date,
-      String month,
-      String title,
-      String subject,
-      String time,
-      @required double width,
-      @required bool isLive}) {
+      {String? image,
+      String? date,
+      String? month,
+      String? title,
+      String? subject,
+      String? time,
+      required double width,
+      required bool isLive}) {
     return InkWell(
       onTap: () {
         if (isLive) {
@@ -642,16 +660,19 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
           children: [
             Container(
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(MySize.size8),
                         topRight: Radius.circular(MySize.size8)),
-                    child: Image(
-                      image: image.contains('assets')
-                          ? AssetImage(image)
-                          : NetworkImage(image),
+                    child: image!.contains('assets') ? Image(
+                      image: AssetImage(image),
+                      fit: BoxFit.cover,
+                      width: width,
+                      height: width * 0.5,
+                    ) : Image(
+                      image: NetworkImage(image),
                       fit: BoxFit.cover,
                       width: width,
                       height: width * 0.5,
@@ -679,20 +700,20 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
                       child: Column(
                         children: [
                           Text(
-                            date,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.bodyText2,
-                                color: DikoubaColors.blue['pri'],
-                                fontWeight: 600),
+                            date!,
+                            style: themeData.textTheme.bodyMedium?.copyWith(
+                              color: DikoubaColors.blue['pri']!,
+                              fontWeight: FontWeight.w600,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           Text(
-                            month,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 11,
-                                color: DikoubaColors.blue['pri'],
-                                fontWeight: 600),
+                            month!,
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: DikoubaColors.blue['pri']!,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -708,12 +729,13 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    title!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                        color: themeData.colorScheme.onBackground,
-                        fontWeight: 600),
+                    style: themeData.textTheme.bodyMedium?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -735,10 +757,10 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
         findEventsPopular();
         break;
       case INDEX_SONDAGE:
-        _listEventsPending = new List();
+        _listEventsPending = [];
         findSondage();
         // setState(() {
-        //   _listEventsPending = new List();
+        //   _listEventsPending = [];
         // });
         break;
     }
@@ -752,7 +774,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:requestCustomerAddress ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(EvenementModel.fromJson(responseEvents.data[i]));
         }
@@ -786,7 +808,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:requestCustomerAddress ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(EvenementModel.fromJson(responseEvents.data[i]));
         }
@@ -822,7 +844,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:requestCustomerAddress ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(EvenementModel.fromJson(responseEvents.data[i]));
         }
@@ -856,7 +878,7 @@ class MultipleEventsWidgetState extends State<MultipleEventsWidget> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findSondage ${responseEvents.statusCode}|${responseEvents.data}");
-        List<SondageModel> list = new List();
+        List<SondageModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(SondageModel.fromJson(responseEvents.data[i]));
         }
@@ -898,15 +920,15 @@ class SingleEventsWidget extends StatefulWidget {
   double width;
   SingleEventsWidget(this.customAppTheme, this.evenementModel, this.idUser,
       this.hasLike, this.hasFavoris,
-      {this.image,
-      this.date,
-      this.month,
-      this.title,
-      this.subject,
-      this.time,
-      @required this.width,
-      this.analytics,
-      this.observer});
+      {required this.image,
+      required this.date,
+      required this.month,
+      required this.title,
+      required this.subject,
+      required this.time,
+      required this.width,
+      required this.analytics,
+      required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -915,9 +937,9 @@ class SingleEventsWidget extends StatefulWidget {
 }
 
 class SingleEventsWidgetState extends State<SingleEventsWidget> {
-  static final String TAG = 'SingleEventsWidgetState';
+  static const String TAG = 'SingleEventsWidgetState';
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
   bool _isEventLiking = false;
   bool _isEventFavoring = false;
@@ -925,8 +947,8 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+        double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     var addresses =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -942,16 +964,16 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
 
   void checkFreeEvent() async {
     API
-        .findEventPackage(widget.evenementModel.id_evenements)
+        .findEventPackage(widget.evenementModel.id_evenements!)
         .then((responsePackage) {
       if (responsePackage.statusCode == 200) {
         print(
             "findEventPackages ${responsePackage.statusCode}|${responsePackage.data}");
-        List<PackageModel> list = new List();
+        List<PackageModel> list = [];
         for (int i = 0; i < responsePackage.data.length; i++) {
           PackageModel packageModelgetMdl =
               PackageModel.fromJson(responsePackage.data[i]);
-          if (int.parse(packageModelgetMdl.price) > 0) {
+          if (int.parse(packageModelgetMdl.price!) > 0) {
             return;
           }
         }
@@ -1007,16 +1029,19 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
           children: [
             Container(
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(MySize.size8),
                         topRight: Radius.circular(MySize.size8)),
-                    child: Image(
-                      image: widget.image.contains('assets')
-                          ? AssetImage(widget.image)
-                          : NetworkImage(widget.image),
+                    child: widget.image.contains('assets') ? Image(
+                      image: NetworkImage(widget.image),
+                      fit: BoxFit.cover,
+                      width: widget.width,
+                      height: widget.width * 0.5,
+                    ) : Image(
+                      image: AssetImage(widget.image),
                       fit: BoxFit.cover,
                       width: widget.width,
                       height: widget.width * 0.5,
@@ -1045,19 +1070,19 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                         children: [
                           Text(
                             widget.date,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.bodyText2,
-                                color: DikoubaColors.blue['pri'],
-                                fontWeight: 600),
+                            style: themeData.textTheme.bodyMedium?.copyWith(
+                              color: DikoubaColors.blue['pri']!,
+                              fontWeight: FontWeight.w600,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           Text(
                             widget.month,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 11,
-                                color: DikoubaColors.blue['pri'],
-                                fontWeight: 600),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: DikoubaColors.blue['pri'],
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -1116,10 +1141,10 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                       maxLines: 1,
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.bodyText2,
-                          color: themeData.colorScheme.onBackground,
-                          fontWeight: 600),
+                      style: themeData.textTheme.bodyMedium?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                     Container(
                         child: Text(
@@ -1127,10 +1152,10 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                       maxLines: 1,
                       textAlign: TextAlign.end,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.bodyText2,
-                          color: Colors.green,
-                          fontWeight: 600),
+                      style: themeData.textTheme.bodyMedium?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )),
                   ])),
                   Container(
@@ -1148,12 +1173,17 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                                   _eventLocationAddress,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.caption,
-                                      fontSize: 10,
-                                      color: themeData.colorScheme.onBackground,
-                                      fontWeight: 500,
-                                      xMuted: true),
+                                  style: themeData.textTheme.bodySmall?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10,
+                                  ),
+                                  // AppTheme.getTextStyle(
+                                  //     themeData.textTheme.caption,
+                                  //     fontSize: 10,
+                                  //     color: themeData.colorScheme.onBackground,
+                                  //     fontWeight: 500,
+                                  //     xMuted: true),
                                 ),
                               ),
                               Container(
@@ -1162,12 +1192,17 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
                                   widget.time,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.caption,
-                                      fontSize: 10,
-                                      color: themeData.colorScheme.onBackground,
-                                      fontWeight: 500,
-                                      xMuted: true),
+                                  style: themeData.textTheme.bodySmall?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10,
+                                  ),
+                                  // AppTheme.getTextStyle(
+                                  //     themeData.textTheme.caption,
+                                  //     fontSize: 10,
+                                  //     color: themeData.colorScheme.onBackground,
+                                  //     fontWeight: 500,
+                                  //     xMuted: true),
                                 ),
                               ),
                             ],
@@ -1187,10 +1222,10 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
 
                                     if (widget.hasFavoris) {
                                       unFavorisEvent(
-                                          widget.evenementModel.id_evenements);
+                                          widget.evenementModel.id_evenements!);
                                     } else {
                                       favorisEvent(
-                                          widget.evenementModel.id_evenements);
+                                          widget.evenementModel.id_evenements!);
                                     }
                                   },
                                   child: widget.hasFavoris
@@ -1235,10 +1270,10 @@ class SingleEventsWidgetState extends State<SingleEventsWidget> {
 
                                     if (widget.hasLike) {
                                       unLikeEvent(
-                                          widget.evenementModel.id_evenements);
+                                          widget.evenementModel.id_evenements!);
                                     } else {
                                       likeEvent(
-                                          widget.evenementModel.id_evenements);
+                                          widget.evenementModel.id_evenements!);
                                     }
                                   },
                                   child: widget.hasLike

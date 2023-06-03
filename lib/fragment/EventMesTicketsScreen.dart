@@ -2,22 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/fragment/EventHomeScreen.dart';
-import 'package:dikouba/fragment/PaypalPayment_v2.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/ticket_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/paypal_service_v2.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/Generator.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/fragment/EventHomeScreen.dart';
+import 'package:dikouba_rawstart/fragment/PaypalPayment_v2.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/ticket_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/paypal_service_v2.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/Generator.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,7 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
-import 'package:dikouba/utils/DashedDivider.dart';
+import 'package:dikouba_rawstart/utils/DashedDivider.dart';
 
 import 'package:geocoder/geocoder.dart';
 
@@ -41,7 +41,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class EventMesTicketsScreen extends StatefulWidget {
   UserModel userModel;
-  EventMesTicketsScreen(this.userModel, {this.analytics, this.observer});
+  EventMesTicketsScreen(this.userModel, {required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -51,8 +51,8 @@ class EventMesTicketsScreen extends StatefulWidget {
 
 class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
   static final String TAG = '_EventSondagesScreenState';
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   bool _isFinding = false;
   List<TicketModel> _listTickets = [];
@@ -65,11 +65,11 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -102,7 +102,7 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -117,11 +117,16 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                         MySize.size16, MySize.size8, MySize.size18, 0),
                     child: Text(
                       "Nombre de tickets ${_listTickets.length}",
-                      style: AppTheme.getTextStyle(themeData.textTheme.caption,
-                          fontSize: MySize.size14,
-                          color: themeData.colorScheme.onBackground,
-                          fontWeight: 500,
-                          xMuted: true),
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: MySize.size14,
+                      ),
+                      // AppTheme.getTextStyle(themeData.textTheme.caption,
+                      //     fontSize: MySize.size14,
+                      //     color: themeData.colorScheme.onBackground,
+                      //     fontWeight: 500,
+                      //     xMuted: true),
                     ),
                   ),
                   Expanded(
@@ -129,7 +134,7 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                           ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             )
                           : (_listTickets == null || _listTickets.length == 0)
@@ -138,13 +143,18 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                                       MySize.size8, MySize.size18, 0),
                                   child: Text(
                                     "Aucun ticket trouvé",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.caption,
-                                        fontSize: 12,
-                                        color:
-                                            themeData.colorScheme.onBackground,
-                                        fontWeight: 500,
-                                        xMuted: true),
+                                    style: themeData.textTheme.bodySmall?.copyWith(
+                                      color: themeData.colorScheme.onBackground,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12,
+                                    ),
+                                    // AppTheme.getTextStyle(
+                                    //     themeData.textTheme.caption,
+                                    //     fontSize: 12,
+                                    //     color:
+                                    //         themeData.colorScheme.onBackground,
+                                    //     fontWeight: 500,
+                                    //     xMuted: true),
                                   ),
                                 )
                               : ListView.separated(
@@ -172,7 +182,7 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
 
   Widget singleTicket(TicketModel ticketModel) {
     DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(ticketModel.created_at.seconds) * 1000);
+        int.parse(ticketModel.created_at!.seconds) * 1000);
     bool _goodTicket = false;
     return Container(
       margin:
@@ -205,20 +215,26 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                 children: [
                   Text(
                     DateFormat('dd').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.headline6,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.headlineSmall?.copyWith(
+                      color: DikoubaColors.blue['pri']!,
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   Text(
                     DateFormat('MMM').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText1,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.bodyLarge?.copyWith(
+                      color: DikoubaColors.blue['pri'],
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   Text(
                     DateFormat('HH:mm').format(_startDate),
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                        color: DikoubaColors.blue['pri'], fontWeight: 600),
+                    style: themeData.textTheme.bodyMedium?.copyWith(
+                      color: DikoubaColors.blue['pri'],
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -237,13 +253,13 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                       children: [
                         Expanded(
                             child: Text(
-                              ticketModel.evenements.title,
+                              ticketModel.evenements!.title!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle2,
-                              color: themeData.colorScheme.onBackground,
-                              fontWeight: 600),
+                              style: themeData.textTheme.titleSmall?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                                fontWeight: FontWeight.w600,
+                              ),
                         )),
                         if (ticketModel.statut == "SUCCESSFULL" || ticketModel.statut == "COMPLETE" || ticketModel.statut == "COMPLETED")
                         InkWell(
@@ -285,7 +301,7 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
 
                             print("$TAG:checkedId ${scanned_id_users} | ${scanned_id_tickets} | ${scanned_id_evenements} | ${scanned_id_packages}");
 
-                            _goodTicket = (scanned_id_evenements == ticketModel.evenements.id_evenements &&
+                            _goodTicket = (scanned_id_evenements == ticketModel.evenements!.id_evenements &&
                                 scanned_id_tickets == ticketModel.id_tickets);
                              /*showDialog(
                                  context: context,
@@ -342,25 +358,30 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                             children: [
                               Text(
                                 "Paiement",
-                                style: AppTheme.getTextStyle(
-                                    themeData.textTheme.caption,
-                                    fontWeight: 600,
-                                    letterSpacing: 0,
-                                    fontSize: MySize.size12,
-                                    color: themeData.colorScheme.onBackground,
-                                    xMuted: true),
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0,
+                                  fontSize: MySize.size12,
+                                ),
+                                // AppTheme.getTextStyle(
+                                //     themeData.textTheme.caption,
+                                //     fontWeight: 600,
+                                //     letterSpacing: 0,
+                                //     fontSize: MySize.size12,
+                                //     color: themeData.colorScheme.onBackground,
+                                //     xMuted: true),
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   ticketModel.payment_method == "null" ? (ticketModel.statut == "WAITING_PAYMENT" ? "PAYPAL" : "Free")
-                                      : ticketModel.payment_method,
+                                      : ticketModel.payment_method!,
                                   maxLines: 1,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12,
+                                  ),
                                 ),
                               )
                             ],
@@ -371,24 +392,29 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                             children: [
                               Text(
                                 "Presence",
-                                style: AppTheme.getTextStyle(
-                                    themeData.textTheme.caption,
-                                    fontWeight: 600,
-                                    letterSpacing: 0,
-                                    color: themeData.colorScheme.onBackground,
-                                    fontSize: MySize.size12,
-                                    xMuted: true),
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0,
+                                  fontSize: MySize.size12,
+                                ),
+                                // AppTheme.getTextStyle(
+                                //     themeData.textTheme.caption,
+                                //     fontWeight: 600,
+                                //     letterSpacing: 0,
+                                //     color: themeData.colorScheme.onBackground,
+                                //     fontSize: MySize.size12,
+                                //     xMuted: true),
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
-                                  ticketModel.evenn_presence,
+                                  ticketModel.evenn_presence!,
                                   maxLines: 1,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12,
+                                  ),
                                 ),
                               )
                             ],
@@ -399,24 +425,29 @@ class _EventMesTicketsScreenState extends State<EventMesTicketsScreen> {
                             children: [
                               Text(
                                 "Statut",
-                                style: AppTheme.getTextStyle(
-                                    themeData.textTheme.caption,
-                                    fontWeight: 600,
-                                    letterSpacing: 0,
-                                    color: themeData.colorScheme.onBackground,
-                                    fontSize: MySize.size12,
-                                    xMuted: true),
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0,
+                                  fontSize: MySize.size12,
+                                ),
+                                // AppTheme.getTextStyle(
+                                //     themeData.textTheme.caption,
+                                //     fontWeight: 600,
+                                //     letterSpacing: 0,
+                                //     color: themeData.colorScheme.onBackground,
+                                //     fontSize: MySize.size12,
+                                //     xMuted: true),
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
-                                  ticketModel.statut,
+                                  ticketModel.statut!,
                                   maxLines: 1,
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.button,
-                                      fontSize: MySize.size12,
-                                      color:
-                                          themeData.colorScheme.onBackground),
+                                  style: themeData.textTheme.labelLarge?.copyWith(
+                                    color: themeData.colorScheme.onBackground,
+                                    fontSize: MySize.size12,
+                                  ),
                                 ),
                               )
                             ],
@@ -482,28 +513,28 @@ class EventTicketDialog extends StatefulWidget {
 }
 
 class _EventTicketDialogState extends State<EventTicketDialog> {
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   int selectedCategory = 0;
 
   String _eventLocationAddress = "loading";
 
   String _paymentMethod = "Mobile Money";
-  UserModel _userModel;
+  late UserModel _userModel;
 
   List<String> _status = ["Mobile Money", "Paypal"];
   List<String> prefixOM = ["655", "656", "657", "658", "659", "690", "691", "692", "693", "694", "695", "696", "697", "698", "699"];
   List<String> prefixMOMO = ["650", "651", "652", "653", "654", "670", "671", "672", "673", "674", "675", "676", "677", "678", "679", "680", "681"];
   List<String> _buttonOMImageAsset = ['assets/images/momo-1.jpg','assets/images/om-1.jpg','assets/images/momo_om-1.jpg', 'assets/images/paypal-1.webp'];
   int _buttonOMImageIndex = 2;
-  TextEditingController phoneCtrler;
+  late TextEditingController phoneCtrler;
   bool _isPaying = false;
   int checkStatusPaymentCount = 0;
   bool _isChecking = false;
   String _phonenumber ="";
 
-  Timer timer;
+  late Timer timer;
 
   void _proceedPaymentPaypal(BuildContext buildContext, PackageModel packageModel) async {
     setState(() {
@@ -544,7 +575,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
     API
         .retryMobilePay(
-        idTickets: widget.ticketModel.id_tickets,
+        idTickets: widget.ticketModel.id_tickets!,
         idUser: _userModel.id_users,
         phoneNumber: phoneCtrler.text)
         .then((responseEvent) async {
@@ -582,7 +613,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
         API
             .checkTicketMobilePay(
-            idTickets: ticketCreated.id_tickets, idUser: ticketCreated.id_users)
+            idTickets: ticketCreated.id_tickets!, idUser: ticketCreated.id_users!)
             .then((responseEvent) async {
 
           if (responseEvent.statusCode == 200) {
@@ -640,8 +671,8 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
     });
 
     API.retryMobilePay(
-        idTickets: ticketCreated.id_tickets,
-        idUser: ticketCreated.id_users,
+        idTickets: ticketCreated.id_tickets!,
+        idUser: ticketCreated.id_users!,
         phoneNumber: PhoneNbr)
         .then((responseEvent) async {
 
@@ -678,7 +709,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
     API
         .checkTicketMobilePay(
-        idTickets: ticketCreated.id_tickets, idUser: ticketCreated.id_users)
+        idTickets: ticketCreated.id_tickets!, idUser: ticketCreated.id_users!)
         .then((responseEvent) async {
 
       if (responseEvent.statusCode == 200) {
@@ -738,7 +769,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
     API
         .deleteTicket(
-        idTickets: ticketModel.id_tickets, idUser: ticketModel.id_users)
+        idTickets: ticketModel.id_tickets!, idUser: ticketModel.id_users!)
         .then((responseEvent) async {
 
       if (responseEvent.statusCode == 200) {
@@ -759,7 +790,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
     API
         .checkTicketPaypalPay(
-        idTickets: ticketCreated.id_tickets, idUser: ticketCreated.id_users, orderId: orderId)
+        idTickets: ticketCreated.id_tickets!, idUser: ticketCreated.id_users!, orderId: orderId)
         .then((responseEvent) async {
 
       if (responseEvent.statusCode == 200) {
@@ -813,8 +844,8 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
   Future<void> getPositionInfo() async {
     final coordinates = new Coordinates(
-        double.parse(widget.ticketModel.evenements.location.latitude),
-        double.parse(widget.ticketModel.evenements.location.longitude));
+        double.parse(widget.ticketModel.evenements!.location!.latitude),
+        double.parse(widget.ticketModel.evenements!.location!.longitude));
     var addresses =
     await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
@@ -823,8 +854,8 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
     });
   }
 
-  List<PackageModel> _packageList;
-  PackageModel _package;
+  late List<PackageModel> _packageList;
+  late PackageModel _package;
   bool _isFinding = false;
 
   void findPackage() async {
@@ -832,13 +863,13 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
       _isFinding=true;
     });
     API
-        .findEventPackage(widget.ticketModel.id_evenements)
+        .findEventPackage(widget.ticketModel.id_evenements!)
         .then((responsePackage) {
       if (responsePackage.statusCode == 200) {
         print(
             "findEventPackages ${responsePackage.statusCode}|${responsePackage.data}");
-        List<PackageModel> list = new List();
-        PackageModel myPackage;
+        List<PackageModel> list = [];
+        PackageModel? myPackage;
         for (int i = 0; i < responsePackage.data.length; i++) {
           PackageModel packageModelgetMdl =
           PackageModel.fromJson(responsePackage.data[i]);
@@ -848,7 +879,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
           }
         }
         setState(() {
-          _package = myPackage;
+          _package = myPackage!;
           _isFinding=false;
         });
       } else {
@@ -897,7 +928,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return Dialog(
             shape: RoundedRectangleBorder(
@@ -915,7 +946,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: NetworkImage(widget.ticketModel.evenements.banner_path), fit: BoxFit.cover),
+                            image: NetworkImage(widget.ticketModel.evenements!.banner_path), fit: BoxFit.cover),
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(15.0),
                             topRight: Radius.circular(15.0)),
@@ -954,11 +985,11 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                 Container(
                   margin: Spacing.fromLTRB(16, 16, 16, 0),
                   child: Text(
-                    widget.ticketModel.evenements.title,
-                    style: AppTheme.getTextStyle(
-                        themeData.textTheme.bodyText1,
-                        color: themeData.colorScheme.onBackground,
-                        fontWeight: 600),
+                    widget.ticketModel.evenements!.title!,
+                    style: themeData.textTheme.bodyLarge?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Container(
@@ -972,19 +1003,21 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                           children: [
                             Text(
                               "Date",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.caption,
-                                  color:
-                                  themeData.colorScheme.onBackground,
-                                  xMuted: true),
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                              ),
+                              // AppTheme.getTextStyle(
+                              //     themeData.textTheme.caption,
+                              //     color:
+                              //     themeData.colorScheme.onBackground,
+                              //     xMuted: true),
                             ),
                             Text(
                               DateFormat('dd MMMM yyyy').format(DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(widget.ticketModel.created_at.seconds) * 1000)),
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText2,
-                                  color:
-                                  themeData.colorScheme.onBackground),
+                                  int.parse(widget.ticketModel.created_at!.seconds) * 1000)),
+                              style: themeData.textTheme.bodyMedium?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                              ),
                             )
                           ],
                         ),
@@ -995,19 +1028,21 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                           children: [
                             Text(
                               "Time",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.caption,
-                                  color:
-                                  themeData.colorScheme.onBackground,
-                                  xMuted: true),
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                              ),
+                              // AppTheme.getTextStyle(
+                              //     themeData.textTheme.caption,
+                              //     color:
+                              //     themeData.colorScheme.onBackground,
+                              //     xMuted: true),
                             ),
                             Text(
                               DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(widget.ticketModel.created_at.seconds) * 1000)),
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText2,
-                                  color:
-                                  themeData.colorScheme.onBackground),
+                                  int.parse(widget.ticketModel.created_at!.seconds) * 1000)),
+                              style: themeData.textTheme.bodyMedium?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                              ),
                             )
                           ],
                         ),
@@ -1022,17 +1057,20 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                     children: [
                       Text(
                         "Place",
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.caption,
-                            xMuted: true,
-                            color: themeData.colorScheme.onBackground),
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                        ),
+                        // AppTheme.getTextStyle(
+                        //     themeData.textTheme.caption,
+                        //     xMuted: true,
+                        //     color: themeData.colorScheme.onBackground),
                       ),
                       Text(
                         _eventLocationAddress,
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.bodyText1,
-                            color: themeData.colorScheme.onBackground,
-                            fontWeight: 500),
+                        style: themeData.textTheme.bodyLarge?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w500,
+                        ),
                       )
                     ],
                   ),
@@ -1049,11 +1087,8 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                 Container(
                   margin: Spacing.vertical(MySize.size8),
                   child: (widget.ticketModel.statut == "REQUEST_ACCEPTED" || widget.ticketModel.statut == "SUCCESSFULL" || widget.ticketModel.statut == "COMPLETE" || widget.ticketModel.statut == "COMPLETED") ?
-                  Center(child: QrImage(
-                        data: '{"id_users":"' + widget.ticketModel.id_users +
-                                '","id_tickets":"' + widget.ticketModel.id_tickets +
-                                '","id_evenements":"' + widget.ticketModel.id_evenements +
-                                '","id_packages":"' + widget.ticketModel.id_packages + '"}',
+                  Center(child: QrImageView(
+                        data: '{"id_users":"${widget.ticketModel.id_users!}","id_tickets":"${widget.ticketModel.id_tickets!}","id_evenements":"${widget.ticketModel.id_evenements!}","id_packages":"${widget.ticketModel.id_packages!}"}',
                         version: QrVersions.auto,
                         size: 200.0,
                       ) )
@@ -1066,7 +1101,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                               alignment: Alignment.center,
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             ) : InkWell(
                                   onTap: () {
@@ -1084,13 +1119,19 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                                       margin: Spacing.left(12),
                                       child: Row(children: [Text(
                                         "Re-vérifier le ticket",
-                                        style: AppTheme.getTextStyle(
-                                            themeData.textTheme.bodyText2,
-                                            fontSize: MySize.size22,
-                                            letterSpacing: 0.7,
-                                            color:
-                                            themeData.colorScheme.onPrimary,
-                                            fontWeight: 600),
+                                        style: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: MySize.size12,
+                                          letterSpacing: 0.7,
+                                        ),
+                                        // AppTheme.getTextStyle(
+                                        //     themeData.textTheme.bodyText2,
+                                        //     fontSize: MySize.size22,
+                                        //     letterSpacing: 0.7,
+                                        //     color:
+                                        //     themeData.colorScheme.onPrimary,
+                                        //     fontWeight: 600),
                                       ),
                                       Icon(
                                         Icons.refresh,
@@ -1108,7 +1149,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                                       value: _status[0],
                                       groupValue: _paymentMethod,
                                       onChanged: (value) => setState(() {
-                                        _paymentMethod = value;
+                                        _paymentMethod = value!;
                                       }),
                                     ),
                                     Image(image: AssetImage(_buttonOMImageAsset[2]), width: MySize.size100)
@@ -1120,7 +1161,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                                       value: _status[1],
                                       groupValue: _paymentMethod,
                                       onChanged: (value) => setState(() {
-                                        _paymentMethod = value;
+                                        _paymentMethod = value!;
                                       }),
                                     ),
                                     Image(image: AssetImage(_buttonOMImageAsset[3]), width: MySize.size100)
@@ -1146,23 +1187,24 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                                 print("phone_changed " + text + " " + _buttonOMImageAsset[_buttonOMImageIndex]);
                               },
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir le numéro de téléphone';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(themeData.textTheme.bodyText1,
-                                  color: themeData.colorScheme.onBackground,
-                                  letterSpacing: -0.4,
-                                  fontWeight: 800),
+                              style: themeData.textTheme.bodyLarge?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.4
+                              ),
                               keyboardType: TextInputType.phone,
                               decoration: InputDecoration(
                                 fillColor: themeData.colorScheme.background,
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText1,
-                                    color: themeData.colorScheme.onBackground,
-                                    letterSpacing: -0.4,
-                                    fontWeight: 800),
+                                hintStyle: themeData.textTheme.bodyLarge?.copyWith(
+                                  color: themeData.colorScheme.onBackground,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: -0.4,
+                                ),
                                 filled: false,
                                 hintText: "Numéro de téléphone",
                                 enabledBorder: InputBorder.none,
@@ -1179,7 +1221,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                               alignment: Alignment.center,
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             ) : InkWell(
                               onTap: () {
@@ -1197,13 +1239,12 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
                                   margin: Spacing.left(12),
                                   child: Row(children: [Text(
                                     "Reéssayer le paiement",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontSize: MySize.size22,
-                                        letterSpacing: 0.7,
-                                        color:
-                                        themeData.colorScheme.onPrimary,
-                                        fontWeight: 600),
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                      color: themeData.colorScheme.onPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: MySize.size22,
+                                      letterSpacing: 0.7,
+                                    ),
                                   )
                                   ]),
                                 ),
@@ -1221,8 +1262,8 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
 
 class _QRViewExampleState extends State<QRViewExample> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  Barcode result;
-  QRViewController controller;
+  late Barcode result;
+  late QRViewController controller;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.

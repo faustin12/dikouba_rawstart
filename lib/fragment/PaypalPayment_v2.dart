@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:io';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter/platform_interface.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:dikouba/provider/paypal_service_v2.dart';
+
+// Import for Android features.
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+// Import for iOS features.
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:dikouba_rawstart/provider/paypal_service_v2.dart';
 
 
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +22,7 @@ class PaypalPaymentV2 extends StatefulWidget {
   final PackageModel packageModel;
 
   PaypalPaymentV2(//this.evenementModel,
-      this.packageModel, {this.onFinish});
+      this.packageModel, {required this.onFinish});
 
   @override
   State<StatefulWidget> createState() {
@@ -28,10 +32,10 @@ class PaypalPaymentV2 extends StatefulWidget {
 
 class PaypalPaymentV2State extends State<PaypalPaymentV2> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String checkoutUrl;
-  String executeUrl;
-  String approvalUrl;
-  String accessToken;
+  late String checkoutUrl;
+  late String executeUrl;
+  late String approvalUrl;
+  late String accessToken;
   PaypalServicesV2 services = PaypalServicesV2();
 
   // you can change default currency according to your need
@@ -47,21 +51,39 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
   @override
   void initState() {
     super.initState();
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(params);
+    // ···
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(true);
+      (controller.platform as AndroidWebViewController)
+          .setMediaPlaybackRequiresUserGesture(false);
+    }
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView(); print('android_platform ' + WebView.platform.toString());
 
     Future.delayed(Duration.zero, () async {
       final transactions = getOrderParams();
       try {
-        accessToken = await services.getAccessToken();
+        accessToken = (await services.getAccessToken())!;
 
 
         final res =
         await services.createPaypalPayment(transactions, accessToken);
         if (res != null) {
           setState(() {
-            checkoutUrl = res["approvalUrl"];
-            executeUrl = res["executeUrl"];
-            approvalUrl = res["approvalUrl"];
+            checkoutUrl = res["approvalUrl"]!;
+            executeUrl = res["executeUrl"]!;
+            approvalUrl = res["approvalUrl"]!;
             print('url_for_web_view ' +checkoutUrl);
           });
         }
@@ -77,7 +99,7 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
             },
           ),
         );
-        _scaffoldKey.currentState.showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     });
   }
@@ -88,7 +110,7 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
 
   Map<String, dynamic> getOrderParams() {
     // checkout invoice details
-    String totalAmount = ((double.parse(widget.packageModel.price)/655.95).round()*quantity).toString();
+    String totalAmount = ((double.parse(widget.packageModel.price!)/655.95).round()*quantity).toString();
 
     Map<String, dynamic> temp = {
       "intent": "CAPTURE",
@@ -117,31 +139,13 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
     return temp;
   }
 
-  WebViewController _controller;
-
-  @override
-  Widget build(BuildContext context) {
-    if (checkoutUrl != null) {
-      print('checkout_url' + checkoutUrl);
-      return /*Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).backgroundColor,
-          leading: GestureDetector(
-            child: Icon(Icons.arrow_back_ios),
-            onTap: () => Navigator.pop(context),
-          ),
-        ),
-        body: */ WebView(
-          initialUrl: checkoutUrl,
-          javascriptMode: JavascriptMode.unrestricted,
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36",
-                      //"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0",
-          onWebViewCreated: (WebViewController webViewController) {
-            _controller = webViewController;
-            //_controller.loadUrl(checkoutUrl);
-          },
-          navigationDelegate: (NavigationRequest request) {
+  late WebViewController _controller = WebViewController()
+    ..loadRequest(Uri.parse(checkoutUrl))
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36")
+    ..setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (NavigationRequest request) {
             print('webview_request' + request.toString());
             if (request.url.contains(returnURL)) {
               final uri = Uri.parse(request.url);
@@ -166,19 +170,14 @@ class PaypalPaymentV2State extends State<PaypalPaymentV2> {
             }
             return NavigationDecision.navigate;
           },
-        //),
-      );
-    } else {
+      )
+    );
+
+  @override
+  Widget build(BuildContext context) {
       return Scaffold(
         key: _scaffoldKey,
-        /*appBar: AppBar(
-          backgroundColor: Theme.of(context).backgroundColor,
-          leading: GestureDetector(
-            child: Icon(Icons.arrow_back_ios),
-            onTap: () => Navigator.pop(context),
-          ),
-        ),*/
-        body: Center(child: Container(child: CircularProgressIndicator())),
+        body: WebViewWidget(controller: _controller),
       );
     }
   }
