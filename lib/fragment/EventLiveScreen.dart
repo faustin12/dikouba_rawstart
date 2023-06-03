@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/fragment/LiveItemFragment.dart';
-import 'package:dikouba/library/bubbleTabCustom/bubbleTab.dart';
-import 'package:dikouba/main.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/fragment/LiveItemFragment.dart';
+import 'package:dikouba_rawstart/library/bubbleTabCustom/bubbleTab.dart';
+import 'package:dikouba_rawstart/main.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +13,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class EventLiveScreen extends StatefulWidget {
-  EventLiveScreen({this.analytics, this.observer});
+  EventLiveScreen({required this.analytics, required this.observer});
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -21,7 +21,7 @@ class EventLiveScreen extends StatefulWidget {
 }
 
 class _EventLiveScreenState extends State<EventLiveScreen> {
-  CustomAppTheme customAppTheme;
+  late CustomAppTheme customAppTheme;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -30,11 +30,11 @@ class _EventLiveScreenState extends State<EventLiveScreen> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await widget.analytics.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await widget.analytics.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -60,7 +60,7 @@ class _EventLiveScreenState extends State<EventLiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppThemeNotifier>(
-        builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+        builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
       customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
       return MaterialApp(
           navigatorKey: MyApp.LiveNavigatorKey,
@@ -97,7 +97,7 @@ class _EventLiveScreenState extends State<EventLiveScreen> {
                             labelStyle: TextStyle(fontSize: 19.0),
                             indicator: new BubbleTabIndicator(
                               indicatorHeight: 36.0,
-                              indicatorColor: DikoubaColors.blue['pri'],//Color(0xFF928CEF),
+                              indicatorColor: DikoubaColors.blue['pri']!,//Color(0xFF928CEF),
                               tabBarIndicatorSize: TabBarIndicatorSize.tab,
                             ),
                             onTap: (indextab){

@@ -1,11 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+//import 'package:google_map_location_picker/generated/l10n.dart' as location_picker;
+//import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/activity/splashscreen_activity.dart';
+import 'package:dikouba_rawstart/activity/welcome_activity.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+
+import 'package:firebase_performance/firebase_performance.dart';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+
+import 'activity/event/eventnewevent_activity.dart';
+
+import 'package:dikouba_rawstart/provider/notification_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  //runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) async {
+    await Firebase.initializeApp();
+
+    //await NotificationService().init(); //
+    //await NotificationService().requestIOSPermissions(); //
+
+    runApp(ChangeNotifierProvider<AppThemeNotifier>(
+      create: (context) => AppThemeNotifier(),
+      child: MyApp(),
+    ));
+  });
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  //Navigator Key for onWillPop on Home Activity
+  static GlobalKey<NavigatorState> HomeNavigatorKey = new GlobalKey<NavigatorState>();
+  static GlobalKey<NavigatorState> AgendaNavigatorKey = new GlobalKey<NavigatorState>();
+  static GlobalKey<NavigatorState> MapNavigatorKey = new GlobalKey<NavigatorState>();
+  static GlobalKey<NavigatorState> LiveNavigatorKey = new GlobalKey<NavigatorState>();
+
+  //Trace for firebase Performance
+  static Trace getAllEventServer = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace likeEvent = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace unLikeEvent = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace favorisEvent = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace unFavorisEvent = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace findUserEventLikes = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace findUserEventFavoris = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  /*static Trace getAllEventServer = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace getAllEventServer = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  static Trace getAllEventServer = FirebasePerformance.instance.newTrace("GetAllEventServerTime");
+  */
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Consumer<AppThemeNotifier>(
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
+        /*UserModel userModel = new UserModel(
+        nbre_followers: '0',
+            id_users: 'NekuDL6WO6eiX08LY8jmiUCkIot2',
+            email: 'youmsijunior@gmail.com',
+            nbre_following: '0',
+            name: 'ROMUALD JUNIOR YOUMSI MOUMBE',
+            password: 'NekuDL6WO6eiX08LY8jmiUCkIot2',
+            photo_url: 'https://lh3.googleusercontent.com/a-/AOh14GghjI3-geYdM4kHUOllmG39EUQBabouB9mjnUMQFw=s96-c',
+            email_verified: 'true',
+            phone: '',
+            password_hash: 'TmVrdURMNldPNmVpWDA4TFk4am1pVUNrSW90Mg==',
+            uid: 'NekuDL6WO6eiX08LY8jmiUCkIot2'
+
+        );*/
+        return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.getThemeFromThemeMode(value.themeMode()),
+            /*localizationsDelegates: const [
+              location_picker.S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],*/
+            supportedLocales: const <Locale>[
+              Locale('en', ''),
+              Locale('fr', ''),
+            ],
+            // home: RegisterActivity(userModel: userModel),);
+            navigatorObservers: <NavigatorObserver>[observer],
+            home: SplashScreen(
+              analytics: analytics,
+              observer: observer,
+            ));
+      },
+    );
+  }
+
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
+  /*const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -26,7 +133,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
-  }
+  }*/
 }
 
 class MyHomePage extends StatefulWidget {

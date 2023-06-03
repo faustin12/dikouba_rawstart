@@ -150,11 +150,10 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                     margin: Spacing.fromLTRB(24, 24, 24, 0),
                                     child: Text(
                                       "Nouvelle session pour ${widget.evenementModel.title}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          color: themeData
-                                              .colorScheme.onBackground,
-                                          fontWeight: 600),
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -162,24 +161,23 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                     child: TextFormField(
                                       controller: libelleCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir le titre';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.headline5,
-                                          color: themeData.colorScheme.onBackground,
-                                          letterSpacing: -0.4,
-                                          fontWeight: 800),
+                                      style: themeData.textTheme.headlineSmall?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                      ),
                                       decoration: InputDecoration(
                                         fillColor: themeData.colorScheme.background,
-                                        hintStyle: AppTheme.getTextStyle(
-                                            themeData.textTheme.headline5,
-                                            color:
-                                            themeData.colorScheme.onBackground,
-                                            letterSpacing: -0.4,
-                                            fontWeight: 800),
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.4
+                                        ),
                                         filled: false,
                                         hintText: "Titre de l'évènement",
                                         border: InputBorder.none,
@@ -187,7 +185,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                         focusedBorder: InputBorder.none,
                                       ),
                                       autocorrect: false,
-                                      autovalidate: false,
+                                      autovalidateMode: AutovalidateMode.disabled,
                                       textCapitalization:
                                       TextCapitalization.sentences,
                                     ),
@@ -197,26 +195,34 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                     child: TextFormField(
                                       controller: descriptionCtrler,
                                       validator: (value) {
-                                        if (value.isEmpty) {
+                                        if (value!.isEmpty) {
                                           return 'Veuillez saisir la desription';
                                         }
                                         return null;
                                       },
-                                      style: AppTheme.getTextStyle(
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        color: themeData.colorScheme.onBackground,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0
+                                      ),/*AppTheme.getTextStyle(
                                           themeData.textTheme.bodyText2,
                                           color: themeData.colorScheme.onBackground,
                                           fontWeight: 500,
                                           letterSpacing: 0,
-                                          muted: true),
+                                          muted: true),*/
                                       decoration: InputDecoration(
                                         hintText: "Description",
-                                        hintStyle: AppTheme.getTextStyle(
+                                        hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                          color: themeData.colorScheme.onBackground,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0
+                                        ),/*AppTheme.getTextStyle(
                                             themeData.textTheme.bodyText2,
                                             color:
                                             themeData.colorScheme.onBackground,
                                             fontWeight: 600,
                                             letterSpacing: 0,
-                                            xMuted: true),
+                                            xMuted: true),*/
                                         border: UnderlineInputBorder(
                                           borderSide: BorderSide(
                                               width: 1.5,
@@ -266,7 +272,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                 height: MySize.size32,
                                 alignment: Alignment.center,
                                 margin: EdgeInsets.symmetric(horizontal: 12),
-                                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                               : InkWell(
                                 onTap: () {
                                   checkEventForm(context);
@@ -283,13 +289,12 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                                         margin: Spacing.left(12),
                                         child: Text(
                                           " Créer la session ".toUpperCase(),
-                                          style: AppTheme.getTextStyle(
-                                              themeData.textTheme.caption,
-                                              fontSize: 12,
-                                              letterSpacing: 0.7,
-                                              color:
-                                              themeData.colorScheme.onPrimary,
-                                              fontWeight: 600),
+                                          style: themeData.textTheme.bodySmall?.copyWith(
+                                            color: themeData.colorScheme.onPrimary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            letterSpacing: 0.7
+                                          ),
                                         ),
                                       ),
                                       Container(
@@ -353,19 +358,24 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                   children: [
                     Text(
                       "Categorie",
-                      style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(2),
                       child: Text(
                         _selectedCategoryModel == null ? "Aucune catégorie selectionnée" : "${_selectedCategoryModel.title}",
-                        style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                        style: themeData.textTheme.caption?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true),*/
                       ),
                     )
                   ],
@@ -376,7 +386,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
               child: IconButton(icon: Icon(
                 MdiIcons.chevronDown,
                 color: DikoubaColors.blue['pri'],
-              )),
+              ), onPressed: () {  },),
             )
           ],
         ),
@@ -406,19 +416,24 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                   children: [
                     Text(
                       "Lieu",
-                      style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(2),
                       child: Text(
                         _selectedLocation == null ? "Aucun lieu selectionné" : "${_selectedLocation.address}",
-                        style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true),*/
                       ),
                     )
                   ],
@@ -428,7 +443,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
             IconButton(icon: Icon(
               MdiIcons.mapMarker,
               color: DikoubaColors.blue['pri'],
-            )),
+            ), onPressed: () {  },),
           ],
         ),
       ),
@@ -457,9 +472,10 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                   children: [
                     Text(
                       "Date",
-                      style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                          fontWeight: 600,
-                          color: themeData.colorScheme.onBackground),
+                      style: themeData.textTheme.titleSmall?.copyWith(
+                        color: themeData.colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Container(
                       margin: Spacing.top(2),
@@ -467,11 +483,15 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                         _startDate == null
                             ? "Aucune date selectionnée"
                             : "Du ${DateFormat('dd MMM yyyy HH:mm').format(_startDate)}\nAu ${DateFormat('dd MMM yyyy HH:mm').format(_endDate)}",
-                        style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                             fontSize: 12,
                             fontWeight: 600,
                             color: themeData.colorScheme.onBackground,
-                            xMuted: true),
+                            xMuted: true),*/
                       ),
                     )
                   ],
@@ -481,7 +501,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
             IconButton(icon: Icon(
               MdiIcons.timer,
               color: DikoubaColors.blue['pri'],
-            )),
+            ), onPressed: () {  },),
           ],
         ),
       ),
@@ -506,9 +526,10 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                 children: [
                   Expanded(child: Text(
                     "Packages",
-                    style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                        fontWeight: 600,
-                        color: themeData.colorScheme.onBackground),
+                    style: themeData.textTheme.titleSmall?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
                   )),
                   IconButton(icon: Icon(
                     MdiIcons.plusCircle,
@@ -523,11 +544,15 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                 ? Container(
               margin: Spacing.symmetric(vertical: 2, horizontal: 16),
               child: Text("Aucun package ajoutée",
-                style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                style: themeData.textTheme.bodySmall?.copyWith(
+                  color: themeData.colorScheme.onBackground,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12
+                ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                     fontSize: 12,
                     fontWeight: 600,
                     color: themeData.colorScheme.onBackground,
-                    xMuted: true),
+                    xMuted: true),*/
               ),)
                 : Container(
               margin: Spacing.vertical(4),
@@ -552,19 +577,20 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                       children: [
                         Expanded(child: Text("${item.name}",
                             textAlign: TextAlign.left,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 14,
-                                letterSpacing: 0.7,
-                                color:
-                                themeData.colorScheme.primary,))),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: themeData.colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              letterSpacing: 0.7
+                            ),
+                        )),
                         Text("${item.price} ${DikoubaUtils.CURRENCY}",
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
-                                fontSize: 14,
-                                letterSpacing: 0.7,
-                                color: Colors.redAccent,
-                                fontWeight: 600))
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              letterSpacing: 0.7
+                            ),)
                       ],
                     ),
                   );
@@ -597,9 +623,10 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                 children: [
                   Expanded(child: Text(
                     "Bannière",
-                    style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
-                        fontWeight: 600,
-                        color: themeData.colorScheme.onBackground),
+                    style: themeData.textTheme.titleSmall?.copyWith(
+                      color: themeData.colorScheme.onBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
                   )),
                   IconButton(icon: Icon(
                     MdiIcons.fileEdit,
@@ -616,11 +643,15 @@ class _EventCreateSessionState extends State<EventCreateSession> {
               margin: Spacing.symmetric(vertical: 2, horizontal: 16),
               alignment: Alignment.center,
               child: Text("Aucune image selectionnée",
-                style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                style: themeData.textTheme.bodySmall?.copyWith(
+                  color: themeData.colorScheme.onBackground,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12
+                ),/*AppTheme.getTextStyle(themeData.textTheme.caption,
                     fontSize: 12,
                     fontWeight: 600,
                     color: themeData.colorScheme.onBackground,
-                    xMuted: true),
+                    xMuted: true),*/
               ),)
                 : Container(
               margin: Spacing.top(4),
@@ -659,11 +690,11 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                         margin: EdgeInsets.only(left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall?.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: FontWeight.w700,)),
                         )),
                     ListTile(
                       dense: true,
@@ -675,7 +706,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyText1?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -691,7 +722,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyText1?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -705,14 +736,14 @@ class _EventCreateSessionState extends State<EventCreateSession> {
         });
     print("$TAG:showBottomSheetPickImage $resultAction");
     if(resultAction == 'camera') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+      PickedFile? pickedFile = await picker.getImage(source: ImageSource.camera);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     } else if(resultAction == 'gallerie') {
-      PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
+      PickedFile? pickedFile = await picker.getImage(source: ImageSource.gallery);
       setState(() {
-        _eventbanner = pickedFile;
+        _eventbanner = pickedFile!;
       });
     }
   }
@@ -792,7 +823,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
   }
 
   void updateSelectedLocation() async {
-    LocationResult locationResult =
+    /*LocationResult locationResult =
         await showLocationPicker(context, DikoubaUtils.MapApiKey,
           myLocationButtonEnabled: true,
           layersButtonEnabled: true,
@@ -811,11 +842,11 @@ class _EventCreateSessionState extends State<EventCreateSession> {
 
     setState(() {
       _selectedLocation = locationModel;
-    });
+    });*/
   }
 
   void checkEventForm(BuildContext buildContext) {
-    if(_formEventKey.currentState.validate()) {
+    if(_formEventKey.currentState!.validate()) {
       if(_selectedCategoryModel == null) {
         DikoubaUtils.toast_error(buildContext, "Veuillez selectionner la catégorie");
         return;
@@ -846,7 +877,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
     var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_EVENEMENT, _eventbanner.path, DateFormat('ddMMMyyyyHHmm').format(DateTime.now()));
     print("$TAG:saveEvent downloadLink=$downloadLink");
 
-    EvenementModel evenementModel = new EvenementModel();
+    EvenementModel evenementModel = new EvenementModel(banner_path: '');
     evenementModel.banner_path = downloadLink;
     evenementModel.title = libelleCtrler.text;
     evenementModel.id_categories = _selectedCategoryModel.id_categories;
@@ -912,7 +943,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findAllCategories ${responseEvents.statusCode}|${responseEvents.data}");
-        List<CategoryModel> list = new List();
+        List<CategoryModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(CategoryModel.fromJson(responseEvents.data[i]));
         }
@@ -939,7 +970,7 @@ class _EventCreateSessionState extends State<EventCreateSession> {
 
 class _SelectLocation extends StatefulWidget {
   final Function callback;
-  _SelectLocation({this.callback});
+  _SelectLocation({required this.callback});
   @override
   _SelectLocationState createState() => _SelectLocationState();
 }
@@ -947,12 +978,12 @@ class _SelectLocation extends StatefulWidget {
 class _SelectLocationState extends State<_SelectLocation> {
   static final String TAG = '_selectLocationState';
 
-  static LatLng _currentPosition;
-  FirebaseLocationModel _inSelectedLocation;
+  static LatLng? _currentPosition;
+  late FirebaseLocationModel _inSelectedLocation;
   bool _showAddressSearchBar = true;
-  double _selectedLat;
-  double _selectedLng;
-  String _selectedAddress;
+  late double _selectedLat;
+  late double _selectedLng;
+  late String _selectedAddress;
   CameraPosition _cameraPosition = CameraPosition(
     target: LatLng(4.061536, 9.786072),
     zoom: 16,
@@ -972,7 +1003,7 @@ class _SelectLocationState extends State<_SelectLocation> {
   }
 
   void _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    /*Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _cameraPosition = CameraPosition(
         target: LatLng(position.latitude, position.longitude),
@@ -980,8 +1011,8 @@ class _SelectLocationState extends State<_SelectLocation> {
       );
       _currentPosition = LatLng(position.latitude, position.longitude);
       print('${_currentPosition}');
-    });
-    if(_currentPosition!=null) moveToEventPosition(_currentPosition.latitude, _currentPosition.longitude);
+    });*/
+    if(_currentPosition!=null) moveToEventPosition(_currentPosition!.latitude, _currentPosition!.longitude);
   }
 
   Future<void> getPickedInfo(dynamic _pickSuggestion) async {
@@ -1003,7 +1034,7 @@ class _SelectLocationState extends State<_SelectLocation> {
   }
 
   void validateLocation(double lat, double lng, String name){
-    FirebaseLocationModel locationModel = new FirebaseLocationModel('${lat}', '${lng}');
+    FirebaseLocationModel locationModel = new FirebaseLocationModel('${name}','${lat}', '${lng}');
     locationModel.address = name;
 
     setState(() {
@@ -1011,12 +1042,12 @@ class _SelectLocationState extends State<_SelectLocation> {
     });
   }
 
-  Future<List<dynamic>> googleSearchByAddress(String searchAddress) async {
+  Future<List<dynamic>?> googleSearchByAddress(String searchAddress) async {
     var responseSearchAdr = await API.googleSearchAddress(searchAddress);
     if (responseSearchAdr.statusCode == 200) {
       print(
           "${TAG}:googleSearchByAddress ${responseSearchAdr.statusCode}|${responseSearchAdr.data['predictions']}");
-      List<dynamic> list = new List();
+      List<dynamic> list = [];
 
       for (int i = 0; i < responseSearchAdr.data['predictions'].length; i++) {
         list.add(responseSearchAdr.data['predictions'][i]);
@@ -1028,8 +1059,8 @@ class _SelectLocationState extends State<_SelectLocation> {
     return null;
   }
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
   Future<void> getPositionInfo(CameraPosition position) async {
     /*var responsePicked = await API.googleCoordinateInfo(position.target.latitude, position.target.longitude);
@@ -1072,7 +1103,7 @@ class _SelectLocationState extends State<_SelectLocation> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-        builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+        builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
           customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -1171,15 +1202,11 @@ class _SelectLocationState extends State<_SelectLocation> {
                                                     alignment: Alignment.center,
                                                     child: Text(
                                                       "Aucun lieu trouvé",
-                                                      style: AppTheme
-                                                          .getTextStyle(
-                                                          themeData.textTheme
-                                                              .bodyText2,
-                                                          fontSize: MySize.size18,
-                                                          color: themeData
-                                                              .colorScheme
-                                                              .onBackground,
-                                                          fontWeight: 500),),
+                                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                                        color: themeData.colorScheme.onBackground,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: MySize.size18
+                                                      ),),
                                                   );
                                                 },
                                                 loadingBuilder: (buildContext) {
@@ -1192,33 +1219,25 @@ class _SelectLocationState extends State<_SelectLocation> {
                                                     child: CircularProgressIndicator(
                                                       valueColor: AlwaysStoppedAnimation<
                                                           Color>(DikoubaColors
-                                                          .blue['pri']),),);
+                                                          .blue['pri']!),),);
                                                 },
                                                 textFieldConfiguration: TextFieldConfiguration(
                                                     autofocus: false,
-                                                    style: AppTheme.getTextStyle(
-                                                        themeData.textTheme
-                                                            .bodyText2,
-                                                        fontSize: MySize.size18,
-                                                        color: themeData
-                                                            .colorScheme
-                                                            .onBackground,
-                                                        fontWeight: 500),
+                                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                                      color: themeData.colorScheme.onBackground,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: MySize.size18
+                                                    ),
                                                     textCapitalization: TextCapitalization
                                                         .sentences,
                                                     decoration: InputDecoration(
                                                       fillColor: customAppTheme
                                                           .bgLayer1,
-                                                      hintStyle: AppTheme
-                                                          .getTextStyle(
-                                                          themeData.textTheme
-                                                              .bodyText2,
-                                                          fontSize: MySize.size18,
-                                                          color: themeData
-                                                              .colorScheme
-                                                              .onBackground,
-                                                          muted: true,
-                                                          fontWeight: 500),
+                                                      hintStyle: themeData.textTheme.bodyMedium?.copyWith(
+                                                        color: themeData.colorScheme.onBackground,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: MySize.size18
+                                                      ),
                                                       hintText: "Rechercher un lieu...",
                                                       border: InputBorder.none,
                                                       enabledBorder: InputBorder
@@ -1236,7 +1255,7 @@ class _SelectLocationState extends State<_SelectLocation> {
                                                       pattern.toString());
                                                   print(
                                                       "suggestionsCallback response=$response");
-                                                  return response;
+                                                  return response!;
                                                 },
                                                 itemBuilder: (context,
                                                     suggestion) {
@@ -1255,16 +1274,11 @@ class _SelectLocationState extends State<_SelectLocation> {
                                                           width: MySize.size8,),
                                                         Expanded(child: Text(
                                                           suggestion['description'],
-                                                          style: AppTheme
-                                                              .getTextStyle(
-                                                              themeData.textTheme
-                                                                  .bodyText2,
-                                                              fontSize: MySize
-                                                                  .size18,
-                                                              color: themeData
-                                                                  .colorScheme
-                                                                  .onBackground,
-                                                              fontWeight: 500),))
+                                                          style: themeData.textTheme.bodyMedium?.copyWith(
+                                                            color: themeData.colorScheme.onBackground,
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: MySize.size18
+                                                          ),))
                                                       ],
                                                     ),
                                                   );
@@ -1300,7 +1314,7 @@ class _SelectLocationState extends State<_SelectLocation> {
                                   splashColor: DikoubaColors.blue['lig'], // inkwell color
                                   child: SizedBox(width: MySize.size48, height: MySize.size48, child: Icon(Icons.my_location, color: Colors.white, size: MySize.size24,)),
                                   onTap: () async {
-                                    if(_currentPosition != null) moveToEventPosition(_currentPosition.latitude, _currentPosition.longitude);
+                                    if(_currentPosition != null) moveToEventPosition(_currentPosition!.latitude, _currentPosition!.longitude);
                                   },
                                 ),
                               ),
@@ -1366,10 +1380,10 @@ class _AddEventPackageDialog extends StatefulWidget {
   _AddEventPackageDialogState createState() => _AddEventPackageDialogState();
 }
 class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
-  GlobalKey<FormState> _formKey;
+  late GlobalKey<FormState> _formKey;
 
-  TextEditingController libelleCtrler;
-  TextEditingController priceCtrler;
+  late TextEditingController libelleCtrler;
+  late TextEditingController priceCtrler;
 
   @override
   void initState() {
@@ -1385,7 +1399,7 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
     ThemeData themeData = Theme.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: Text('Ajouter package',style: themeData.appBarTheme.textTheme.headline6),
+        title: Text('Ajouter package',style: themeData.appBarTheme.textTheme?.titleLarge),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 16),
@@ -1425,21 +1439,21 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                               children: <Widget>[
                                 TextFormField(
                                   controller: libelleCtrler,
-                                  style: themeData.textTheme.subtitle2.merge(TextStyle(color: themeData.colorScheme.onBackground)),
+                                  style: themeData.textTheme.titleSmall?.merge(TextStyle(color: themeData.colorScheme.onBackground)),
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return 'Veuillez saisir le libellé';
                                     }
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    hintStyle: themeData.textTheme.subtitle2.merge(TextStyle(color: themeData.colorScheme.onBackground)),
+                                    hintStyle: themeData.textTheme.titleSmall?.merge(TextStyle(color: themeData.colorScheme.onBackground)),
                                     hintText: "Libellé",
                                     border: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .border
+                                              .border!
                                               .borderSide
                                               .color),
                                     ),
@@ -1447,7 +1461,7 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .enabledBorder
+                                              .enabledBorder!
                                               .borderSide
                                               .color),
                                     ),
@@ -1455,7 +1469,7 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .focusedBorder
+                                              .focusedBorder!
                                               .borderSide
                                               .color),
                                     ),
@@ -1490,20 +1504,20 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                                 TextFormField(
                                   controller: priceCtrler,
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return 'Veuillez saisir le prix';
                                     }
                                     return null;
                                   },
-                                  style: themeData.textTheme.subtitle2.merge(TextStyle(color: themeData.colorScheme.onBackground)),
+                                  style: themeData.textTheme.titleSmall?.merge(TextStyle(color: themeData.colorScheme.onBackground)),
                                   decoration: InputDecoration(
-                                    hintStyle: themeData.textTheme.subtitle2.merge(TextStyle(color: themeData.colorScheme.onBackground)),
+                                    hintStyle: themeData.textTheme.titleSmall?.merge(TextStyle(color: themeData.colorScheme.onBackground)),
                                     hintText: "Prix",
                                     border: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .border
+                                              .border!
                                               .borderSide
                                               .color),
                                     ),
@@ -1511,7 +1525,7 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .enabledBorder
+                                              .enabledBorder!
                                               .borderSide
                                               .color),
                                     ),
@@ -1519,7 +1533,7 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                                       borderSide: BorderSide(
                                           color: themeData
                                               .inputDecorationTheme
-                                              .focusedBorder
+                                              .focusedBorder!
                                               .borderSide
                                               .color),
                                     ),
@@ -1536,17 +1550,19 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
                   Container(
                     margin: EdgeInsets.only(top: 16),
                     width: double.infinity,
-                    child: FlatButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                        padding: EdgeInsets.symmetric(vertical: 8,horizontal: 48),
-                        color: themeData.colorScheme.primary,
-                        splashColor: Colors.white.withAlpha(150),
-                        highlightColor: themeData.colorScheme.primary,
+                    child: TextButton(
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          padding: EdgeInsets.symmetric(vertical: 8,horizontal: 48),
+                          /*color: themeData.colorScheme.primary,
+                          splashColor: Colors.white.withAlpha(150),
+                          highlightColor: themeData.colorScheme.primary,*/
+                        ),
                         onPressed: () {
                           saveForm(context);
                         },
                         child: Text("Valider".toUpperCase(),
-                          style: themeData.textTheme.button.merge(TextStyle(color : themeData.colorScheme.onPrimary,letterSpacing: 0.3)),)
+                          style: themeData.textTheme.labelLarge?.merge(TextStyle(color : themeData.colorScheme.onPrimary,letterSpacing: 0.3)),)
                     ),
                   )
 
@@ -1558,9 +1574,9 @@ class _AddEventPackageDialogState extends State<_AddEventPackageDialog> {
   }
 
   void saveForm(BuildContext buildContext) {
-    if(_formKey.currentState.validate()) {
+    if(_formKey.currentState!.validate()) {
       PackageModel packageModel = new PackageModel(name: libelleCtrler.text, price: priceCtrler.text);
-      Navigator.of(_formKey.currentContext).pop('${packageModel.toRYString()}');
+      Navigator.of(_formKey.currentContext!).pop('${packageModel.toRYString()}');
     }
   }
 }
@@ -1574,7 +1590,7 @@ class _SelectCategoryDialogState extends State<_SelectCategoryDialog> {
   static final String TAG = '_SelectCategoryDialogState';
 
   bool _isCategoryFinding = false;
-  List<CategoryModel> _listCategory = new List();
+  List<CategoryModel> _listCategory = [];
 
   int selectedIndex = -1;
 
@@ -1589,7 +1605,7 @@ class _SelectCategoryDialogState extends State<_SelectCategoryDialog> {
     ThemeData themeData = Theme.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: Text('Sélectionner la catégorie',style: themeData.appBarTheme.textTheme.headline6),
+        title: Text('Sélectionner la catégorie',style: themeData.appBarTheme.textTheme?.titleLarge),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 16),
@@ -1606,7 +1622,7 @@ class _SelectCategoryDialogState extends State<_SelectCategoryDialog> {
         padding: EdgeInsets.only(top: 8,bottom: 8,left: 16,right: 16),
         child: _isCategoryFinding
             ? Center(
-          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
             : ListView.builder(
           itemCount: _listCategory.length,
           itemBuilder: (context, index) {
@@ -1622,10 +1638,12 @@ class _SelectCategoryDialogState extends State<_SelectCategoryDialog> {
                   children: [
                     Expanded(
                         child: Text('${item.title}',
-                            style: AppTheme.getTextStyle(
-                              themeData.textTheme.bodyText1,
-                              fontSize: 16,
-                              letterSpacing: 0.7,))),
+                            style: themeData.textTheme.bodyLarge?.copyWith(
+                                color: themeData.colorScheme.onBackground,
+                                fontSize: 16,
+                              letterSpacing: 0.7
+                            ),
+                        )),
                     selectedIndex == index
                         ? Icon(MdiIcons.circle, size: MySize.size14, color: DikoubaColors.blue['pri'],)
                         : Icon(MdiIcons.circleOutline, size: MySize.size14, color: DikoubaColors.blue['pri'],)
@@ -1660,7 +1678,7 @@ class _SelectCategoryDialogState extends State<_SelectCategoryDialog> {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:findAllCategories ${responseEvents.statusCode}|${responseEvents.data}");
-        List<CategoryModel> list = new List();
+        List<CategoryModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(CategoryModel.fromJson(responseEvents.data[i]));
         }
