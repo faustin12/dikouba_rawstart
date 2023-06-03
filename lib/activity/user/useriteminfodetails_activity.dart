@@ -1,13 +1,10 @@
 import 'dart:io';
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/activity/user/updateuser_activity.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/Generator.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/Generator.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +16,7 @@ class UserItemInfoDetailsActivity extends StatefulWidget {
   UserModel userModel;
   UserModel userInfoModel;
   bool hasFollow;
-  UserItemInfoDetailsActivity(this.userModel, this.userInfoModel, this.hasFollow, {this.analytics, this.observer});
+  UserItemInfoDetailsActivity(this.userModel, this.userInfoModel, this.hasFollow, {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -30,10 +27,10 @@ class UserItemInfoDetailsActivity extends StatefulWidget {
 
 class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivity> {
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  String desc;
+  late String desc;
 
   List<String> _imageList = [
     './assets/logo/dikouba.webp',
@@ -83,9 +80,9 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
             child: Center(
               child: Text(
                 "View All",
-                style: AppTheme.getTextStyle(themeData.textTheme.subtitle2,
+                style: themeData.textTheme.titleSmall?.copyWith(
                     color: themeData.colorScheme.primary,
-                    fontWeight: 600),
+                    fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -102,11 +99,11 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -133,7 +130,7 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -167,10 +164,13 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                               child: ClipRRect(
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(MySize.size30)),
-                                child: Image(
-                                  image: widget.userInfoModel.photo_url == ""
-                                      ? AssetImage('./assets/logo/user_transparent.webp')
-                                      : NetworkImage(widget.userInfoModel.photo_url),
+                                child: widget.userInfoModel.photo_url == ""
+                                    ? Image(
+                                  image: AssetImage('./assets/logo/user_transparent.webp'),
+                                  width: MySize.size60,
+                                  height: MySize.size60,
+                                ):Image(
+                                    image: NetworkImage(widget.userInfoModel.photo_url!),
                                   width: MySize.size60,
                                   height: MySize.size60,
                                 ),
@@ -184,23 +184,20 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                                   Container(
                                     child: Text(
                                       "${widget.userInfoModel.name}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText1,
+                                      style: themeData.textTheme.bodyLarge?.copyWith(
                                           color: themeData
                                               .colorScheme.onBackground,
                                           letterSpacing: 0,
-                                          fontWeight: 600),
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                   Container(
                                     child: Text(
                                       "${widget.userInfoModel.email}",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
                                           color: themeData
                                               .colorScheme.onBackground,
-                                          letterSpacing: 0,
-                                          muted: true),
+                                          letterSpacing: 0, ),//muted: true),
                                     ),
                                   )
                                 ],
@@ -223,49 +220,48 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                                 padding: EdgeInsets.symmetric(horizontal: MySize.size8, vertical: MySize.size12),
                                 alignment: Alignment.center,
                                 child: Text("Veuillez patienter",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontWeight: 600,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
                                         color: themeData
                                             .colorScheme.onPrimary)),)
                                   : widget.hasFollow
-                              ? FlatButton(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(MySize.size24)),
-                                color: Colors.redAccent,
-                                splashColor: themeData.colorScheme.onPrimary
-                                    .withAlpha(100),
-                                highlightColor: Colors.redAccent.withOpacity(0.3),
+                              ? TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: Spacing.fromLTRB(24, 8, 24, 8),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(MySize.size24)),
+                                  //color: Colors.redAccent,
+                                  //splashColor: themeData.colorScheme.onPrimary.withAlpha(100),
+                                 // highlightColor: Colors.redAccent.withOpacity(0.3),
+                                ),
                                 onPressed: () {
                                   removeFollower();
                                 },
                                 child: Text("Unfollow",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontWeight: 500,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w500,
                                         color:
                                         themeData.colorScheme.onPrimary)),
-                                padding: Spacing.fromLTRB(24, 8, 24, 8),
                               )
-                              : FlatButton(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(MySize.size24)),
-                                color: DikoubaColors.blue['pri'],
-                                splashColor: themeData.colorScheme.onPrimary
-                                    .withAlpha(100),
-                                highlightColor: DikoubaColors.blue['pri'].withOpacity(0.3),
+                              : TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: Spacing.fromLTRB(24, 8, 24, 8),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(MySize.size24)),
+                                  //color: DikoubaColors.blue['pri'],
+                                  //splashColor: themeData.colorScheme.onPrimary.withAlpha(100),
+                                  //highlightColor: DikoubaColors.blue['pri'].withOpacity(0.3),
+                                ),
                                 onPressed: () {
                                   addFollower();
                                 },
                                 child: Text("Follow",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontWeight: 500,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w500,
                                         color:
                                         themeData.colorScheme.onPrimary)),
-                                padding: Spacing.fromLTRB(24, 8, 24, 8),
                               ),
                             ),
                             Container(
@@ -275,19 +271,16 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                                 children: [
                                   Text(
                                     "${widget.userInfoModel.nbre_followers}",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle2,
+                                    style: themeData.textTheme.titleSmall?.copyWith(
                                         color:
                                         themeData.colorScheme.onBackground,
-                                        fontWeight: 600),
+                                        fontWeight: FontWeight.w600),
                                   ),
                                   Text(
                                     "Followers",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.caption,
+                                    style: themeData.textTheme.bodySmall?.copyWith(
                                         color:
-                                        themeData.colorScheme.onBackground,
-                                        muted: true),
+                                        themeData.colorScheme.onBackground, ),//muted: true),
                                   ),
                                 ],
                               ),
@@ -299,20 +292,18 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                                 children: [
                                   Text(
                                     "${widget.userInfoModel.nbre_following}",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle2,
+                                    style: themeData.textTheme.titleSmall?.copyWith(
                                         color:
                                         themeData.colorScheme.onBackground,
                                         letterSpacing: 0,
-                                        fontWeight: 600),
+                                        fontWeight: FontWeight.w600),
                                   ),
                                   Text(
                                     "Following",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.caption,
+                                    style: themeData.textTheme.caption?.copyWith(
                                         color:
                                         themeData.colorScheme.onBackground,
-                                        muted: true,
+                                        //muted: true,
                                         letterSpacing: 0),
                                   ),
                                 ],
@@ -325,10 +316,9 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
                         margin: Spacing.fromLTRB(24, 24, 0, 0),
                         child: Text(
                           "Posts",
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.subtitle1,
+                          style: themeData.textTheme.titleMedium?.copyWith(
                               color: themeData.colorScheme.onBackground,
-                              fontWeight: 700),
+                              fontWeight: FontWeight.w700),
                         ),
                       ),
                       Container(
@@ -360,7 +350,7 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
         setState(() {
           _isFollowChanging = false;
           widget.hasFollow = true;
-          widget.userInfoModel.nbre_followers = '${int.parse(widget.userInfoModel.nbre_followers)+1}';
+          widget.userInfoModel.nbre_followers = '${int.parse(widget.userInfoModel.nbre_followers!)+1}';
         });
       } else {
         print("findEventsParticiapnts no data ${responseParticipant.toString()}");
@@ -388,7 +378,7 @@ class _UserItemInfoDetailsActivityState extends State<UserItemInfoDetailsActivit
         setState(() {
           _isFollowChanging = false;
           widget.hasFollow = false;
-          widget.userInfoModel.nbre_followers = '${int.parse(widget.userInfoModel.nbre_followers)-1}';
+          widget.userInfoModel.nbre_followers = '${int.parse(widget.userInfoModel.nbre_followers!)-1}';
         });
       } else {
         print("findEventsParticiapnts no data ${responseParticipant.toString()}");

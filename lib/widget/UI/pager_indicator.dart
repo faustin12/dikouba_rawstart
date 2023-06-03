@@ -45,12 +45,12 @@ class PagerIndicator extends StatelessWidget {
       //Adding to the list
       bubbles.add(PageBubble(
         viewModel: PageBubbleViewModel(
-          iconAssetPath: page.iconImageAssetPath,
+          iconAssetPath: page.iconImageAssetPath!,
           iconColor: page.iconColor,
           isHollow: isHollow,
           activePercent: percentActive,
           bubbleBackgroundColor: page.bubbleBackgroundColor,
-          bubbleInner: page.bubble,
+          bubbleInner: page.bubble!,
         ),
       ));
     }

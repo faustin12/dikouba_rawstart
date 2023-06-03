@@ -1,11 +1,11 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/participant_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/Generator.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/participant_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/Generator.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class ShowEventParticipantWidget extends StatefulWidget {
 
   ShowEventParticipantWidget(
       this.evenementModel, this.userModel, this.customAppTheme,
-      {this.analytics, this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -35,7 +35,7 @@ class ShowEventParticipantWidgetState
   bool _isParticipantFinding = false;
   List<ParticipantModel> _listParticipant = [];
   List<String> _listParticipantProfile = [];
-  ThemeData themeData;
+  late ThemeData themeData;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -68,7 +68,7 @@ class ShowEventParticipantWidgetState
               alignment: Alignment.center,
               child: CircularProgressIndicator(
                 valueColor:
-                    AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),
+                    AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),
               ),
             )
           : InkWell(
@@ -87,9 +87,9 @@ class ShowEventParticipantWidgetState
                   Container(
                     child: Text(
                       "+${_listParticipant.length - _listParticipantProfile.length} participants",
-                      style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                      style: themeData.textTheme.bodySmall?.copyWith(
                           color: themeData.colorScheme.primary,
-                          fontWeight: 500),
+                          fontWeight: FontWeight.w500),
                     ),
                   )
                 ],
@@ -103,7 +103,7 @@ class ShowEventParticipantWidgetState
       _isParticipantFinding = true;
     });
     API
-        .findEventParticipant(widget.evenementModel.id_evenements)
+        .findEventParticipant(widget.evenementModel.id_evenements!)
         .then((responseParticipant) {
       if (responseParticipant.statusCode == 200) {
         print(
@@ -115,11 +115,11 @@ class ShowEventParticipantWidgetState
               ParticipantModel.fromJson(responseParticipant.data[i]);
           list.add(papantMdl);
           if (i < MAXPROFILE) {
-            if (papantMdl.users.photo_url == null ||
-                papantMdl.users.photo_url == '') {
+            if (papantMdl.users!.photo_url == null ||
+                papantMdl.users!.photo_url == '') {
               listProfil.add('./assets/logo/user_transparent.webp');
             } else {
-              listProfil.add(papantMdl.users.photo_url);
+              listProfil.add(papantMdl.users!.photo_url!);
             }
           }
         }

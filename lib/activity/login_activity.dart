@@ -1,26 +1,20 @@
-
-import 'dart:developer';
-
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/signup_activity.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/widget/CircularLoadingWidget.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/signup_activity.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class LoginActivity extends StatefulWidget {
-  LoginActivity({this.analytics, this.observer});
+  LoginActivity({required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -35,7 +29,7 @@ class LoginActivityState extends State<LoginActivity> {
   bool isLoading = false;
 
   final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
-  String _email, _pass, _email2, _pass2, _name, _id;
+  late String _email, _pass, _email2, _pass2, _name, _id;
 
   TextEditingController loginEmailController = new TextEditingController();
   TextEditingController loginPasswordController = new TextEditingController();
@@ -44,17 +38,17 @@ class LoginActivityState extends State<LoginActivity> {
   final dbHelper = DatabaseHelper.instance;
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _setCurrentScreen() async {
-    await FirebaseAnalytics().setCurrentScreen(
+    await FirebaseAnalytics.instance.setCurrentScreen(
       screenName: "LoginActivity",
       screenClassOverride: "LoginActivity",
     );
   }
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -129,7 +123,7 @@ class LoginActivityState extends State<LoginActivity> {
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil.getInstance()..init(context);
     ScreenUtil.instance =
-        ScreenUtil(width: 750, height: 1334, allowFontScaling: true);
+        ScreenUtil(width: 750, height: 1334);//, allowFontScaling: true);
 
     ///
     /// Loading user for check email and password to firebase database
@@ -261,11 +255,11 @@ class LoginActivityState extends State<LoginActivity> {
                                     /// Add validator
                                     ///
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir l\'adresse email';
                                       }
                                     },
-                                    onSaved: (input) => _email = input,
+                                    onSaved: (input) => _email = input!,
                                     controller: loginEmailController,
                                     keyboardType:
                                     TextInputType.emailAddress,
@@ -301,11 +295,11 @@ class LoginActivityState extends State<LoginActivity> {
                                           letterSpacing: .9)),
                                   TextFormField(
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir le mot de passe';
                                       }
                                     },
-                                    onSaved: (input) => _pass = input,
+                                    onSaved: (input) => _pass = input!,
                                     controller: loginPasswordController,
                                     obscureText: _obscureTextLogin,
                                     style: TextStyle(
@@ -375,20 +369,20 @@ class LoginActivityState extends State<LoginActivity> {
                       Expanded(
                           child: InkWell(
                         child: isLoading
-                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                             : Container(
                           width: ScreenUtil.getInstance().setWidth(330),
                           height: ScreenUtil.getInstance().setHeight(100),
                           decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                DikoubaColors.blue['lig'],
-                                DikoubaColors.blue['dar']
+                                DikoubaColors.blue['lig']!,
+                                DikoubaColors.blue['dar']!
                               ]),
                               borderRadius: BorderRadius.circular(6.0),
                               boxShadow: [
                                 BoxShadow(
                                     color:
-                                    DikoubaColors.blue['pri'].withOpacity(.3),
+                                    DikoubaColors.blue['pri']!.withOpacity(.3),
                                     offset: Offset(0.0, 8.0),
                                     blurRadius: 8.0)
                               ]),
@@ -451,7 +445,7 @@ class LoginActivityState extends State<LoginActivity> {
                             borderRadius:
                             BorderRadius.all(Radius.circular(40.0)),
                             border: Border.all(
-                                color: DikoubaColors.blue['pri'], width: 1.0),
+                                color: DikoubaColors.blue['pri']!, width: 1.0),
                           ),
                           child: Center(
                             child: Text("Créer un compte",
@@ -493,8 +487,8 @@ class LoginActivityState extends State<LoginActivity> {
 
     final formState =
         _registerFormKey.currentState;
-    User user;
-    if (formState.validate()) {
+    User? user;
+    if (formState!.validate()) {
       formState.save();
       try {
         setState(() {
@@ -507,10 +501,10 @@ class LoginActivityState extends State<LoginActivity> {
           email: _email,
           password: _pass,
         );
-        user = userCredential.user;
+        user = userCredential.user!;
         // user.sendEmailVerification();
 
-      } catch (e) {
+      } on FirebaseAuthException catch (e) {
         print('Error: $e');
         setState(() {
           isLoading = false;
@@ -520,7 +514,10 @@ class LoginActivityState extends State<LoginActivity> {
         print(_email);
 
         print(_pass);
-      } finally {
+      } catch(e){
+
+      }
+      finally {
         if (user != null) {
           print("$TAG: ${user.uid}");
           _setUserId(user.uid);
@@ -535,7 +532,7 @@ class LoginActivityState extends State<LoginActivity> {
                   content: Text(
                       "Veuillez vérifier votre adresse email."),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("Fermer"),
                       onPressed: () {
                         Navigator.of(context)
@@ -557,7 +554,7 @@ class LoginActivityState extends State<LoginActivity> {
               content: Text(
                   "Veuillez vérifier votre adresse email"),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   child: Text("Close"),
                   onPressed: () {
                     Navigator.of(context)
@@ -580,13 +577,13 @@ class LoginActivityState extends State<LoginActivity> {
           "${TAG}:requestCustomerAddress ${resTestUser.statusCode}|${resTestUser.data}");
       if(resTestUser.statusCode == 200) {
         UserModel user = new UserModel.fromJson(resTestUser.data);
-        await insertUser(user);
+        insertUser(user); //Should be await
 
         setState(() {
           isLoading = false;
         });
 
-        String fcmToken = await FirebaseMessaging().getToken();
+        String fcmToken = (await FirebaseMessaging.instance.getToken())!;
         API.setDeviceToken(user.id_users, fcmToken, "android", "add").then((responseSetToken) {
           if (responseSetToken.statusCode == 200) {
             print(
@@ -645,7 +642,7 @@ class LoginActivityState extends State<LoginActivity> {
                 content: Text(
                     "Compte inexistant. Veuillez créer un compte"),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Close"),
                     onPressed: () {
                       Navigator.of(context)
@@ -673,7 +670,7 @@ class LoginActivityState extends State<LoginActivity> {
               content: Text(
                   "Compte inexistant. Veuillez créer un compte"),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   child: Text("Close"),
                   onPressed: () {
                     Navigator.of(context)
@@ -701,14 +698,14 @@ class LoginActivityState extends State<LoginActivity> {
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: userModel.id_annoncers,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: userModel.annoncer_created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: userModel.annoncer_updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: userModel.annoncer_created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: userModel.annoncer_updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: userModel.annoncer_checkout_phone_number,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: userModel.annoncer_compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: userModel.annoncer_cover_picture_path,

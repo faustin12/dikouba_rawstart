@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:dikouba/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class ShowEventLocationDialog extends StatefulWidget {
   EvenementModel evenementModel;
@@ -17,9 +16,9 @@ class ShowEventLocationDialog extends StatefulWidget {
 class ShowEventLocationDialogState extends State<ShowEventLocationDialog> {
   Completer<GoogleMapController> _controller = Completer();
 
-  CameraPosition _kGooglePlex;
+  late CameraPosition _kGooglePlex;
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
-  LatLng eventLatLng;
+  late LatLng eventLatLng;
 
   void _addEventMarker() {
     var markerIdVal = new DateTime.now().millisecondsSinceEpoch;
@@ -47,8 +46,8 @@ class ShowEventLocationDialogState extends State<ShowEventLocationDialog> {
   void initState() {
     super.initState();
 
-    eventLatLng = LatLng(double.parse(widget.evenementModel.location.latitude),
-        double.parse(widget.evenementModel.location.longitude));
+    eventLatLng = LatLng(double.parse(widget.evenementModel.location!.latitude),
+        double.parse(widget.evenementModel.location!.longitude));
     _kGooglePlex = CameraPosition(
       target: eventLatLng,
       zoom: 16,

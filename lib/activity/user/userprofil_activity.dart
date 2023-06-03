@@ -1,12 +1,12 @@
 import 'dart:io';
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/activity/user/updateuser_activity.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/Generator.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/activity/user/updateuser_activity.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/Generator.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +16,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class UserProfileActivity extends StatefulWidget {
   UserModel userModel;
-  UserProfileActivity(this.userModel, {this.analytics, this.observer});
+  UserProfileActivity(this.userModel, {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -27,10 +27,10 @@ class UserProfileActivity extends StatefulWidget {
 
 class _UserProfileActivityState extends State<UserProfileActivity> {
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  String desc;
+  late String desc;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -39,11 +39,11 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -71,7 +71,7 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -89,10 +89,14 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                             child: ClipRRect(
                               borderRadius:
                               BorderRadius.all(Radius.circular(MySize.size50)),
-                              child: Image(
-                                image: widget.userModel.photo_url == ''
-                                  ? AssetImage('./assets/logo/user_transparent.webp')
-                                : NetworkImage(widget.userModel.photo_url),
+                              child:  widget.userModel.photo_url == ''
+                                  ? Image(
+                                image: AssetImage('./assets/logo/user_transparent.webp'),
+                                fit: BoxFit.cover,
+                                width: MySize.size100,
+                                height: MySize.size100,
+                              ):Image(
+                                image: NetworkImage(widget.userModel.photo_url!),
                                 fit: BoxFit.cover,
                                 width: MySize.size100,
                                 height: MySize.size100,
@@ -115,34 +119,32 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                               children: <Widget>[
                                 Text(
                                   "${widget.userModel.name}",
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.headline6,
-                                      fontWeight: 600),
+                                  style: themeData.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w600),
                                 ),
                                 Container(
                                   margin: Spacing.top(4),
                                   child: Text(
                                     "${widget.userModel.annoncer_compagny}",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.caption),
+                                    style: themeData.textTheme.bodySmall,
                                   ),
                                 ),
                                 Text(
                                   "${widget.userModel.email}",
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.caption),
+                                  style: themeData.textTheme.bodySmall,
                                 ),
                               ],
                             ),
-                            FlatButton(
+                            TextButton(
+                              style: TextButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                     BorderRadius.circular(MySize.size4)),
-                                color: themeData.colorScheme.primary,
-                                materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                                highlightColor: themeData.colorScheme.primary,
-                                splashColor: themeData.splashColor,
+                                //color: themeData.colorScheme.primary,
+                                //materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                //highlightColor: themeData.colorScheme.primary,
+                                //splashColor: themeData.splashColor,
+                              ),
                                 onPressed: () {
                                   Navigator.pushReplacement(
                                       context,
@@ -154,9 +156,8 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                                 },
                                 child: Text(
                                   "Modifier",
-                                  style: AppTheme.getTextStyle(
-                                      themeData.textTheme.bodyText2,
-                                      fontWeight: 600,
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
                                       letterSpacing: 0.3,
                                       color: themeData.colorScheme.onPrimary),
                                 ))
@@ -185,16 +186,14 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                                 children: <Widget>[
                                   Text(
                                     "15",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle1,
-                                        fontWeight: 700),
+                                    style: themeData.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700),
                                   ),
                                   Container(
                                     margin: EdgeInsets.only(top: MySize.size8),
                                     child: Text("Posts",
-                                        style: AppTheme.getTextStyle(
-                                            themeData.textTheme.subtitle2,
-                                            fontWeight: 600,
+                                        style: themeData.textTheme.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
                                             letterSpacing: 0)),
                                   ),
                                 ],
@@ -203,17 +202,15 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                                 children: <Widget>[
                                   Text(
                                     "${widget.userModel.nbre_followers}",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle1,
-                                        fontWeight: 700),
+                                    style: themeData.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700),
                                   ),
                                   Container(
                                     margin: EdgeInsets.only(top: MySize.size8),
                                     child: Text(
                                       "Followers",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.subtitle2,
-                                          fontWeight: 600,
+                                      style: themeData.textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                           letterSpacing: 0),
                                     ),
                                   ),
@@ -223,17 +220,15 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                                 children: <Widget>[
                                   Text(
                                     "${widget.userModel.nbre_following}",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle1,
-                                        fontWeight: 700),
+                                    style: themeData.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700),
                                   ),
                                   Container(
                                     margin: EdgeInsets.only(top: MySize.size8),
                                     child: Text(
                                       "Following",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.subtitle2,
-                                          fontWeight: 600,
+                                      style: themeData.textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                           letterSpacing: 0),
                                     ),
                                   ),
@@ -250,29 +245,26 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
                           children: [
                             Text(
                               "Complete your profile",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.subtitle2,
+                              style: themeData.textTheme.titleSmall?.copyWith(
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 600,
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing: 0),
                             ),
                             RichText(
                                 text: TextSpan(children: <TextSpan>[
                                   TextSpan(
                                       text: "2 OF 4 ",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
+                                      style: themeData.textTheme.bodySmall?.copyWith(
                                           fontSize: 11,
-                                          fontWeight: 600,
+                                          fontWeight: FontWeight.w600,
                                           color: customAppTheme.colorSuccess)),
                                   TextSpan(
                                       text: " COMPLETE",
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.caption,
+                                      style: themeData.textTheme.bodySmall?.copyWith(
                                           color: themeData.colorScheme.onBackground,
-                                          xMuted: true,
+                                          //xMuted: true,
                                           fontSize: 11,
-                                          fontWeight: 600)),
+                                          fontWeight: FontWeight.w600)),
                                 ]))
                           ],
                         ),
@@ -320,7 +312,7 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
   }
 
   Widget singleCompleteWidget(
-      {IconData iconData, String title, String desc, String option}) {
+      {required IconData iconData, required String title, required String desc, required String option}) {
     return Container(
       padding: Spacing.fromLTRB(24, 24, 24, 16),
       width: MySize.getScaledSizeWidth(220),
@@ -348,16 +340,16 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
             margin: Spacing.top(12),
             child: Text(
               title,
-              style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
-                  color: themeData.colorScheme.onBackground, fontWeight: 600,letterSpacing: 0),
+              style: themeData.textTheme.bodyMedium?.copyWith(
+                  color: themeData.colorScheme.onBackground, fontWeight: FontWeight.w600,letterSpacing: 0),
             ),
           ),
           Container(
             margin: Spacing.top(4),
             child: Text(
               desc,
-              style: AppTheme.getTextStyle(themeData.textTheme.caption,
-                  color: themeData.colorScheme.onBackground, fontWeight: 400,letterSpacing: -0.2),textAlign: TextAlign.center,
+              style: themeData.textTheme.bodySmall?.copyWith(
+                  color: themeData.colorScheme.onBackground, fontWeight: FontWeight.w400,letterSpacing: -0.2),textAlign: TextAlign.center,
             ),
           ),
           Container(
@@ -369,8 +361,8 @@ class _UserProfileActivityState extends State<UserProfileActivity> {
             ),
             child: Text(
               option,
-              style: AppTheme.getTextStyle(themeData.textTheme.caption,
-                  color: themeData.colorScheme.onPrimary, fontWeight: 600),
+              style: themeData.textTheme.bodySmall?.copyWith(
+                  color: themeData.colorScheme.onPrimary, fontWeight: FontWeight.w600),
             ),
           ),
         ],

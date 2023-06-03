@@ -1,13 +1,12 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/user/useriteminfo_activity.dart';
-import 'package:dikouba/model/participant_model.dart';
-import 'package:dikouba/model/post_model.dart';
-import 'package:dikouba/model/postcomment_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/activity/user/useriteminfo_activity.dart';
+import 'package:dikouba_rawstart/model/post_model.dart';
+import 'package:dikouba_rawstart/model/postcomment_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,7 @@ class ShowPostCommentsDialog extends StatefulWidget {
   String userId;
 
   ShowPostCommentsDialog(this.postModel, this.customAppTheme, this.userId,
-      {@required this.analytics, @required this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -31,13 +30,13 @@ class ShowPostCommentsDialog extends StatefulWidget {
 
 class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
   static final String TAG = 'ShowPostCommentsDialogState';
-  ThemeData themeData;
+  late ThemeData themeData;
   List<PostCommentModel> listCommentaires = [];
   bool _isFinding = false;
 
   bool _isPostCommenting = false;
-  GlobalKey<FormState> _formEventKey;
-  TextEditingController commentCtrler;
+  late GlobalKey<FormState> _formEventKey;
+  late TextEditingController commentCtrler;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -86,25 +85,21 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                       child: TextFormField(
                         controller: commentCtrler,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          if (value!.isEmpty) {
                             return 'Veuillez saisir votre réaction';
                           }
                           return null;
                         },
-                        style: AppTheme.getTextStyle(
-                            themeData.textTheme.bodyText2,
+                        style: themeData.textTheme.bodyMedium?.copyWith(
                             color: themeData.colorScheme.onBackground,
-                            fontWeight: 500,
-                            letterSpacing: 0,
-                            muted: true),
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0,),// muted: true),
                         decoration: InputDecoration(
                           hintText: "Entrez votre réaction, question",
-                          hintStyle: AppTheme.getTextStyle(
-                              themeData.textTheme.bodyText2,
+                          hintStyle: themeData.textTheme.bodyMedium?.copyWith(
                               color: themeData.colorScheme.onBackground,
-                              fontWeight: 600,
-                              letterSpacing: 0,
-                              xMuted: true),
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0, ),//xMuted: true),
                           border: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 width: 1.5,
@@ -114,7 +109,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 width: 1.4,
-                                color: DikoubaColors.blue['pri'].withAlpha(50)),
+                                color: DikoubaColors.blue['pri']!.withAlpha(50)),
                           ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -164,14 +159,13 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                       ? Container(
                           padding: Spacing.fromLTRB(16, 4, 16, 4),
                           child: Text(
-                            widget.postModel.media,
+                            widget.postModel.media!,
                             maxLines: 1,
                             textAlign: TextAlign.start,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.bodyText1,
+                            style: themeData.textTheme.bodyLarge?.copyWith(
                                 color: themeData.colorScheme.onBackground,
-                                fontWeight: 600),
+                                fontWeight: FontWeight.w600),
                           ))
                       : Row(
                           children: [
@@ -183,11 +177,14 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(MySize.size8),
                                     topRight: Radius.circular(MySize.size8)),
-                                child: Image(
-                                  image: widget.postModel.media
-                                          .contains('assets')
-                                      ? AssetImage(widget.postModel.media)
-                                      : NetworkImage(widget.postModel.media),
+                                child:  widget.postModel.media!
+                                    .contains('assets')
+                                    ? Image(
+                                  image: AssetImage(widget.postModel.media!),
+                                  fit: BoxFit.cover,
+                                  height: screenSize.width * 0.5,
+                                ):Image(
+                                  image: NetworkImage(widget.postModel.media!),
                                   fit: BoxFit.cover,
                                   height: screenSize.width * 0.5,
                                 ),
@@ -204,13 +201,11 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                         Container(
                           margin: Spacing.top(2),
                           child: Text(
-                            widget.postModel.description,
+                            widget.postModel.description!,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.bodyText1,
+                            style: themeData.textTheme.bodyLarge?.copyWith(
                                 color: themeData.colorScheme.onBackground,
-                                fontWeight: 500,
-                                xMuted: true),
+                                fontWeight: FontWeight.w500, ),//xMuted: true),
                           ),
                         ),
                       ],
@@ -226,7 +221,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                   ? Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            DikoubaColors.blue['pri']),
+                            DikoubaColors.blue['pri']!),
                       ),
                     )
                   : (listCommentaires == null || listCommentaires.length == 0)
@@ -234,12 +229,10 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                           margin: Spacing.fromLTRB(24, 16, 24, 0),
                           child: Text(
                             "Aucun commentaire trouvé",
-                            style: AppTheme.getTextStyle(
-                                themeData.textTheme.caption,
+                            style: themeData.textTheme.bodySmall?.copyWith(
                                 fontSize: 12,
                                 color: themeData.colorScheme.onBackground,
-                                fontWeight: 500,
-                                xMuted: true),
+                                fontWeight: FontWeight.w500, ),//xMuted: true),
                           ),
                         )
                       : ListView.builder(
@@ -250,7 +243,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                                 listCommentaires[index];
                             DateTime _createdDate =
                                 DateTime.fromMillisecondsSinceEpoch(
-                                    int.parse(itemComment.created_at.seconds) *
+                                    int.parse(itemComment.created_at!.seconds) *
                                         1000);
                             return singleComment(itemComment,
                                 createdAt:
@@ -263,7 +256,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
   }
 
   void checkCommentForm(BuildContext buildContext) {
-    if (_formEventKey.currentState.validate()) {
+    if (_formEventKey.currentState!.validate()) {
       print("$TAG:checkEventForm all is OK");
       saveComment(buildContext);
     }
@@ -294,7 +287,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
         //
         DikoubaUtils.toast_success(
             buildContext, "Commentaire enregistré avec succés");
-        _formEventKey.currentState.reset();
+        _formEventKey.currentState!.reset();
         commentCtrler.clear();
         // commentCtrler.text = "";
         findPostComents();
@@ -331,8 +324,8 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                 )));
   }
 
-  Widget singleComment(PostCommentModel commentModel, {String createdAt}) {
-    String image = commentModel.users.photo_url;
+  Widget singleComment(PostCommentModel commentModel, {required String createdAt}) {
+    String image = commentModel.users!.photo_url!;
     return Container(
       margin: EdgeInsets.only(top: 6),
       child: Row(
@@ -340,14 +333,19 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
         children: [
           InkWell(
             onTap: () {
-              gotoUserItemProfile(commentModel.users);
+              gotoUserItemProfile(commentModel.users!);
             },
             child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: (image == "" || image == "null")
-                      ? AssetImage('./assets/logo/user_transparent.webp')
-                      : NetworkImage(image),
+                child:  (image == "" || image == "null")
+                    ? Image(
+                  image: AssetImage('./assets/logo/user_transparent.webp'),
+                  fit: BoxFit.cover,
+                  width: MySize.size52,
+                  height: MySize.size52,
+                ):
+                Image(
+                  image: NetworkImage(image),
                   fit: BoxFit.cover,
                   width: MySize.size52,
                   height: MySize.size52,
@@ -360,26 +358,25 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${commentModel.users.name}",
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
+                    "${commentModel.users!.name}",
+                    style: themeData.textTheme.bodyMedium?.copyWith(
                         color: themeData.colorScheme.onBackground,
-                        fontWeight: 600),
+                        fontWeight: FontWeight.w600),
                   ),
                   SizedBox(
                     height: MySize.size4,
                   ),
                   Text(
                     "${commentModel.content}",
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText2,
+                    style: themeData.textTheme.bodyMedium?.copyWith(
                         color: themeData.colorScheme.onBackground,
-                        fontWeight: 500),
+                        fontWeight: FontWeight.w500),
                   ),
                   Text(
                     "$createdAt",
-                    style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                    style: themeData.textTheme.bodySmall?.copyWith(
                         color: themeData.colorScheme.onBackground,
-                        fontWeight: 500,
-                        muted: true),
+                        fontWeight: FontWeight.w500, ),//muted: true),
                   ),
                 ],
               ),
@@ -396,7 +393,7 @@ class _ShowPostCommentsDialogState extends State<ShowPostCommentsDialog> {
     });
     API
         .findPostCommentsEvent(
-            widget.postModel.id_evenements, widget.postModel.id_posts)
+            widget.postModel.id_evenements!, widget.postModel.id_posts!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(

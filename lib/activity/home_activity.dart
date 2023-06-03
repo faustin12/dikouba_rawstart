@@ -1,49 +1,39 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/annoncer/eventnewannoncer_activity.dart';
-import 'package:dikouba/activity/choseloginsignup_activity.dart';
-import 'package:dikouba/activity/event/eventdetails_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/activity/user/userprofil_activity.dart';
-import 'package:dikouba/activity/welcome_activity.dart';
-import 'package:dikouba/fragment/EventAgendaScreen.dart';
-import 'package:dikouba/fragment/EventLiveScreen.dart';
-import 'package:dikouba/fragment/EventCreateScreen.dart';
-import 'package:dikouba/fragment/EventHomeScreen.dart';
-import 'package:dikouba/fragment/EventMapScreen.dart';
-import 'package:dikouba/fragment/EventMesTicketsScreen.dart';
-import 'package:dikouba/fragment/EventMesFavorisScreen.dart';
-import 'package:dikouba/fragment/EventScanTicketScreen.dart';
-import 'package:dikouba/fragment/UserMesNotificationsScreen.dart';
-import 'package:dikouba/fragment/EventProfileScreen.dart';
-import 'package:dikouba/fragment/EventSondagesScreen.dart';
-import 'package:dikouba/fragment/EventMesEvenementsScreen.dart';
-import 'package:dikouba/main.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/notification_model.dart';
-import 'package:dikouba/model/push_notification_data_model.dart';
-import 'package:dikouba/model/sondage_model.dart';
-import 'package:dikouba/model/sondagereponse_model.dart';
-import 'package:dikouba/model/ticket_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/notification_service.dart';
-import 'package:dikouba/provider/notification_service2.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dikouba/widget/drawerWidget.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/annoncer/eventnewannoncer_activity.dart';
+import 'package:dikouba_rawstart/activity/choseloginsignup_activity.dart';
+import 'package:dikouba_rawstart/activity/event/eventdetails_activity.dart';
+import 'package:dikouba_rawstart/activity/user/userprofil_activity.dart';
+import 'package:dikouba_rawstart/fragment/EventAgendaScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventLiveScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventHomeScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventMapScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventMesTicketsScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventMesFavorisScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventScanTicketScreen.dart';
+import 'package:dikouba_rawstart/fragment/UserMesNotificationsScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventSondagesScreen.dart';
+import 'package:dikouba_rawstart/fragment/EventMesEvenementsScreen.dart';
+import 'package:dikouba_rawstart/main.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/notification_model.dart';
+import 'package:dikouba_rawstart/model/sondage_model.dart';
+import 'package:dikouba_rawstart/model/sondagereponse_model.dart';
+import 'package:dikouba_rawstart/model/ticket_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/notification_service.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:notification_permissions/notification_permissions.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -52,16 +42,8 @@ import 'package:provider/provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
-import 'event/eventnewevent_activity.dart';
-
-
-//import 'package:receive_intent/receive_intent.dart';
-
-//import 'package:dikouba/provider/notification_service.dart';
-
-
 class HomeActivity extends StatefulWidget {
-  HomeActivity({Key key, this.analytics, this.observer}) : super(key: key);
+  HomeActivity({Key? key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -109,7 +91,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     // message, here is where that should be initiated. See sendNotification method below.
   }
 
-  static Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  static Future<dynamic>? myBackgroundMessageHandler(Map<String, dynamic> message) {
     print("onBackgroundMessage _backgroundMessageHandler");
     if (message.containsKey('data')) {
       // Handle data message
@@ -122,17 +104,16 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
       final dynamic notification = message['notification'];
       print('onBackgroundMessage' + notification);
     }
-
     // Or do other work.
   }
 
   int _currentIndex = 0;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
-  CustomAppTheme customAppTheme;
+  late CustomAppTheme customAppTheme;
 
-  TabController _tabController;
+  late TabController _tabController;
 
   _handleTabSelection() {
     setState(() {
@@ -153,7 +134,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     setState(() {
       _userModel = UserModel.fromJsonDb(userRows[0]);
     });
-    _setUserId(_userModel.uid);
+    _setUserId(_userModel.uid!);
 
     findNotifications();
     findSondages();
@@ -161,11 +142,11 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -191,7 +172,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     _setCurrentScreen();
   }
 
-  List<NotificationModel> _notifications;
+  late List<NotificationModel> _notifications;
   final _notifCount= ValueNotifier<int>(0);
   void findNotifications(){
     int count=0;
@@ -234,7 +215,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     });
   }
 
-  List<SondageModel> _sondages;
+  late List<SondageModel> _sondages;
   final _sondagesCount= ValueNotifier<int>(0);
   void findSondages(){
     API.findSondageUsers(_userModel.id_users).then((responseSondageRes) {
@@ -243,7 +224,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             "${TAG}:findSondageParticipate ${responseSondageRes.statusCode}|${responseSondageRes.data}");
         List<SondageModel> list = [];
         for (int i = 0; i < responseSondageRes.data.length; i++) {
-          list.add(SondageReponseModel.fromJson(responseSondageRes.data[i]).sondages);
+          list.add(SondageReponseModel.fromJson(responseSondageRes.data[i]).sondages!);
         }
 
         if (!mounted) return;
@@ -274,7 +255,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             "${TAG}:findSondageParticipate ${responseSondageRes.statusCode}|${responseSondageRes.data}");
         List<SondageModel> list = [];
         for (int i = 0; i < responseSondageRes.data.length; i++) {
-          list.add(SondageReponseModel.fromJson(responseSondageRes.data[i]).sondages);
+          list.add(SondageReponseModel.fromJson(responseSondageRes.data[i]).sondages!);
         }
 
         if (!mounted) return;
@@ -296,7 +277,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     });
   }
 
-  List<TicketModel> _tickets;
+  late List<TicketModel> _tickets;
   final _unpaidticketCount= ValueNotifier<int>(0);
   void findTickets(){
     int count=0;
@@ -364,14 +345,14 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     AndroidNotificationDetails(
       'channel ID',
       'channel name',
-      'channel description',
+      //'channel description',
       icon: "@mipmap/launcher_icon",
       playSound: true,
       priority: Priority.high,
       importance: Importance.high,
     );
-    const IOSNotificationDetails iOSPlatformChannelSpecifics =
-    IOSNotificationDetails(
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+    DarwinNotificationDetails(
         presentAlert: true,  // Present an alert when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
         presentBadge: true,  // Present the badge number when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
         presentSound: true,  // Play a sound when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
@@ -391,7 +372,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
 
   }
 
-  StreamSubscription _sub;
+  late StreamSubscription _sub;
 
   /*Future<void> _initReceiveIntent() async {
     // ... check initialIntent
@@ -494,9 +475,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                 final snackBar = SnackBar(
                     content: Text('Notification received ' + _notificationData['page']),
                     duration: const Duration(milliseconds: 2000));
-                _scaffoldKey.currentState
-                //ScaffoldMessenger.of(context)
-                    .showSnackBar(snackBar);
+                //_scaffoldKey.currentState
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
               }
               break;
               default: {
@@ -510,7 +490,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
       });
 
 
-  Future<String> permissionStatusFuture;
+  late Future<String> permissionStatusFuture;
   var permGranted = "granted";
   var permDenied = "denied";
   var permUnknown = "unknown";
@@ -558,7 +538,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
 
   }
 
-  Timer timer1,timer2,timer3;
+  late Timer timer1,timer2,timer3;
 
   @override
   void initState() {
@@ -578,17 +558,18 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     permissionStatusFuture = getCheckNotificationPermStatus();
     print('notifPermission ' + permissionStatusFuture.toString());
 
-    FirebaseMessaging().requestNotificationPermissions();
+    //Notification handler ?
+    //FirebaseMessaging().requestNotificationPermissions();
 
-    FirebaseMessaging().configure(
+    /*FirebaseMessaging.instance.configure(
         onMessage: (Map<String, dynamic> message){onMessageReceived(message);},
         //onBackgroundMessage: (Map<String, dynamic> message){onBackgroundMessageReceived(message);}
-    );
+    );*/
 
     _tabController = new TabController(length: 4, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabSelection);
-    _tabController.animation.addListener(() {
-      final aniValue = _tabController.animation.value;
+    _tabController.animation!.addListener(() {
+      final aniValue = _tabController.animation!.value;
       if (aniValue - _currentIndex > 0.5) {
         setState(() {
           _currentIndex = _currentIndex + 1;
@@ -622,15 +603,15 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     _unpaidticketCount.dispose();
   }
 
-  ThemeData themeData;
+  late ThemeData themeData;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  DateTime currentBackPressTime;
+  late DateTime currentBackPressTime;
 
   //OnWillPop If no tab go back to tab view
   Future<bool> onWillPop2() {
     setState(() {
-      _scaffoldKey.currentState.openEndDrawer();
+      _scaffoldKey.currentState!.openEndDrawer();
       _showTabview = true;
       _bodyCustom = Container();
     });
@@ -649,7 +630,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
         + MyApp.LiveNavigatorKey.currentState?.canPop().toString().compareTo("true").toString()
     );*/
 
-    if (_scaffoldKey.currentState?.isDrawerOpen) {
+    if (false){//_scaffoldKey.currentState?.isDrawerOpen) {
       return Future.value(true);
     }
 
@@ -682,8 +663,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     if (currentBackPressTime == null ||
         now.difference(currentBackPressTime) > Duration(seconds: 2)) {
       currentBackPressTime = now;
-      _scaffoldKey.currentState
-          //ScaffoldMessenger.of(context)
+      //_scaffoldKey.currentState
+      ScaffoldMessenger.of(context)
           .showSnackBar(snackBar);
       return Future.value(false);
     }
@@ -1743,13 +1724,13 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                       .surface,
                 ),
                 accountName: Text(
-                  _userModel.name,
+                  _userModel.name!,
                   style: Theme.of(context)
                       .textTheme
                       .headline6,
                 ),
                 accountEmail: Text(
-                  _userModel.email,
+                  _userModel.email!,
                   style:
                   Theme.of(context).textTheme.caption,
                 ),
@@ -1757,15 +1738,15 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                   backgroundColor:
                   Theme.of(context).accentColor,
                   backgroundImage:
-                  NetworkImage(_userModel.photo_url),
+                  NetworkImage(_userModel.photo_url!),
                 ),
               ),
             ),
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = true;
                   _bodyCustom = Container();
                 });
@@ -1784,8 +1765,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = EventMyEventScreen(
                     _userModel,
@@ -1808,8 +1789,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = EventSondagesScreen(
                     _userModel,
@@ -1832,12 +1813,12 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                 decoration: BoxDecoration(
                     color: customAppTheme.colorError,
                     shape: BoxShape.circle),
-                child: Text(value.toString(), style: AppTheme.getTextStyle(
+                child: Text(value.toString(), /*style: AppTheme.getTextStyle(
                     themeData.textTheme.caption,
                     fontWeight: 600,
                     letterSpacing: 0,
                     fontSize: 12,
-                    color: Colors.white),),
+                    color: Colors.white),*/),
               ) : Container(child:Text(""))),
               title: Text(
                 'Mes sondages',
@@ -1848,8 +1829,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = UserMesNotificationsScreen(
                     _userModel,
@@ -1872,12 +1853,12 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                 decoration: BoxDecoration(
                     color: customAppTheme.colorError,
                     shape: BoxShape.circle),
-                child: Text(value.toString(), style: AppTheme.getTextStyle(
+                child: Text(value.toString(), /*style: AppTheme.getTextStyle(
                     themeData.textTheme.caption,
                     fontWeight: 600,
                     letterSpacing: 0,
                     fontSize: 12,
-                    color: Colors.white),),
+                    color: Colors.white),*/),
               ) : Container(child:Text(""))),
               title: Text(
                 'Notifications',
@@ -1888,8 +1869,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = EventMesTicketsScreen(
                     _userModel,
@@ -1912,12 +1893,12 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                   decoration: BoxDecoration(
                       color: customAppTheme.colorError,
                       shape: BoxShape.circle),
-                  child: Text(value.toString(), style: AppTheme.getTextStyle(
+                  child: Text(value.toString(), /*style: AppTheme.getTextStyle(
                       themeData.textTheme.caption,
                       fontWeight: 600,
                       letterSpacing: 0,
                       fontSize: 12,
-                      color: Colors.white),),
+                      color: Colors.white),*/),
                 ) : Container(child:Text("")),
               ),
               title: Text(
@@ -1929,8 +1910,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = EventMesFavorisScreen(
                     _userModel,
@@ -1953,8 +1934,8 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
             ListTile(
               onTap: () {
                 setState(() {
-                  _scaffoldKey.currentState
-                      .openEndDrawer();
+                  /*_scaffoldKey.currentState
+                      .openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = EventScanTicketScreen(
                     _userModel,
@@ -2071,12 +2052,12 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
       ),
       title: Text(
         "Dikouba",
-        style: AppTheme.getTextStyle(
+        /*style: AppTheme.getTextStyle(
             themeData.textTheme.headline5,
             fontSize: 24,
             fontWeight: 700,
             letterSpacing: -0.3,
-            color: DikoubaColors.blue['pri']),
+            color: DikoubaColors.blue['pri']),*/
       ),
       actions: [
         Stack(
@@ -2095,7 +2076,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                   ]),
               child: InkWell(onTap: (){
                 setState(() {
-                  _scaffoldKey.currentState.openEndDrawer();
+                  /*_scaffoldKey.currentState.openEndDrawer();*/ //To be corrected
                   _showTabview = false;
                   _bodyCustom = UserMesNotificationsScreen(
                     _userModel,
@@ -2122,12 +2103,12 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                 decoration: BoxDecoration(
                     color: customAppTheme.colorError,
                     shape: BoxShape.circle),
-                child: Text("", style: AppTheme.getTextStyle(
+                child: Text("", /*style: AppTheme.getTextStyle(
                     themeData.textTheme.caption,
                     fontWeight: 600,
                     letterSpacing: 0,
                     fontSize: 12,
-                    color: Colors.white),),
+                    color: Colors.white),*/),
               ),
             ) : Container())
           ],
@@ -2157,13 +2138,16 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                       ? CircularProgressIndicator(
                       valueColor:
                       AlwaysStoppedAnimation<Color>(
-                          DikoubaColors.blue['pri']))
-                      : Image(
-                    image: _userModel.photo_url == ""
-                        ? AssetImage(
-                        './assets/logo/user_transparent.webp')
-                        : NetworkImage(
-                        _userModel.photo_url),
+                          DikoubaColors.blue['pri']!))
+                      : _userModel.photo_url == ""
+                      ? Image(
+                    image: AssetImage(
+                        './assets/logo/user_transparent.webp'),
+                    fit: BoxFit.cover,
+                    width: MySize.size36,
+                    height: MySize.size36,
+                  ):Image(
+                    image: NetworkImage(_userModel.photo_url!),
                     fit: BoxFit.cover,
                     width: MySize.size36,
                     height: MySize.size36,
@@ -2184,7 +2168,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     MySize().init(context);
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -2332,7 +2316,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                     body: _userModel == null
                         ? CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            DikoubaColors.blue['pri']))
+                            DikoubaColors.blue['pri']!))
                         : TabBarView(
                       controller: _tabController,
                       physics: NeverScrollableScrollPhysics(),
@@ -2371,7 +2355,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
                     child: _userModel == null
                         ? CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                DikoubaColors.blue['pri']))
+                                DikoubaColors.blue['pri']!))
                         : Container(
                             child: _bodyCustom,
                           ),
@@ -2394,13 +2378,13 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
 
   void signOut(BuildContext buildContext) async {
     // set up the buttons
-    Widget cancelButton = FlatButton(
+    Widget cancelButton = TextButton(
       child: Text("NON"),
       onPressed: () {
         Navigator.of(context).pop("non");
       },
     );
-    Widget continueButton = FlatButton(
+    Widget continueButton = TextButton(
       child: Text("OUI"),
       onPressed: () {
         Navigator.of(context).pop("oui");
@@ -2430,7 +2414,7 @@ class HomeActivityState extends State<HomeActivity> with SingleTickerProviderSta
     await FirebaseAuthUi.instance().logout();
     await dbHelper.delete_user();
 
-    String fcmToken = await FirebaseMessaging().getToken();
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
     API.setDeviceToken(_userModel.id_users, fcmToken, "android", "delete").then((responseSetToken) {
       if (responseSetToken.statusCode == 200) {
         print(

@@ -1,9 +1,8 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/user/useriteminfo_activity.dart';
-import 'package:dikouba/model/participant_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/activity/user/useriteminfo_activity.dart';
+import 'package:dikouba_rawstart/model/participant_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,7 @@ class ShowEventParticipantDialog extends StatefulWidget {
 
   ShowEventParticipantDialog(
       this.listParticipant, this.userModel, this.themeData,
-      {this.analytics, this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -57,7 +56,7 @@ class _ShowEventParticipantDialogState
     return new Scaffold(
       appBar: new AppBar(
         title: Text("Liste des participants",
-            style: themeData.appBarTheme.textTheme.headline6),
+            style: themeData.appBarTheme.textTheme?.titleLarge),
         /*actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 16),
@@ -79,10 +78,10 @@ class _ShowEventParticipantDialogState
           itemBuilder: (context, index) {
             ParticipantModel itemPant = widget.listParticipant[index];
             DateTime _createdDate = DateTime.fromMillisecondsSinceEpoch(
-                int.parse(itemPant.created_at.seconds) * 1000);
-            return singleParticipant(itemPant.users,
-                name: "${itemPant.users.name}",
-                image: "${itemPant.users.photo_url}",
+                int.parse(itemPant.created_at!.seconds) * 1000);
+            return singleParticipant(itemPant.users!,
+                name: "${itemPant.users!.name}",
+                image: "${itemPant.users!.photo_url}",
                 status:
                     "${DateFormat('dd MMM yyyy, HH:mm').format(_createdDate)}");
           },
@@ -108,7 +107,7 @@ class _ShowEventParticipantDialogState
   }
 
   Widget singleParticipant(UserModel userModel,
-      {String image, String name, String status}) {
+      {required String image, required String name, required String status}) {
     return InkWell(
       onTap: () {
         gotoUserItemProfile(userModel);
@@ -118,10 +117,14 @@ class _ShowEventParticipantDialogState
           children: [
             ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: (image == "" || image == "null")
-                      ? AssetImage('./assets/logo/user_transparent.webp')
-                      : NetworkImage(image),
+                child: (image == "" || image == "null")
+                    ? Image(
+                  image: AssetImage('./assets/logo/user_transparent.webp'),
+                  fit: BoxFit.cover,
+                  width: MySize.size40,
+                  height: MySize.size40,
+                ):Image(
+                  image: NetworkImage(image),
                   fit: BoxFit.cover,
                   width: MySize.size40,
                   height: MySize.size40,
@@ -134,18 +137,15 @@ class _ShowEventParticipantDialogState
                   children: [
                     Text(
                       "$name",
-                      style: AppTheme.getTextStyle(
-                          widget.themeData.textTheme.bodyText2,
+                      style: widget.themeData.textTheme.bodyMedium?.copyWith(
                           color: widget.themeData.colorScheme.onBackground,
-                          fontWeight: 600),
+                          fontWeight: FontWeight.w600),
                     ),
                     Text(
                       "$status",
-                      style: AppTheme.getTextStyle(
-                          widget.themeData.textTheme.caption,
+                      style: widget.themeData.textTheme.bodySmall?.copyWith(
                           color: widget.themeData.colorScheme.onBackground,
-                          fontWeight: 500,
-                          muted: true),
+                          fontWeight: FontWeight.w500, )//muted: true),
                     ),
                   ],
                 ),
@@ -154,7 +154,7 @@ class _ShowEventParticipantDialogState
             Container(
               padding: Spacing.fromLTRB(8, 8, 8, 8),
               decoration: BoxDecoration(
-                color: DikoubaColors.blue['pri'].withAlpha(40),
+                color: DikoubaColors.blue['pri']?.withAlpha(40),
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
               ),
               child: Icon(

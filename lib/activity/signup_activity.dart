@@ -1,25 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/login_activity.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dikouba/widget/CircularLoadingWidget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/login_activity.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:path/path.dart';
 import 'dart:async';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fbUser;
@@ -28,7 +20,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class SignUpActivity extends StatefulWidget {
-  SignUpActivity({this.analytics, this.observer});
+  SignUpActivity({required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -41,24 +33,24 @@ class _SignUpActivityState extends State<SignUpActivity> {
   static final String TAG = '_SignUpActivityState';
 
   bool _isSelected = false;
-  File selectedImage;
-  String filename;
-  File tempImage;
+  late File selectedImage;
+  late String filename;
+  late File tempImage;
   bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
-  File _image;
+  late File _image;
   final picker = ImagePicker();
 
-  UserModel _userModel;
-  TextEditingController nameCtrler;
-  TextEditingController emailCtrler;
-  TextEditingController phoneCtrler;
-  TextEditingController passwordCtrler;
-  TextEditingController passwordConfCtrler;
-  TextEditingController anceurCompagnyCtrler;
-  TextEditingController anceurPhoneCtrler;
+  late UserModel _userModel;
+  late TextEditingController nameCtrler;
+  late TextEditingController emailCtrler;
+  late TextEditingController phoneCtrler;
+  late TextEditingController passwordCtrler;
+  late TextEditingController passwordConfCtrler;
+  late TextEditingController anceurCompagnyCtrler;
+  late TextEditingController anceurPhoneCtrler;
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(
@@ -67,11 +59,11 @@ class _SignUpActivityState extends State<SignUpActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -81,7 +73,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
   /// Response file from image picker
   ///
   Future<void> retrieveLostData() async {
-    final LostDataResponse response = await ImagePicker.retrieveLostData();
+    final LostDataResponse response = await ImagePicker().retrieveLostData();
     if (response == null) {
       return;
     }
@@ -97,9 +89,9 @@ class _SignUpActivityState extends State<SignUpActivity> {
   bool _obscureTextSignupConfirm = true;
   bool _becomeAnnoncer = false;
 
-  ThemeData themeData;
+  late ThemeData themeData;
 
-  PickedFile _pickedFileprofil;
+  late PickedFile _pickedFileprofil;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
@@ -186,7 +178,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
     themeData = Theme.of(context);
     ScreenUtil.instance = ScreenUtil.getInstance()..init(context);
     ScreenUtil.instance =
-        ScreenUtil(width: 750, height: 1334, allowFontScaling: true);
+        ScreenUtil(width: 750, height: 1334);//, allowFontScaling: true);
 
     return new Scaffold(
       backgroundColor: Colors.white,
@@ -387,7 +379,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                           fontWeight: FontWeight.w600)),
                                   TextFormField(
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir le nom et prénom';
                                       }
                                       return null;
@@ -424,7 +416,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                           fontWeight: FontWeight.w600)),
                                   TextFormField(
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir l\'adresse email';
                                       }
                                       if (!DikoubaUtils.isValidEmail(input.toString())) {
@@ -462,7 +454,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                           fontWeight: FontWeight.w600)),
                                   TextFormField(
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir le numéro de téléphone';
                                       }
                                       if (input.length < 6) {
@@ -502,7 +494,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                     controller: passwordCtrler,
                                     obscureText: _obscureTextSignup,
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir le Mot de passe';
                                       }
                                       if (input.length < 8) {
@@ -549,7 +541,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                     controller: passwordConfCtrler,
                                     obscureText: _obscureTextSignupConfirm,
                                     validator: (input) {
-                                      if (input.isEmpty) {
+                                      if (input!.isEmpty) {
                                         return 'Veuillez saisir de nouveau le Mot de passe';
                                       }
                                       if (input.length < 8) {
@@ -594,9 +586,8 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                       contentPadding: EdgeInsets.all(0),
                                       title: Text(
                                         'Devenir annonceur',
-                                        style: AppTheme.getTextStyle(
-                                            themeData.textTheme.bodyText1,
-                                            fontWeight: 600),
+                                        style: themeData.textTheme.bodyLarge?.copyWith(
+                                            fontWeight: FontWeight.w600),
                                       ),
                                       trailing: CupertinoSwitch(
                                         value: _becomeAnnoncer,
@@ -632,7 +623,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                               fontWeight: FontWeight.w600)),
                                       TextFormField(
                                         validator: (input) {
-                                          if (input.isEmpty) {
+                                          if (input!.isEmpty) {
                                             return 'Veuillez saisir l\'intitulé du compte annonceur';
                                           }
                                           return null;
@@ -667,7 +658,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                                               fontWeight: FontWeight.w600)),
                                       TextFormField(
                                         validator: (input) {
-                                          if (input.isEmpty) {
+                                          if (input!.isEmpty) {
                                             return 'Veuillez saisir le numéro de téléphone de l\'annonceur';
                                           }
                                           if (input.length < 6) {
@@ -784,19 +775,19 @@ class _SignUpActivityState extends State<SignUpActivity> {
                       ),
                       Expanded(child: InkWell(
                         child: isLoading
-                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),)
+                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),)
                             : Container(
                           width: ScreenUtil.getInstance().setWidth(330),
                           height: ScreenUtil.getInstance().setHeight(100),
                           decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                DikoubaColors.blue['lig'],
-                                DikoubaColors.blue['dar']
+                                DikoubaColors.blue['lig']!,
+                                DikoubaColors.blue['dar']!
                               ]),
                               borderRadius: BorderRadius.circular(6.0),
                               boxShadow: [
                                 BoxShadow(
-                                    color: DikoubaColors.blue['pri'].withOpacity(.3),
+                                    color: DikoubaColors.blue['pri']!.withOpacity(.3),
                                     offset: Offset(0.0, 8.0),
                                     blurRadius: 8.0)
                               ]),
@@ -853,7 +844,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                               borderRadius:
                               BorderRadius.all(Radius.circular(40.0)),
                               border: Border.all(
-                                  color: DikoubaColors.blue['pri'], width: 1.0),
+                                  color: DikoubaColors.blue['pri']!, width: 1.0),
                             ),
                             child: Center(
                               child: Text("Se connecter",
@@ -960,9 +951,9 @@ class _SignUpActivityState extends State<SignUpActivity> {
         });*/
     var resultAction = 'gallerie';
     if(resultAction == 'camera') {
-      _pickedFileprofil = await picker.getImage(source: ImageSource.camera);
+      _pickedFileprofil = (await picker.getImage(source: ImageSource.camera))!;
     } else if(resultAction == 'gallerie') {
-      _pickedFileprofil = await picker.getImage(source: ImageSource.gallery);
+      _pickedFileprofil = (await picker.getImage(source: ImageSource.gallery))!;
     }
     setState(() {
       selectedImage = new File(_pickedFileprofil.path);
@@ -970,14 +961,14 @@ class _SignUpActivityState extends State<SignUpActivity> {
   }
 
   void handlerSaveForm(BuildContext buildContext) async {
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
       setState(() {
         isLoading = true;
       });
       
-      UserModel userMdl = new UserModel();
+      UserModel userMdl = new UserModel(id_users: '');
       userMdl.name = nameCtrler.text;
       userMdl.email = emailCtrler.text;
       userMdl.phone = phoneCtrler.text;
@@ -990,7 +981,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
       try {
         fbUser.UserCredential userCredential =
         await fbUser.FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: userMdl.email, password: userMdl.password);
+            email: userMdl.email!, password: userMdl.password!);
 
         if (userCredential.user == null) {
           showDialog(
@@ -1002,7 +993,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                   content: Text(
                       "Veuillez vérifier votre adresse email."),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("Fermer"),
                       onPressed: () {
                         Navigator.of(context)
@@ -1015,11 +1006,11 @@ class _SignUpActivityState extends State<SignUpActivity> {
           return;
         }
 
-        print("$TAG:register ${userCredential.user.uid}");
+        print("$TAG:register ${userCredential.user!.uid}");
 
-        userMdl.uid = userCredential.user.uid;
+        userMdl.uid = userCredential.user!.uid;
 
-        _setUserId(userMdl.uid);
+        _setUserId(userMdl.uid!);
 
         AnnoncerModel annoncerModel = new AnnoncerModel(
             checkout_phone_number: anceurPhoneCtrler.text,
@@ -1030,7 +1021,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
         );
 
         if (_pickedFileprofil != null) {
-          var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, _pickedFileprofil.path, userMdl.uid);
+          var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, _pickedFileprofil.path, userMdl.uid!);
           print("$TAG:getImage downloadLink=$downloadLink");
           userMdl.photo_url = downloadLink;
         }
@@ -1048,7 +1039,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                   content: Text(
                       "Mot de passe incorrect."),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("Fermer"),
                       onPressed: () {
                         Navigator.of(context)
@@ -1070,7 +1061,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                   content: Text(
                       "Cet adresse email est déjà utilisé"),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("Fermer"),
                       onPressed: () {
                         Navigator.of(context)
@@ -1092,7 +1083,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
                 content: Text(
                     "Impossible de créer votre compte"),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Fermer"),
                     onPressed: () {
                       Navigator.of(context)
@@ -1111,7 +1102,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
   void handlerSaveFormInit(BuildContext buildContext) {
     print("${TAG}:handlerSaveForm becomeAnnoncer=${_becomeAnnoncer}");
     // otherwise.
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       // If the form is valid, display a Snackbar.
       print("${TAG}:handlerSaveForm ready to save data ");
       // updateUserAccount(buildContext);
@@ -1128,13 +1119,13 @@ class _SignUpActivityState extends State<SignUpActivity> {
         UserModel userSaved = new UserModel.fromJson(responseUpdated.data);
         if(_becomeAnnoncer) {
           API.createAnnoncer(annoncerModel)
-              .then((responseAnnon) async {
+              .then((responseAnnon) { //Should be async
             print("${TAG}:createAnnoncer responseCreated = ${responseAnnon.statusCode}|${responseAnnon.data}");
 
             if (responseAnnon.statusCode == 200) {
               AnnoncerModel annoncerCreated = new AnnoncerModel.fromJson(responseAnnon.data);
 
-              await insertUser(userSaved, annoncerCreated);
+              insertUser(userSaved, annoncerCreated); //Should be await
               setState(() {
                 isLoading = false;
               });
@@ -1167,7 +1158,7 @@ class _SignUpActivityState extends State<SignUpActivity> {
           });
         } else {
 
-          insertUser(userSaved, null);
+          insertUser(userSaved, new AnnoncerModel());
           setState(() {
             isLoading = false;
           });
@@ -1213,18 +1204,18 @@ class _SignUpActivityState extends State<SignUpActivity> {
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: annoncerModel == null ? '' : annoncerModel.id_annoncers,
       DatabaseHelper.COLUMN_USER_ANNONCER_PICTUREPATH: annoncerModel == null ? '' : annoncerModel.picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: annoncerModel == null ? '' : annoncerModel.cover_picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: annoncerModel == null ? '' : annoncerModel.compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: annoncerModel == null ? '' : annoncerModel.checkout_phone_number,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at!.seconds,
     };
     final id = await dbHelper.insert_user(row);
     print('${TAG}:insertUser inserted row id: $id');

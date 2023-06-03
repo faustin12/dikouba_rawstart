@@ -1,19 +1,17 @@
 import 'dart:convert';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/fragment/EventCreateSession.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/fragment/EventCreateSession.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -25,7 +23,7 @@ import 'package:firebase_analytics/observer.dart';
 class EvenNewSessionActivity extends StatefulWidget {
   EvenementModel evenementModel;
 
-  EvenNewSessionActivity(this.evenementModel, {Key key, this.analytics, this.observer}) : super(key: key);
+  EvenNewSessionActivity(this.evenementModel, {Key? key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -37,18 +35,18 @@ class EvenNewSessionActivity extends StatefulWidget {
 class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
   static final String TAG = 'EvenNewSessionActivityState';
 
-  ThemeData themeData;
-  CustomAppTheme customAppTheme;
+  late ThemeData themeData;
+  late CustomAppTheme customAppTheme;
 
-  UserModel _userModel;
+  late UserModel _userModel;
 
   bool _is_creating = false;
   bool _isSessionsFinding = false;
 
-  List<Widget> _listWidget;
-  List<EvenementModel> _listSessions = new List();
+  late List<Widget> _listWidget;
+  List<EvenementModel> _listSessions = [];
 
-  Future<List<Widget>> widgetsView;
+  late Future<List<Widget>> widgetsView;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
@@ -75,11 +73,11 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -108,7 +106,7 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         customAppTheme = AppTheme.getCustomAppTheme(value.themeMode());
         return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -128,14 +126,14 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                                     width: MySize.size32,
                                     height: MySize.size32,
                                     alignment: Alignment.center,
-                                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),),));
+                                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),),));
                                 }else{
                                   if (snapshot.hasError)
                                     return Center(child: Text('Erreur: ${snapshot.error}'));
                                   else
                                     return ListView(
                                       padding: Spacing.vertical(16),
-                                      children: snapshot.data,
+                                      children: snapshot.data!,
                                     );
                                 }
 
@@ -159,13 +157,13 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                                           Radius.circular(MySize.size40))),
                                   child: Text(
                                     "  Finir  ".toUpperCase(),
-                                    style: AppTheme.getTextStyle(
+                                    /*style: AppTheme.getTextStyle(
                                         themeData.textTheme.caption,
                                         fontSize: 12,
                                         letterSpacing: 0.7,
                                         color:
                                         themeData.colorScheme.onPrimary,
-                                        fontWeight: 600),
+                                        fontWeight: 600),*/
                                   ),
                                 ),
                               ),
@@ -185,13 +183,13 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                                         margin: Spacing.left(12),
                                         child: Text(
                                           "Nouvelle session".toUpperCase(),
-                                          style: AppTheme.getTextStyle(
+                                          /*style: AppTheme.getTextStyle(
                                               themeData.textTheme.caption,
                                               fontSize: 12,
                                               letterSpacing: 0.7,
                                               color:
                                               themeData.colorScheme.onPrimary,
-                                              fontWeight: 600),
+                                              fontWeight: 600),*/
                                         ),
                                       ),
                                       Container(
@@ -240,51 +238,51 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
   }
 
   Future<List<Widget>> initWidgetListview() async {
-    List<Widget> listWidget = new List();
-    DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.evenementModel.start_date.seconds) * 1000);
-    DateTime _endDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.evenementModel.end_date.seconds) * 1000);
+    List<Widget> listWidget = [];
+    DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.evenementModel.start_date!.seconds) * 1000);
+    DateTime _endDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.evenementModel.end_date!.seconds) * 1000);
 
     listWidget.add(Container(
       margin: Spacing.fromLTRB(24, 24, 24, 0),
       child: Text(
         "Ajout des sessions a l'évènement",
-        style: AppTheme.getTextStyle(
+        /*style: AppTheme.getTextStyle(
             themeData.textTheme.bodyText2,
             color: themeData
                 .colorScheme.onBackground,
-            fontWeight: 600),
+            fontWeight: 600),*/
       ),
     ));
     listWidget.add(Container(
       margin: Spacing.fromLTRB(24, 8, 24, 0),
       child: Text("${widget.evenementModel.title}",
-        style: AppTheme.getTextStyle(themeData.textTheme.headline5,
+        /*style: AppTheme.getTextStyle(themeData.textTheme.headline5,
             color: themeData.colorScheme.onBackground,
-            fontWeight: 600),),
+            fontWeight: 600),*/),
     ));
     listWidget.add(Container(
       margin: Spacing.fromLTRB(24, 24, 24, 0),
       child: Text(
         "Du ${DateFormat('dd MMM yyyy HH:mm').format(_startDate)}\nAu ${DateFormat('dd MMM yyyy HH:mm').format(_endDate)}",
-        style: AppTheme.getTextStyle(
+        /*style: AppTheme.getTextStyle(
             themeData.textTheme.bodyText2,
             color: themeData
                 .colorScheme.onBackground,
-            fontWeight: 600),
+            fontWeight: 600),*/
       ),
     ));
 
-    var resFindSession = await API.findAllSession([widget.evenementModel.id_evenements]);
+    var resFindSession = await API.findAllSession([widget.evenementModel.id_evenements!]);
     print(
         "${TAG}:requestCustomerAddress ${resFindSession.statusCode}|${resFindSession.data}");
     if(resFindSession.statusCode == 200) {
-      List<EvenementModel> list = new List();
+      List<EvenementModel> list = [];
       for (int i = 0; i < resFindSession.data.length; i++) {
         EvenementModel itemSession = EvenementModel.fromJson(resFindSession.data[i]);
         // list.add(EvenementModel.fromJson(resFindSession.data[i]));
 
-        DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(itemSession.start_date.seconds) * 1000);
-        DateTime _endDate = DateTime.fromMillisecondsSinceEpoch(int.parse(itemSession.end_date.seconds) * 1000);
+        DateTime _startDate = DateTime.fromMillisecondsSinceEpoch(int.parse(itemSession.start_date!.seconds) * 1000);
+        DateTime _endDate = DateTime.fromMillisecondsSinceEpoch(int.parse(itemSession.end_date!.seconds) * 1000);
 
         listWidget.add(singleEvent(
             image: '${itemSession.banner_path}',
@@ -308,7 +306,7 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
       email: email,
       photo_url: photoUri,
       password: firebaseuid,
-      email_verified: 'true'
+      email_verified: 'true', id_users: ''
     );
 
     API.createUser(userModel)
@@ -363,11 +361,11 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
     setState(() {
       _isSessionsFinding = true;
     });
-    API.findAllSession([widget.evenementModel.id_evenements]).then((responseEvents) {
+    API.findAllSession([widget.evenementModel.id_evenements!]).then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(
             "${TAG}:requestCustomerAddress ${responseEvents.statusCode}|${responseEvents.data}");
-        List<EvenementModel> list = new List();
+        List<EvenementModel> list = [];
         for (int i = 0; i < responseEvents.data.length; i++) {
           list.add(EvenementModel.fromJson(responseEvents.data[i]));
         }
@@ -389,7 +387,7 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
     });
   }
 
-  Widget singleEvent({String image, String name, String date, String time}) {
+  Widget singleEvent({required String image, required String name, required String date, required String time}) {
     return Container(
       margin: Spacing.all(16),
       child: InkWell(
@@ -402,8 +400,13 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
             Container(
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: image.contains('assets') ? AssetImage(image) : NetworkImage(image),
+                child: image.contains('assets') ? Image(
+                  image: AssetImage(image),
+                  width: MySize.getScaledSizeHeight(80),
+                  height: MySize.size72,
+                  fit: BoxFit.cover,
+                ):Image(
+                  image: NetworkImage(image),
                   width: MySize.getScaledSizeHeight(80),
                   height: MySize.size72,
                   fit: BoxFit.cover,
@@ -424,10 +427,10 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                               name,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTheme.getTextStyle(
+                             /* style: AppTheme.getTextStyle(
                                   themeData.textTheme.subtitle2,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 600),
+                                  fontWeight: 600),*/
                             )),
                         InkWell(
                           onTap: (){
@@ -458,22 +461,22 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                             children: [
                               Text(
                                 "Date",
-                                style: AppTheme.getTextStyle(
+                                /*style: AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     fontSize: 12,
                                     color: themeData.colorScheme.onBackground,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   date,
-                                  style: AppTheme.getTextStyle(
+                                  /*style: AppTheme.getTextStyle(
                                       themeData.textTheme.bodyText2,
                                       color:
-                                      themeData.colorScheme.onBackground),
+                                      themeData.colorScheme.onBackground),*/
                                 ),
                               )
                             ],
@@ -483,22 +486,22 @@ class EvenNewSessionActivityState extends State<EvenNewSessionActivity> {
                             children: [
                               Text(
                                 "Heure",
-                                style: AppTheme.getTextStyle(
+                                /*style: AppTheme.getTextStyle(
                                     themeData.textTheme.caption,
                                     fontWeight: 600,
                                     letterSpacing: 0,
                                     color: themeData.colorScheme.onBackground,
                                     fontSize: 12,
-                                    xMuted: true),
+                                    xMuted: true),*/
                               ),
                               Container(
                                 margin: Spacing.top(2),
                                 child: Text(
                                   time,
-                                  style: AppTheme.getTextStyle(
+                                  /*style: AppTheme.getTextStyle(
                                       themeData.textTheme.bodyText2,
                                       color:
-                                      themeData.colorScheme.onBackground),
+                                      themeData.colorScheme.onBackground),*/
                                 ),
                               )
                             ],

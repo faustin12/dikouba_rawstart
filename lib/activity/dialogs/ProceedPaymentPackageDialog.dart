@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:dikouba_rawstart/AppTheme.dart';
 import 'package:dikouba_rawstart/fragment/PaypalPayment_v2.dart';
 import 'package:dikouba_rawstart/model/evenement_model.dart';
 import 'package:dikouba_rawstart/model/package_model.dart';
@@ -9,20 +7,13 @@ import 'package:dikouba_rawstart/model/ticket_model.dart';
 import 'package:dikouba_rawstart/model/user_model.dart';
 import 'package:dikouba_rawstart/provider/api_provider.dart';
 import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
-import 'package:dikouba_rawstart/provider/paypal_service_v2.dart';
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
-import 'package:group_radio_button/group_radio_button.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:paypal_sdk_flutter/paypal_sdk_flutter.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-
 
 class ProceedPaymentPackageDialog extends StatefulWidget {
   PackageModel package;
@@ -30,7 +21,7 @@ class ProceedPaymentPackageDialog extends StatefulWidget {
   ThemeData themeData;
 
   ProceedPaymentPackageDialog(this.package, this.evenement, this.themeData,
-      {this.analytics, this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -45,18 +36,18 @@ class _ProceedPaymentPackageDialogState
   static final String tag = 'EvenNewEventActivityState';
 
   String _paymentMethod = "Mobile Money";
-  UserModel _userModel;
+  late UserModel _userModel;
 
   List<String> _status = ["Mobile Money", "Paypal"];
   List<String> prefixOM = ["655", "656", "657", "658", "659", "690", "691", "692", "693", "694", "695", "696", "697", "698", "699"];
   List<String> prefixMOMO = ["650", "651", "652", "653", "654", "670", "671", "672", "673", "674", "675", "676", "677", "678", "679", "680", "681"];
   List<String> _buttonOMImageAsset = ['assets/images/momo-1.jpg','assets/images/om-1.jpg','assets/images/momo_om-1.jpg', 'assets/images/paypal-1.webp'];
   int _buttonOMImageIndex = 2;
-  TextEditingController phoneCtrler;
+  late TextEditingController phoneCtrler;
   bool _isPaying = false;
   int checkStatusPaymentCount = 0;
 
-  Timer timer;
+  late Timer timer;
 
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
@@ -69,7 +60,7 @@ class _ProceedPaymentPackageDialogState
   }
 
   Future<void> _setCurrentScreen() async {
-    await widget.analytics?.setCurrentScreen(
+    await widget.analytics.setCurrentScreen(
       screenName: "ShowEventPaymentPackageDialog",
       screenClassOverride: "ShowEventPaymentPackageDialog",
     );
@@ -104,44 +95,44 @@ class _ProceedPaymentPackageDialogState
             bottom: MySize.size8,
             left: MySize.size16,
             right: MySize.size16),
-        child: (int.parse(widget.package.price ?? 0) == 0)
+        child: (int.parse(widget.package.price! ?? '0') == 0)
             ? ListView(
                 children: [
                   SizedBox(
                     height: MySize.size12,
                   ),
                   Text('Evenement',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
-                  Text(widget.evenement.title,
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w400,
+                      ),),
+                  Text(widget.evenement.title!,
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),),
                   SizedBox(
                     height: MySize.size8,
                   ),
                   Text('Package',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
-                  Text(widget.package.name,
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w400,
+                      ),),
+                  Text(widget.package.name!,
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),),
                   SizedBox(
                     height: MySize.size8,
                   ),
                   Text('Montant',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w400,
+                      ),),
                   Text(
                       DikoubaUtils.formatCurrencyWithDevise(
-                          widget.package.price),
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                          widget.package.price!),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),),
                   SizedBox(
                     height: MySize.size12,
                   ),
@@ -152,7 +143,7 @@ class _ProceedPaymentPackageDialogState
                           alignment: Alignment.center,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                DikoubaColors.blue['pri']),
+                                DikoubaColors.blue['pri']!),
                           ),
                         )
                       : InkWell(
@@ -171,13 +162,12 @@ class _ProceedPaymentPackageDialogState
                               margin: Spacing.left(12),
                               child: Text(
                                 "Valider",
-                                style: AppTheme.getTextStyle(
-                                    widget.themeData.textTheme.bodyText2,
+                                style: themeData.textTheme.bodyMedium?.copyWith(
                                     fontSize: MySize.size22,
                                     letterSpacing: 0.7,
                                     color:
                                         widget.themeData.colorScheme.onPrimary,
-                                    fontWeight: 600),
+                                    fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
@@ -190,43 +180,37 @@ class _ProceedPaymentPackageDialogState
                     height: MySize.size12,
                   ),
                   Text('Evenement',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
-                  Text(widget.evenement.title,
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w400)),
+                  Text(widget.evenement.title!,
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600)),
                   SizedBox(
                     height: MySize.size8,
                   ),
                   Text('Package',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
-                  Text(widget.package.name,
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w400)),
+                  Text(widget.package.name!,
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600)),
                   SizedBox(
                     height: MySize.size8,
                   ),
                   Text('Montant',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 400)),
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w400)),
                   Text(
                       DikoubaUtils.formatCurrencyWithDevise(
-                          widget.package.price) +
-                          ' / ' + ((double.parse(widget.package.price)/655.95).round()).toString() + ' EUR',
-                      style: AppTheme.getTextStyle(
-                          themeData.appBarTheme.textTheme.bodyText1,
-                          fontWeight: 600)),
+                          widget.package.price!) +
+                          ' / ' + ((double.parse(widget.package.price!)/655.95).round()).toString() + ' EUR',
+                      style: themeData.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600)),
                   SizedBox(
                     height: MySize.size10,
                   ),
                   Text('Moyen de paiement',
-                      style: themeData.appBarTheme.textTheme.bodyText1),
+                      style: themeData.appBarTheme.textTheme?.bodyLarge),
                   ListTile(
                     title: const Text(""),
                     leading: Row(
@@ -237,7 +221,7 @@ class _ProceedPaymentPackageDialogState
                           value: _status[0],
                           groupValue: _paymentMethod,
                           onChanged: (value) => setState(() {
-                            _paymentMethod = value;
+                            _paymentMethod = value!;
                           }),
                         ),
                         Image.asset(_buttonOMImageAsset[2]),
@@ -254,7 +238,7 @@ class _ProceedPaymentPackageDialogState
                           value: _status[1],
                           groupValue: _paymentMethod,
                           onChanged: (value) => setState(() {
-                            _paymentMethod = value;
+                            _paymentMethod = value!;
                           }),
                         ),
                         Image.asset(_buttonOMImageAsset[3]),
@@ -276,7 +260,7 @@ class _ProceedPaymentPackageDialogState
                     height: MySize.size14,
                   ),
                   if (_paymentMethod == _status[0]) Text('Informations du compte',
-                      style: themeData.appBarTheme.textTheme.bodyText1),
+                      style: themeData.appBarTheme.textTheme?.bodyLarge),
                   if (_paymentMethod == _status[0]) TextFormField(
                     controller: phoneCtrler,
                     onChanged: (text) {
@@ -288,23 +272,22 @@ class _ProceedPaymentPackageDialogState
                       print("phone_changed " + text + " " + _buttonOMImageAsset[_buttonOMImageIndex]);
                     },
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Veuillez saisir le titre';
                       }
                       return null;
                     },
-                    style: AppTheme.getTextStyle(themeData.textTheme.bodyText1,
+                    style: themeData.textTheme.bodyLarge?.copyWith(
                         color: themeData.colorScheme.onBackground,
                         letterSpacing: -0.4,
-                        fontWeight: 800),
+                        fontWeight: FontWeight.w800),
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       fillColor: themeData.colorScheme.background,
-                      hintStyle: AppTheme.getTextStyle(
-                          themeData.textTheme.bodyText1,
+                      hintStyle: themeData.textTheme.bodyLarge?.copyWith(
                           color: themeData.colorScheme.onBackground,
                           letterSpacing: -0.4,
-                          fontWeight: 800),
+                          fontWeight: FontWeight.w800),
                       filled: false,
                       hintText: "Numéro de téléphone",
                       enabledBorder: InputBorder.none,
@@ -322,7 +305,7 @@ class _ProceedPaymentPackageDialogState
                           alignment: Alignment.center,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                DikoubaColors.blue['pri']),
+                                DikoubaColors.blue['pri']!),
                           ),
                         )
                       : InkWell(
@@ -348,13 +331,12 @@ class _ProceedPaymentPackageDialogState
                                   margin: Spacing.left(12),
                                   child: Text(
                                     "Payer",
-                                    style: AppTheme.getTextStyle(
-                                        widget.themeData.textTheme.bodyText2,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
                                         fontSize: MySize.size22,
                                         letterSpacing: 0.7,
                                         color:
                                             widget.themeData.colorScheme.onPrimary,
-                                        fontWeight: 600),
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ),
                           ),
@@ -367,7 +349,7 @@ class _ProceedPaymentPackageDialogState
 
   @override
   void dispose() {
-    timer?.cancel();
+    timer.cancel();
     super.dispose();
   }
 
@@ -405,9 +387,9 @@ class _ProceedPaymentPackageDialogState
 
     API
         .addTicket(
-      idEvenement: widget.evenement.id_evenements,
+      idEvenement: widget.evenement.id_evenements!,
       idUser: _userModel.id_users,
-      idPackage: widget.package.id_packages,
+      idPackage: widget.package.id_packages!,
     )
         .then((responseEvent) async {
       print(
@@ -447,7 +429,7 @@ class _ProceedPaymentPackageDialogState
     setState(() {
       _isPaying = true;
     });
-    String result;
+    String? result;
     try {
       PaypalSdkFlutter sdk = PaypalSdkFlutter(
         environment: Environment.sandbox,
@@ -456,7 +438,7 @@ class _ProceedPaymentPackageDialogState
             "AU-QgOX5VEnQY6MmRlveMWznE1MSLjEQ0YuHfLbCYEFvwPNPQ_VivNDcqnma9RjSOrErE7giyh-F_nee",
       );
       var resPaypal = await sdk.payWithPayPal(
-          amount: double.parse(widget.package.price ?? 0),
+          amount: double.parse(widget.package.price ?? '0'),
           description: "DIKOUBA, achat ticket évènement");
       print("Withing example $result");
       print(
@@ -504,9 +486,9 @@ class _ProceedPaymentPackageDialogState
 
     API
         .addTicket(
-        idEvenement: widget.evenement.id_evenements,
+        idEvenement: widget.evenement.id_evenements!,
         idUser: _userModel.id_users,
-        idPackage: widget.package.id_packages)
+        idPackage: widget.package.id_packages!)
         .then((responseEvent) async {
       print(
           "$tag:addTicke responseCreated = ${responseEvent.statusCode}|${responseEvent.data}");
@@ -567,9 +549,9 @@ class _ProceedPaymentPackageDialogState
 
     API
         .addTicketMobilePay(
-            idEvenement: widget.evenement.id_evenements,
+            idEvenement: widget.evenement.id_evenements!,
             idUser: _userModel.id_users,
-            idPackage: widget.package.id_packages,
+            idPackage: widget.package.id_packages!,
             phoneNumber: phoneCtrler.text)
         .then((responseEvent) async {
       print(
@@ -615,7 +597,7 @@ class _ProceedPaymentPackageDialogState
 
     API
         .checkTicketPaypalPay(
-        idTickets: ticketCreated.id_tickets, idUser: ticketCreated.id_users, orderId: orderId)
+        idTickets: ticketCreated.id_tickets!, idUser: ticketCreated.id_users!, orderId: orderId)
         .then((responseEvent) async {
 
       if (responseEvent.statusCode == 200) {
@@ -674,7 +656,7 @@ class _ProceedPaymentPackageDialogState
 
     API
         .checkTicketMobilePay(
-            idTickets: ticketCreated.id_tickets, idUser: ticketCreated.id_users)
+            idTickets: ticketCreated.id_tickets!, idUser: ticketCreated.id_users!)
         .then((responseEvent) async {
       print(
           "$tag:proceedCheckStatusPayment responseCreated = ${responseEvent.statusCode}|${responseEvent.data}");

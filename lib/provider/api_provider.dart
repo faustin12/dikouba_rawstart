@@ -496,7 +496,7 @@ class API {
     );
   }
 
-  static Future findEventItem(String idEvent, {required String idUser}) {
+  static Future findEventItem(String idEvent, {String? idUser}) {
     var mapBody;
     if (idUser == null) {
       mapBody = {

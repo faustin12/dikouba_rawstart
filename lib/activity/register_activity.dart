@@ -1,19 +1,17 @@
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dio/dio.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -24,7 +22,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class RegisterActivity extends StatefulWidget {
   UserModel userModel;
-  RegisterActivity({Key key, this.userModel, this.analytics, this.observer}) : super(key: key);
+  RegisterActivity({Key? key, required this.userModel, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -36,21 +34,21 @@ class RegisterActivity extends StatefulWidget {
 class RegisterActivityState extends State<RegisterActivity> {
   static final String TAG = 'RegisterActivityState';
 
-  Size _screenSize;
-  String _selectedSexe;
-  DateTime _birthday;
+  late Size _screenSize;
+  late String _selectedSexe;
+  late DateTime _birthday;
   bool _is_creating = false;
 
   bool _becomeAnnoncer = false;
 
-  File _image;
+  late File _image;
   final picker = ImagePicker();
 
-  TextEditingController nameCtrler;
-  TextEditingController emailCtrler;
-  TextEditingController phoneCtrler;
-  TextEditingController anceurCompagnyCtrler;
-  TextEditingController anceurPhoneCtrler;
+  late TextEditingController nameCtrler;
+  late TextEditingController emailCtrler;
+  late TextEditingController phoneCtrler;
+  late TextEditingController anceurCompagnyCtrler;
+  late TextEditingController anceurPhoneCtrler;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -65,10 +63,10 @@ class RegisterActivityState extends State<RegisterActivity> {
   }
 
   void saveUserimgAndPush() async {
-    var localFullPath = await API.downloadFileFromUrl(widget.userModel.photo_url, widget.userModel.uid, showDownloadProgress);
+    var localFullPath = await API.downloadFileFromUrl(widget.userModel.photo_url!, widget.userModel.uid!, showDownloadProgress);
     print("$TAG:saveUserimgAndPush localFullPath=$localFullPath");
     if(localFullPath != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, localFullPath, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, localFullPath, widget.userModel.uid!);
       print("$TAG:saveUserimgAndPush downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -77,10 +75,10 @@ class RegisterActivityState extends State<RegisterActivity> {
   }
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.camera);
-    print("$TAG:getImage downloadLink=${pickedFile.path}");
+    print("$TAG:getImage downloadLink=${pickedFile?.path}");
 
     if (pickedFile != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid!);
       print("$TAG:getImage downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -112,7 +110,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                         margin: EdgeInsets.only(left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall?.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -128,7 +126,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -144,7 +142,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -160,7 +158,7 @@ class RegisterActivityState extends State<RegisterActivity> {
     setState(() {
       _isImageUpdating = true;
     });
-    PickedFile pickedFile = null;
+    PickedFile? pickedFile = null;
     if(resultAction == 'camera') {
       pickedFile = await picker.getImage(source: ImageSource.camera);
     } else if(resultAction == 'gallerie') {
@@ -168,7 +166,7 @@ class RegisterActivityState extends State<RegisterActivity> {
     }
 
     if (pickedFile != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid!);
       print("$TAG:getImage downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -181,7 +179,7 @@ class RegisterActivityState extends State<RegisterActivity> {
     }
   }
 
-  ThemeData themeData;
+  late ThemeData themeData;
   bool _passwordVisible = false;
   bool _isImageUpdating = false;
 
@@ -192,11 +190,11 @@ class RegisterActivityState extends State<RegisterActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -229,9 +227,9 @@ class RegisterActivityState extends State<RegisterActivity> {
     anceurCompagnyCtrler = new TextEditingController();
     anceurPhoneCtrler = new TextEditingController();
 
-    nameCtrler.text = widget.userModel.name;
-    emailCtrler.text = widget.userModel.email;
-    phoneCtrler.text = widget.userModel.phone;
+    nameCtrler.text = widget.userModel.name!;
+    emailCtrler.text = widget.userModel.email!;
+    phoneCtrler.text = widget.userModel.phone!;
 
     _setCurrentScreen();
   }
@@ -241,7 +239,7 @@ class RegisterActivityState extends State<RegisterActivity> {
     themeData = Theme.of(context);
 
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: AppTheme.getThemeFromThemeMode(value.themeMode()),
@@ -259,9 +257,8 @@ class RegisterActivityState extends State<RegisterActivity> {
                           Container(
                             child: Text(
                               "Création de compte",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.headline5,
-                                  fontWeight: 600,
+                              style: themeData.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing: 0),
                             ),
                           ),
@@ -272,7 +269,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                                 ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             )
                                 : Column(
@@ -285,10 +282,11 @@ class RegisterActivityState extends State<RegisterActivity> {
                                       height: MySize.getScaledSizeHeight(120.0),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        image:  DecorationImage(
-                                            image: widget.userModel.photo_url == ""
-                                                ? AssetImage('./assets/logo/user_transparent.webp')
-                                                : NetworkImage(widget.userModel.photo_url),
+                                        image:  widget.userModel.photo_url == ""
+                                            ? DecorationImage(
+                                            image: AssetImage('./assets/logo/user_transparent.webp'),
+                                            fit: BoxFit.fill):DecorationImage(
+                                            image: NetworkImage(widget.userModel.photo_url!),
                                             fit: BoxFit.fill),
                                       ),
                                     ),
@@ -324,15 +322,13 @@ class RegisterActivityState extends State<RegisterActivity> {
                                 ),
                                 Text("${widget.userModel.name}",
                                     textAlign: TextAlign.center,
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.headline6,
-                                        fontWeight:600,
+                                    style: themeData.textTheme.titleLarge?.copyWith(
+                                        fontWeight:FontWeight.w600,
                                         letterSpacing: 0)),
                                 Text("${widget.userModel.email == "" ? widget.userModel.phone : widget.userModel.email}",
                                     textAlign: TextAlign.center,
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle2,
-                                        fontWeight: 500)),
+                                    style: themeData.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -341,23 +337,21 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: TextFormField(
                               controller: nameCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir le nom et prénom';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Nom et prénom",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText1,
+                                hintStyle: themeData.textTheme.bodyLarge?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -393,7 +387,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: TextFormField(
                               controller: emailCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir l\'adresse email';
                                 }
                                 if (!DikoubaUtils.isValidEmail(value.toString())) {
@@ -401,18 +395,16 @@ class RegisterActivityState extends State<RegisterActivity> {
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Adresse email",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.subtitle2,
+                                hintStyle: themeData.textTheme.titleSmall?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -449,7 +441,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: TextFormField(
                               controller: phoneCtrler,
                               validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value!.isEmpty) {
                                     return 'Veuillez saisir le numéro de téléphone';
                                   }
                                   if (value.length < 9) {
@@ -457,18 +449,18 @@ class RegisterActivityState extends State<RegisterActivity> {
                                   }
                                   return null;
                                 },
-                              style: AppTheme.getTextStyle(
+                              /*style: AppTheme.getTextStyle(
                                   themeData.textTheme.bodyText1,
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: 500),*/
                               decoration: InputDecoration(
                                 hintText: "Numéro de téléphone",
-                                hintStyle: AppTheme.getTextStyle(
+                                /*hintStyle: AppTheme.getTextStyle(
                                     themeData.textTheme.subtitle2,
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: 500),*/
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -504,9 +496,9 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: ListTile(
                               title: Text(
                                 'Devenir annonceur',
-                                style: AppTheme.getTextStyle(
+                                /*style: AppTheme.getTextStyle(
                                     themeData.textTheme.bodyText1,
-                                    fontWeight: 600),
+                                    fontWeight: 600),*/
                               ),
                               trailing: CupertinoSwitch(
                                 value: _becomeAnnoncer,
@@ -529,23 +521,23 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: TextFormField(
                               controller: anceurCompagnyCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir l\'intitulé du compte annonceur';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
+                              /*style: AppTheme.getTextStyle(
                                   themeData.textTheme.bodyText1,
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: 500),*/
                               decoration: InputDecoration(
                                 hintText: "Intitulé compte annonceur",
-                                hintStyle: AppTheme.getTextStyle(
+                                /*hintStyle: AppTheme.getTextStyle(
                                     themeData.textTheme.subtitle2,
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: 500),*/
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -583,7 +575,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                             child: TextFormField(
                               controller: anceurPhoneCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir le numéro de téléphone de l\'annonceur';
                                 }
                                 if (value.length < 9) {
@@ -591,18 +583,18 @@ class RegisterActivityState extends State<RegisterActivity> {
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
+                              /*style: AppTheme.getTextStyle(
                                   themeData.textTheme.bodyText1,
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: 500),*/
                               decoration: InputDecoration(
                                 hintText: "Numéro de téléphone annonceur",
-                                hintStyle: AppTheme.getTextStyle(
+                                /*hintStyle: AppTheme.getTextStyle(
                                     themeData.textTheme.subtitle2,
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: 500),*/
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -639,7 +631,7 @@ class RegisterActivityState extends State<RegisterActivity> {
                               ? Center(
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        DikoubaColors.blue['pri']),
+                                        DikoubaColors.blue['pri']!),
                                   ),)
                               : Container(
                             margin: EdgeInsets.only(top: MySize.size24),
@@ -648,21 +640,21 @@ class RegisterActivityState extends State<RegisterActivity> {
                               BorderRadius.all(Radius.circular(MySize.size28)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: themeData.cardTheme.shadowColor
-                                      .withAlpha(18),
+                                  color: themeData.cardTheme.shadowColor!.withAlpha(18),
                                   blurRadius: 4,
                                   offset: Offset(
                                       0, 3),
                                 ),
                               ],
                             ),
-                            child: FlatButton(
-                              shape: RoundedRectangleBorder(
+                            child: TextButton(
+                              /*shape: RoundedRectangleBorder(
                                   borderRadius:
                                   BorderRadius.circular(MySize.size28)),
+                              padding: EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
                               splashColor: themeData.colorScheme.secondary,
                               color: themeData.colorScheme.primary,
-                              highlightColor: DikoubaColors.blue['lig'],
+                              highlightColor: DikoubaColors.blue['lig'],*/
                               onPressed: () {
                                 handlerSaveForm(context);
                                 // Navigator.push(
@@ -676,12 +668,12 @@ class RegisterActivityState extends State<RegisterActivity> {
                                 children: <Widget>[
                                   Text(
                                     "Enregistrer".toUpperCase(),
-                                    style: AppTheme.getTextStyle(
+                                    /*style: AppTheme.getTextStyle(
                                         themeData.textTheme.bodyText2,
                                         fontWeight: 700,
                                         color:
                                         themeData.backgroundColor,
-                                        letterSpacing: 0.5),
+                                        letterSpacing: 0.5),*/
                                   ),
                                   Container(
                                     margin: EdgeInsets.only(left: MySize.size16),
@@ -694,8 +686,6 @@ class RegisterActivityState extends State<RegisterActivity> {
                                   )
                                 ],
                               ),
-                              padding:
-                              EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
                             ),
                           ),
                           SizedBox(height: 24,)
@@ -711,7 +701,7 @@ class RegisterActivityState extends State<RegisterActivity> {
   void handlerSaveForm(BuildContext buildContext) {
     print("${TAG}:handlerSaveForm becomeAnnoncer=${_becomeAnnoncer}");
     // otherwise.
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       // If the form is valid, display a Snackbar.
       print("${TAG}:handlerSaveForm ready to save data ");
       updateUserAccount(buildContext);
@@ -727,7 +717,7 @@ class RegisterActivityState extends State<RegisterActivity> {
         name: nameCtrler.text,
         email: emailCtrler.text,
         photo_url: widget.userModel.photo_url,
-        email_verified: 'true'
+        email_verified: 'true', id_users: ''
     );
 
     API.updateUser(userModel)
@@ -784,7 +774,7 @@ class RegisterActivityState extends State<RegisterActivity> {
           });
         } else {
 
-          insertUser(userSaved, null);
+          insertUser(userSaved, new AnnoncerModel());
           setState(() {
             _is_creating = false;
           });
@@ -830,18 +820,18 @@ class RegisterActivityState extends State<RegisterActivity> {
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: annoncerModel == null ? '' : annoncerModel.id_annoncers,
       DatabaseHelper.COLUMN_USER_ANNONCER_PICTUREPATH: annoncerModel == null ? '' : annoncerModel.picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: annoncerModel == null ? '' : annoncerModel.cover_picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: annoncerModel == null ? '' : annoncerModel.compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: annoncerModel == null ? '' : annoncerModel.checkout_phone_number,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at!.seconds,
     };
     final id = await dbHelper.insert_user(row);
     print('${TAG}:insertUser inserted row id: $id');

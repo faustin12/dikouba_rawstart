@@ -1,14 +1,11 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/user/useriteminfo_activity.dart';
-import 'package:dikouba/model/participant_model.dart';
-import 'package:dikouba/model/post_model.dart';
-import 'package:dikouba/model/postcomment_model.dart';
-import 'package:dikouba/model/postfavourite_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/activity/user/useriteminfo_activity.dart';
+import 'package:dikouba_rawstart/model/post_model.dart';
+import 'package:dikouba_rawstart/model/postfavourite_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +18,7 @@ class ShowPostFavouritesDialog extends StatefulWidget {
   String userId;
 
   ShowPostFavouritesDialog(this.postModel, this.themeData, this.userId,
-      {@required this.analytics, @required this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -89,7 +86,7 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
             ? Center(
                 child: CircularProgressIndicator(
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),
+                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),
                 ),
               )
             : (listFavourites == null || listFavourites.length == 0)
@@ -97,11 +94,10 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
                     margin: Spacing.fromLTRB(24, 16, 24, 0),
                     child: Text(
                       "Aucun like trouvé",
-                      style: AppTheme.getTextStyle(themeData.textTheme.caption,
+                      style: themeData.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
                           color: themeData.colorScheme.onBackground,
-                          fontWeight: 500,
-                          xMuted: true),
+                          fontWeight: FontWeight.w500, ),//xMuted: true),
                     ),
                   )
                 : ListView.builder(
@@ -111,7 +107,7 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
                       PostFavouriteModel itemFavourite = listFavourites[index];
                       DateTime _createdDate =
                           DateTime.fromMillisecondsSinceEpoch(
-                              int.parse(itemFavourite.created_at.seconds) *
+                              int.parse(itemFavourite.created_at!.seconds) *
                                   1000);
                       return singleFavourite(itemFavourite,
                           createdAt:
@@ -141,7 +137,7 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
 
         _sendAnalyticsEvent("EventPostAddComent");
         widget.postModel.nbre_likes =
-            (int.parse(widget.postModel.nbre_likes) + 1).toString();
+            (int.parse(widget.postModel.nbre_likes!) + 1).toString();
         setState(() {
           _isAddLike = false;
         });
@@ -181,8 +177,8 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
   }
 
   Widget singleFavourite(PostFavouriteModel favouriteModel,
-      {String createdAt}) {
-    String image = favouriteModel.users.photo_url;
+      {required String createdAt}) {
+    String image = favouriteModel.users!.photo_url!;
     return Container(
       margin: EdgeInsets.only(top: 12),
       child: Row(
@@ -190,14 +186,18 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
         children: [
           InkWell(
             onTap: () {
-              gotoUserItemProfile(favouriteModel.users);
+              gotoUserItemProfile(favouriteModel.users!);
             },
             child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: (image == "" || image == "null")
-                      ? AssetImage('./assets/logo/user_transparent.webp')
-                      : NetworkImage(image),
+                child: (image == "" || image == "null")
+                    ? Image(
+                  image: AssetImage('./assets/logo/user_transparent.webp'),
+                  fit: BoxFit.cover,
+                  width: MySize.size40,
+                  height: MySize.size40,
+                ):Image(
+                  image: NetworkImage(image),
                   fit: BoxFit.cover,
                   width: MySize.size40,
                   height: MySize.size40,
@@ -210,19 +210,16 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${favouriteModel.users.name}",
-                    style: AppTheme.getTextStyle(
-                        widget.themeData.textTheme.bodyText2,
+                    "${favouriteModel.users!.name}",
+                    style: widget.themeData.textTheme.bodyMedium?.copyWith(
                         color: widget.themeData.colorScheme.onBackground,
-                        fontWeight: 500),
+                        fontWeight: FontWeight.w500),
                   ),
                   Text(
                     "$createdAt",
-                    style: AppTheme.getTextStyle(
-                        widget.themeData.textTheme.caption,
+                    style: widget.themeData.textTheme.bodySmall?.copyWith(
                         color: widget.themeData.colorScheme.onBackground,
-                        fontWeight: 500,
-                        muted: true),
+                        fontWeight: FontWeight.w500, ),//muted: true),
                   ),
                 ],
               ),
@@ -239,7 +236,7 @@ class _ShowPostFavouritesDialogState extends State<ShowPostFavouritesDialog> {
     });
     API
         .findPostFavouritesEvent(
-            widget.postModel.id_evenements, widget.postModel.id_posts)
+            widget.postModel.id_evenements!, widget.postModel.id_posts!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(

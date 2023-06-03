@@ -1,16 +1,15 @@
 
-import 'package:dikouba/activity/choseloginsignup_activity.dart';
-import 'package:dikouba/activity/welcome_activity.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/widget/UI/Models/page_view_model.dart';
-import 'package:dikouba/widget/intro_views_flutter.dart';
+import 'package:dikouba_rawstart/activity/choseloginsignup_activity.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/widget/UI/Models/page_view_model.dart';
+import 'package:dikouba_rawstart/widget/intro_views_flutter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class OnBoardingActivity extends StatefulWidget {
-  OnBoardingActivity({this.analytics, this.observer});
+  OnBoardingActivity({required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -124,11 +123,11 @@ final pages = [
 
 class OnBoardingActivityState extends State<OnBoardingActivity> {
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );

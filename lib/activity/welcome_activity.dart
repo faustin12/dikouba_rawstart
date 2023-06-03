@@ -1,17 +1,16 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +18,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class WelcomeActivity extends StatefulWidget {
-  WelcomeActivity({Key key, this.analytics, this.observer}) : super(key: key);
+  WelcomeActivity({Key? key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -30,7 +29,7 @@ class WelcomeActivity extends StatefulWidget {
 
 class WelcomeActivityState extends State<WelcomeActivity> {
   static final String TAG = 'WelcomeActivityState';
-  ThemeData themeData;
+  late ThemeData themeData;
 
   bool _is_creating = false;
 
@@ -45,11 +44,11 @@ class WelcomeActivityState extends State<WelcomeActivity> {
   }
 
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -81,7 +80,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
     themeData = Theme.of(context);
 
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: AppTheme.getThemeFromThemeMode(value.themeMode()),
@@ -113,9 +112,8 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                       Expanded(
                         child: Text(
                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                          style: AppTheme.getTextStyle(
-                              themeData.textTheme.bodyText2,
-                              fontWeight: 600,
+                          style: themeData.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
                               letterSpacing: 0),
                         ),
                       ),
@@ -123,7 +121,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                           ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             )
                           : Container(
@@ -132,8 +130,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                                     Radius.circular(MySize.size28)),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: themeData.cardTheme.shadowColor
-                                        .withAlpha(18),
+                                    color: themeData.cardTheme.shadowColor!.withAlpha(18),
                                     blurRadius: 4,
                                     offset: Offset(
                                         0, 3), // changes position of shadow
@@ -143,13 +140,16 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                               width: MySize.screenWidth,
                               margin: EdgeInsets.symmetric(
                                   horizontal: MySize.size16),
-                              child: FlatButton(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(MySize.size28)),
-                                splashColor: themeData.colorScheme.secondary,
-                                color: themeData.colorScheme.primary,
-                                highlightColor: DikoubaColors.blue['lig'],
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(MySize.size28)),
+                                  //splashColor: themeData.colorScheme.secondary,
+                                  //color: themeData.colorScheme.primary,
+                                  //highlightColor: DikoubaColors.blue['lig'],
+                                ),
                                 onPressed: () {
                                   firebaseAuth();
                                 },
@@ -158,9 +158,8 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                                   children: <Widget>[
                                     Text(
                                       "Se connecter".toUpperCase(),
-                                      style: AppTheme.getTextStyle(
-                                          themeData.textTheme.bodyText2,
-                                          fontWeight: 600,
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                           color: themeData.backgroundColor,
                                           letterSpacing: 0.5),
                                     ),
@@ -175,8 +174,6 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                                     )
                                   ],
                                 ),
-                                padding: EdgeInsets.only(
-                                    top: MySize.size12, bottom: MySize.size12),
                               ),
                             ),
                       SizedBox(
@@ -224,9 +221,9 @@ class WelcomeActivityState extends State<WelcomeActivity> {
         email: email,
         photo_url: photoUri,
         password: firebaseuid,
-        email_verified: 'true');
+        email_verified: 'true', id_users: '');
 
-    API.createUser(userModel).then((responseCreated) async {
+    API.createUser(userModel).then((responseCreated) { //to be async
       print(
           "${TAG}:createUserAccount responseCreated = ${responseCreated.statusCode}|${responseCreated.data}");
 
@@ -247,7 +244,7 @@ class WelcomeActivityState extends State<WelcomeActivity> {
                         observer: widget.observer,
                       )));
         } else {
-          await insertUser(user);
+          insertUser(user); //to be await
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -288,16 +285,16 @@ class WelcomeActivityState extends State<WelcomeActivity> {
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: userModel.id_annoncers,
       DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT:
-          userModel.annoncer_created_at.seconds,
+          userModel.annoncer_created_at!.seconds,
       DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT:
-          userModel.annoncer_updated_at.seconds,
+          userModel.annoncer_updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE:
           userModel.annoncer_checkout_phone_number,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: userModel.annoncer_compagny,

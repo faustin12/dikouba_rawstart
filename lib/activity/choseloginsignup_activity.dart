@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:carousel_pro/carousel_pro.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/login_activity.dart';
-import 'package:dikouba/activity/register_activity.dart';
-import 'package:dikouba/activity/signup_activity.dart';
-import 'package:dikouba/activity/welcome_activity.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/login_activity.dart';
+import 'package:dikouba_rawstart/activity/register_activity.dart';
+import 'package:dikouba_rawstart/activity/signup_activity.dart';
+import 'package:dikouba_rawstart/activity/welcome_activity.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class ChoseLoginSignupActivity extends StatefulWidget {
-  ChoseLoginSignupActivity({this.analytics, this.observer});
+  ChoseLoginSignupActivity({required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -32,7 +32,7 @@ class ChoseLoginSignupActivity extends StatefulWidget {
 class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with TickerProviderStateMixin {
   static final String TAG = 'ChoseLoginSignupActivityState';
   /// Declare Animation
-  AnimationController animationController;
+  late AnimationController animationController;
   var tapLogin = 0;
   var tapSignup = 0;
   bool _is_creating = false;
@@ -47,11 +47,11 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -324,7 +324,7 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
         email: email,
         photo_url: photoUri,
         password: firebaseuid,
-        email_verified: 'true'
+        email_verified: 'true', id_users: ''
     );
 
     // teste si le user existe deja dans le systeme
@@ -333,7 +333,7 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
           "${TAG}:requestCustomerAddress ${resTestUser.statusCode}|${resTestUser.data}");
       if(resTestUser.statusCode == 200) {
         UserModel user = new UserModel.fromJson(resTestUser.data);
-        await insertUser(user);
+        insertUser(user); //Should be await
         setState(() {
           _is_creating = false;
         });
@@ -408,14 +408,14 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: userModel.id_annoncers,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: userModel.annoncer_created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: userModel.annoncer_updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: userModel.annoncer_created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: userModel.annoncer_updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: userModel.annoncer_checkout_phone_number,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: userModel.annoncer_compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: userModel.annoncer_cover_picture_path,
@@ -430,9 +430,9 @@ class ChoseLoginSignupActivityState extends State<ChoseLoginSignupActivity> with
 class ButtonCustom extends StatelessWidget {
   @override
   String txt;
-  GestureTapCallback ontap;
+  late GestureTapCallback ontap;
 
-  ButtonCustom({this.txt});
+  ButtonCustom({required this.txt});
 
   Widget build(BuildContext context) {
     return Material(
@@ -466,7 +466,7 @@ class ButtonCustom extends StatelessWidget {
 
 /// Set Animation Login if user click button login
 class AnimationSplashLogin extends StatefulWidget {
-  AnimationSplashLogin({this.analytics, this.observer, Key key, this.animationController})
+  AnimationSplashLogin({required this.analytics, required this.observer, Key? key, required this.animationController})
       : animation = new Tween(
     end: 900.0,
     begin: 70.0,
@@ -480,7 +480,7 @@ class AnimationSplashLogin extends StatefulWidget {
   final AnimationController animationController;
   final Animation animation;
 
-  Widget _buildAnimation(BuildContext context, Widget child) {
+  Widget _buildAnimation(BuildContext context, Widget? child) {
     return Padding(
       padding: EdgeInsets.only(bottom: 60.0),
       child: Container(
@@ -521,7 +521,7 @@ class _AnimationSplashLoginState extends State<AnimationSplashLogin> {
 
 /// Set Animation signup if user click button signup
 class AnimationSplashSignup extends StatefulWidget {
-  AnimationSplashSignup({this.analytics, this.observer, Key key, this.animationController})
+  AnimationSplashSignup({required this.analytics, required this.observer, Key? key, required this.animationController})
       : animation = new Tween(
     end: 900.0,
     begin: 70.0,
@@ -535,7 +535,7 @@ class AnimationSplashSignup extends StatefulWidget {
   final AnimationController animationController;
   final Animation animation;
 
-  Widget _buildAnimation(BuildContext context, Widget child) {
+  Widget _buildAnimation(BuildContext context, Widget? child) {
     return Padding(
       padding: EdgeInsets.only(bottom: 60.0),
       child: Container(

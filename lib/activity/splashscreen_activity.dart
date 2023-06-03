@@ -1,20 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/activity/onboarding_activity.dart';
-import 'package:dikouba/activity/welcome_activity.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/activity/onboarding_activity.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 /// Component UI
 class SplashScreen extends StatefulWidget {
-  SplashScreen({this.analytics, this.observer});
+  SplashScreen({required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;

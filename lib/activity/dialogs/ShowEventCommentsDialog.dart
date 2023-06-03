@@ -1,11 +1,11 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/user/useriteminfo_activity.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/evenementcomment_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/activity/user/useriteminfo_activity.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/evenementcomment_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -27,7 +27,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
   bool _isAdding = false;
   List<EvenementCommentModel> _listComment = [];
 
-  TextEditingController commentCtrler;
+  late TextEditingController commentCtrler;
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
             ? Center(
                 child: CircularProgressIndicator(
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']),
+                      AlwaysStoppedAnimation<Color>(DikoubaColors.blue['pri']!),
                 ),
               )
             : Column(
@@ -84,7 +84,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
                                   "Aucun commentaire disponible ou erreur réseau.",
                                   textAlign: TextAlign.center,
                                   style:
-                                      themeData.appBarTheme.textTheme.headline6)
+                                      themeData.appBarTheme.textTheme?.titleLarge)
                             ],
                           )
                         : ListView.builder(
@@ -110,7 +110,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
                           Expanded(
                             child: TextFormField(
                               validator: (input) {
-                                if (input.isEmpty) {
+                                if (input!.isEmpty) {
                                   return 'Veuillez saisir le commentaire';
                                 }
                                 return null;
@@ -169,7 +169,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                UserItemInfoActivity(widget.userModel, userModel)));
+                UserItemInfoActivity(widget.userModel, userModel, analytics: FirebaseAnalytics.instance, observer: FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),)));
   }
 
   void findEventsComment() async {
@@ -177,7 +177,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
       _isFinding = true;
     });
     API
-        .findEventComments(widget.evenementModel.id_evenements)
+        .findEventComments(widget.evenementModel.id_evenements!)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
         print(
@@ -221,7 +221,7 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
       _isAdding = true;
     });
     API
-        .addEventComment(widget.evenementModel.id_evenements,
+        .addEventComment(widget.evenementModel.id_evenements!,
             widget.userModel.id_users, comment)
         .then((responseEvents) {
       if (responseEvents.statusCode == 200) {
@@ -256,11 +256,11 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
 
   Widget singleComment(EvenementCommentModel commentModel) {
     DateTime _createdDate = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(commentModel.created_at.seconds) * 1000);
+        int.parse(commentModel.created_at!.seconds) * 1000);
 
     return InkWell(
       onTap: () {
-        gotoUserItemProfile(commentModel.users);
+        gotoUserItemProfile(commentModel.users!);
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 4),
@@ -269,11 +269,12 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
           children: [
             ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(MySize.size8)),
-                child: Image(
-                  image: (commentModel.users.photo_url == "" ||
-                          commentModel.users.photo_url == "null")
-                      ? AssetImage('./assets/logo/user_transparent.webp')
-                      : NetworkImage(commentModel.users.photo_url),
+                child: (commentModel.users!.photo_url == "" ||
+                    commentModel.users!.photo_url == "null")
+                    ? Image(
+                  image: AssetImage('./assets/logo/user_transparent.webp')):
+                    Image(
+                    image: NetworkImage(commentModel.users!.photo_url!),
                   fit: BoxFit.cover,
                   width: MySize.size60,
                   height: MySize.size60,
@@ -285,28 +286,23 @@ class ShowEventCommentsDialogState extends State<ShowEventCommentsDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${commentModel.users.name}",
-                      style: AppTheme.getTextStyle(
-                          widget.themeData.textTheme.bodyText2,
+                      "${commentModel.users!.name}",
+                      style: widget.themeData.textTheme.bodyMedium?.copyWith(
                           color: widget.themeData.colorScheme.onBackground,
-                          fontWeight: 600),
+                          fontWeight: FontWeight.w600),
                     ),
                     Text(
                       "${DateFormat('dd MMM, HH:mm').format(_createdDate)}",
-                      style: AppTheme.getTextStyle(
-                          widget.themeData.textTheme.caption,
+                      style: widget.themeData.textTheme.bodySmall?.copyWith(
                           color: widget.themeData.colorScheme.onBackground,
-                          fontWeight: 300,
-                          muted: true),
+                          fontWeight: FontWeight.w300,)//muted: true),
                     ),
                     Text(
                       "${commentModel.content}",
-                      style: AppTheme.getTextStyle(
-                          widget.themeData.textTheme.caption,
+                      style: widget.themeData.textTheme.bodySmall?.copyWith(
                           color: widget.themeData.colorScheme.onBackground,
                           fontSize: 16,
-                          fontWeight: 500,
-                          muted: true),
+                          fontWeight: FontWeight.w500, )//muted: true),
                     ),
                   ],
                 ),

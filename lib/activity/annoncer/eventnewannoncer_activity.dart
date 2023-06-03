@@ -3,15 +3,7 @@ import 'dart:io';
 
 import 'package:dikouba_rawstart/AppTheme.dart';
 import 'package:dikouba_rawstart/AppThemeNotifier.dart';
-import 'package:dikouba_rawstart/activity/eventnewsessions_activity.dart';
-import 'package:dikouba_rawstart/activity/home_activity.dart';
-import 'package:dikouba_rawstart/activity/register_activity.dart';
-import 'package:dikouba_rawstart/fragment/EventCreateSession.dart';
 import 'package:dikouba_rawstart/model/annoncer_model.dart';
-import 'package:dikouba_rawstart/model/category_model.dart';
-import 'package:dikouba_rawstart/model/evenement_model.dart';
-import 'package:dikouba_rawstart/model/firebaselocation_model.dart';
-import 'package:dikouba_rawstart/model/package_model.dart';
 import 'package:dikouba_rawstart/model/user_model.dart';
 import 'package:dikouba_rawstart/provider/api_provider.dart';
 import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
@@ -19,13 +11,8 @@ import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
 import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
 import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
 import 'package:dikouba_rawstart/utils/SizeConfig.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-//import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +22,7 @@ import 'package:firebase_analytics/observer.dart';
 class EvenNewAnnoncerActivity extends StatefulWidget {
   UserModel userModel;
 
-  EvenNewAnnoncerActivity(this.userModel, {required Key key, required this.analytics, required this.observer}) : super(key: key);
+  EvenNewAnnoncerActivity(this.userModel, {Key? key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -457,7 +444,7 @@ class EvenNewAnnoncerActivityState extends State<EvenNewAnnoncerActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),

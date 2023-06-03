@@ -32,7 +32,7 @@ class IntroViewsFlutter extends StatefulWidget {
   /// TextStyles for done, skip Buttons
   ///
   /// overrides [pageButtonFontFamily] [pageButtonsColor] [pageButtonTextSize]
-  final TextStyle pageButtonTextStyles;
+  final TextStyle? pageButtonTextStyles;
 
   /// run a function after skip Button pressed
   final VoidCallback onTapSkipButton;
@@ -45,7 +45,7 @@ class IntroViewsFlutter extends StatefulWidget {
   /// set the Font Family for skip, done buttons
   ///
   /// gets overridden by [pageButtonTextStyles]
-  final String pageButtonFontFamily;
+  final String? pageButtonFontFamily;
 
   /// Override 'DONE' Text with Your Own Text,
   /// typicaly a Text Widget
@@ -76,9 +76,9 @@ class IntroViewsFlutter extends StatefulWidget {
     Key? key,
     required this.onTapDoneButton,
     this.showSkipButton = true,
-    required this.pageButtonTextStyles,
+    this.pageButtonTextStyles,
     this.pageButtonTextSize = 18.0,
-    required this.pageButtonFontFamily,
+    this.pageButtonFontFamily,
     required this.onTapSkipButton,
     required this.pageButtonsColor,
     this.doneText = const Text("DONE"),

@@ -1,14 +1,12 @@
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/activity/dialogs/ProceedPaymentPackageDialog.dart';
-import 'package:dikouba/model/evenement_model.dart';
-import 'package:dikouba/model/package_model.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
+import 'package:dikouba_rawstart/activity/dialogs/ProceedPaymentPackageDialog.dart';
+import 'package:dikouba_rawstart/model/evenement_model.dart';
+import 'package:dikouba_rawstart/model/package_model.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class ShowEventPackageDialog extends StatefulWidget {
   List<PackageModel> listPackage;
@@ -16,7 +14,7 @@ class ShowEventPackageDialog extends StatefulWidget {
   ThemeData themeData;
 
   ShowEventPackageDialog(this.listPackage, this.evenement, this.themeData,
-      {this.analytics, this.observer});
+      {required this.analytics, required this.observer});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -96,14 +94,14 @@ class ShowEventPackageDialogState extends State<ShowEventPackageDialog> {
     Navigator.of(buildContext).pop();
   }
 
-  Widget singlePackage(PackageModel package, {String name, String price}) {
+  Widget singlePackage(PackageModel package, {required String name, required String price}) {
     return Container(
       padding:
           Spacing.symmetric(horizontal: MySize.size16, vertical: MySize.size14),
       decoration: BoxDecoration(
           border: Border.all(
               color:
-                  int.parse(price ?? 0) == 0 ? Colors.green : Colors.blueAccent,
+                  int.parse(price ?? '0') == 0 ? Colors.green : Colors.blueAccent,
               width: 2),
           borderRadius: BorderRadius.all(Radius.circular(MySize.size14))),
       child: Row(
@@ -114,18 +112,15 @@ class ShowEventPackageDialogState extends State<ShowEventPackageDialog> {
               children: [
                 Text(
                   "$name",
-                  style: AppTheme.getTextStyle(
-                      widget.themeData.textTheme.headline6,
+                  style: widget.themeData.textTheme.titleLarge?.copyWith(
                       color: widget.themeData.colorScheme.secondary,
-                      fontWeight: 600),
+                      fontWeight: FontWeight.w600),
                 ),
                 Text(
                   DikoubaUtils.formatCurrencyWithDevise(price),
-                  style: AppTheme.getTextStyle(
-                      widget.themeData.textTheme.bodyText2,
+                  style: widget.themeData.textTheme.bodyMedium?.copyWith(
                       color: widget.themeData.colorScheme.error,
-                      fontWeight: 500,
-                      muted: true),
+                      fontWeight: FontWeight.w500, )//muted: true),
                 ),
               ],
             ),
@@ -145,12 +140,11 @@ class ShowEventPackageDialogState extends State<ShowEventPackageDialog> {
                 margin: Spacing.left(12),
                 child: Text(
                   "Acheter ",
-                  style: AppTheme.getTextStyle(
-                      widget.themeData.textTheme.bodyText2,
+                  style: widget.themeData.textTheme.bodyMedium?.copyWith(
                       fontSize: 12,
                       letterSpacing: 0.7,
                       color: widget.themeData.colorScheme.onPrimary,
-                      fontWeight: 600),
+                      fontWeight: FontWeight.w600),
                 ),
               ),
             ),

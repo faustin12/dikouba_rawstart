@@ -1,19 +1,17 @@
 import 'dart:io';
 
-import 'package:dikouba/AppTheme.dart';
-import 'package:dikouba/AppThemeNotifier.dart';
-import 'package:dikouba/activity/home_activity.dart';
-import 'package:dikouba/provider/firestorage_provider.dart';
+import 'package:dikouba_rawstart/AppTheme.dart';
+import 'package:dikouba_rawstart/AppThemeNotifier.dart';
+import 'package:dikouba_rawstart/activity/home_activity.dart';
+import 'package:dikouba_rawstart/provider/firestorage_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:dikouba/model/annoncer_model.dart';
-import 'package:dikouba/model/user_model.dart';
-import 'package:dikouba/provider/api_provider.dart';
-import 'package:dikouba/provider/databasehelper_provider.dart';
-import 'package:dikouba/utils/DikoubaColors.dart';
-import 'package:dikouba/utils/DikoubaUtils.dart';
-import 'package:dikouba/utils/SizeConfig.dart';
-import 'package:dio/dio.dart';
+import 'package:dikouba_rawstart/model/annoncer_model.dart';
+import 'package:dikouba_rawstart/model/user_model.dart';
+import 'package:dikouba_rawstart/provider/api_provider.dart';
+import 'package:dikouba_rawstart/provider/databasehelper_provider.dart';
+import 'package:dikouba_rawstart/utils/DikoubaColors.dart';
+import 'package:dikouba_rawstart/utils/DikoubaUtils.dart';
+import 'package:dikouba_rawstart/utils/SizeConfig.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -24,7 +22,7 @@ import 'package:firebase_analytics/observer.dart';
 
 class UpdateUserActivity extends StatefulWidget {
   UserModel userModel;
-  UpdateUserActivity({Key key, this.userModel, this.analytics, this.observer}) : super(key: key);
+  UpdateUserActivity({Key? key, required this.userModel, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -36,21 +34,21 @@ class UpdateUserActivity extends StatefulWidget {
 class UpdateUserActivityState extends State<UpdateUserActivity> {
   static final String TAG = 'UpdateUserActivityState';
 
-  Size _screenSize;
-  String _selectedSexe;
-  DateTime _birthday;
+  late Size _screenSize;
+  late String _selectedSexe;
+  late DateTime _birthday;
   bool _is_creating = false;
 
   bool _becomeAnnoncer = false;
 
-  File _image;
+  late File _image;
   final picker = ImagePicker();
 
-  TextEditingController nameCtrler;
-  TextEditingController emailCtrler;
-  TextEditingController phoneCtrler;
-  TextEditingController anceurCompagnyCtrler;
-  TextEditingController anceurPhoneCtrler;
+  late TextEditingController nameCtrler;
+  late TextEditingController emailCtrler;
+  late TextEditingController phoneCtrler;
+  late TextEditingController anceurCompagnyCtrler;
+  late TextEditingController anceurPhoneCtrler;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -65,10 +63,10 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
   }
 
   void saveUserimgAndPush() async {
-    var localFullPath = await API.downloadFileFromUrl(widget.userModel.photo_url, widget.userModel.uid, showDownloadProgress);
+    var localFullPath = await API.downloadFileFromUrl(widget.userModel.photo_url!, widget.userModel.uid!, showDownloadProgress);
     print("$TAG:saveUserimgAndPush localFullPath=$localFullPath");
     if(localFullPath != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, localFullPath, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, localFullPath, widget.userModel.uid!);
       print("$TAG:saveUserimgAndPush downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -77,10 +75,10 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
   }
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.camera);
-    print("$TAG:getImage downloadLink=${pickedFile.path}");
+    print("$TAG:getImage downloadLink=${pickedFile!.path}");
 
     if (pickedFile != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid!);
       print("$TAG:getImage downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -112,7 +110,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                         margin: EdgeInsets.only(left: MySize.size12, bottom: MySize.size8),
                         child: Text(
                           "Choisir a partir de",
-                          style: themeData.textTheme.caption.merge(TextStyle(
+                          style: themeData.textTheme.bodySmall?.merge(TextStyle(
                               color: themeData.colorScheme.onBackground
                                   .withAlpha(200),
                               letterSpacing: 0.3,
@@ -128,7 +126,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Caméra",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyText1?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -144,7 +142,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                               .withAlpha(220)),
                       title: Text(
                         "Gallerie",
-                        style: themeData.textTheme.bodyText1.merge(TextStyle(
+                        style: themeData.textTheme.bodyLarge?.merge(TextStyle(
                             color: themeData.colorScheme.onBackground,
                             letterSpacing: 0.3,
                             fontWeight: FontWeight.w500)),
@@ -160,7 +158,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     setState(() {
       _isImageUpdating = true;
     });
-    PickedFile pickedFile = null;
+    PickedFile? pickedFile;// = null;
     if(resultAction == 'camera') {
       pickedFile = await picker.getImage(source: ImageSource.camera);
     } else if(resultAction == 'gallerie') {
@@ -168,7 +166,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     }
 
     if (pickedFile != null) {
-      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid);
+      var downloadLink = await FireStorageProvider.fireUploadFileToRef(FireStorageProvider.FIRESTORAGE_REF_USERPROFILE, pickedFile.path, widget.userModel.uid!);
       print("$TAG:getImage downloadLink=$downloadLink");
       setState(() {
         widget.userModel.photo_url = downloadLink;
@@ -181,7 +179,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     }
   }
 
-  ThemeData themeData;
+  late ThemeData themeData;
   bool _passwordVisible = false;
   bool _isImageUpdating = false;
 
@@ -192,11 +190,11 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     );
   }
   Future<void> _setUserId(String uid) async {
-    await FirebaseAnalytics().setUserId(uid);
+    await FirebaseAnalytics.instance.setUserId(id: uid);
   }
 
   Future<void> _sendAnalyticsEvent(String name) async {
-    await FirebaseAnalytics().logEvent(
+    await FirebaseAnalytics.instance.logEvent(
       name: name,
       parameters: <String, dynamic>{},
     );
@@ -229,14 +227,14 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     anceurCompagnyCtrler = new TextEditingController();
     anceurPhoneCtrler = new TextEditingController();
 
-    nameCtrler.text = widget.userModel.name;
-    emailCtrler.text = widget.userModel.email;
-    phoneCtrler.text = widget.userModel.phone;
+    nameCtrler.text = widget.userModel.name!;
+    emailCtrler.text = widget.userModel.email!;
+    phoneCtrler.text = widget.userModel.phone!;
 
     _becomeAnnoncer = widget.userModel.id_annoncers != "";
 
-    anceurCompagnyCtrler.text = widget.userModel.annoncer_compagny;
-    anceurPhoneCtrler.text = widget.userModel.annoncer_checkout_phone_number;
+    anceurCompagnyCtrler.text = widget.userModel.annoncer_compagny!;
+    anceurPhoneCtrler.text = widget.userModel.annoncer_checkout_phone_number!;
 
     _setCurrentScreen();
   }
@@ -246,7 +244,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
     themeData = Theme.of(context);
 
     return Consumer<AppThemeNotifier>(
-      builder: (BuildContext context, AppThemeNotifier value, Widget child) {
+      builder: (BuildContext context, AppThemeNotifier value, Widget? child) {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: AppTheme.getThemeFromThemeMode(value.themeMode()),
@@ -264,9 +262,8 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                           Container(
                             child: Text(
                               "Modification du compte",
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.headline5,
-                                  fontWeight: 600,
+                              style: themeData.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing: 0),
                             ),
                           ),
@@ -277,7 +274,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                 ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    DikoubaColors.blue['pri']),
+                                    DikoubaColors.blue['pri']!),
                               ),
                             )
                                 : Column(
@@ -290,10 +287,12 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                       height: MySize.getScaledSizeHeight(120.0),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        image:  DecorationImage(
-                                            image: widget.userModel.photo_url == ""
-                                                ? AssetImage('./assets/logo/user_transparent.webp')
-                                                : NetworkImage(widget.userModel.photo_url),
+                                        image:  widget.userModel.photo_url == ""
+                                            ? DecorationImage(
+                                            image: AssetImage('./assets/logo/user_transparent.webp'),
+                                            fit: BoxFit.fill):
+                                        DecorationImage(
+                                            image: NetworkImage(widget.userModel.photo_url!),
                                             fit: BoxFit.fill),
                                       ),
                                     ),
@@ -329,15 +328,13 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                 ),
                                 Text("${widget.userModel.name}",
                                     textAlign: TextAlign.center,
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.headline6,
-                                        fontWeight:600,
+                                    style: themeData.textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
                                         letterSpacing: 0)),
                                 Text("${widget.userModel.email == "" ? widget.userModel.phone : widget.userModel.email}",
                                     textAlign: TextAlign.center,
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.subtitle2,
-                                        fontWeight: 500)),
+                                    style: themeData.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -346,23 +343,21 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: TextFormField(
                               controller: nameCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir le nom et prénom';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Nom et prénom",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText1,
+                                hintStyle: themeData.textTheme.bodyLarge?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -398,7 +393,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: TextFormField(
                               controller: emailCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir l\'adresse email';
                                 }
                                 if (!DikoubaUtils.isValidEmail(value.toString())) {
@@ -406,18 +401,16 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Adresse email",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.subtitle2,
+                                hintStyle: themeData.textTheme.titleSmall?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -454,26 +447,24 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: TextFormField(
                               controller: phoneCtrler,
                               validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value!.isEmpty) {
                                     return 'Veuillez saisir le numéro de téléphone';
                                   }
-                                  if (value.length < 9) {
+                                  if (value!.length < 9) {
                                     return 'Le numéro saisi est court';
                                   }
                                   return null;
                                 },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Numéro de téléphone",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.subtitle2,
+                                hintStyle: themeData.textTheme.titleSmall?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -509,9 +500,8 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: ListTile(
                               title: Text(
                                 'Devenir annonceur',
-                                style: AppTheme.getTextStyle(
-                                    themeData.textTheme.bodyText1,
-                                    fontWeight: 600),
+                                style: themeData.textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w600),
                               ),
                               trailing: CupertinoSwitch(
                                 value: _becomeAnnoncer,
@@ -534,23 +524,21 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: TextFormField(
                               controller: anceurCompagnyCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir l\'intitulé du compte annonceur';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Intitulé compte annonceur",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.subtitle2,
+                                hintStyle: themeData.textTheme.titleSmall?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -588,26 +576,24 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                             child: TextFormField(
                               controller: anceurPhoneCtrler,
                               validator: (value) {
-                                if (value.isEmpty) {
+                                if (value!.isEmpty) {
                                   return 'Veuillez saisir le numéro de téléphone de l\'annonceur';
                                 }
-                                if (value.length < 9) {
+                                if (value!.length < 9) {
                                   return 'Le numéro saisi est court';
                                 }
                                 return null;
                               },
-                              style: AppTheme.getTextStyle(
-                                  themeData.textTheme.bodyText1,
+                              style: themeData.textTheme.bodyLarge?.copyWith(
                                   letterSpacing: 0.1,
                                   color: themeData.colorScheme.onBackground,
-                                  fontWeight: 500),
+                                  fontWeight: FontWeight.w500),
                               decoration: InputDecoration(
                                 hintText: "Numéro de téléphone annonceur",
-                                hintStyle: AppTheme.getTextStyle(
-                                    themeData.textTheme.subtitle2,
+                                hintStyle: themeData.textTheme.titleSmall?.copyWith(
                                     letterSpacing: 0.1,
                                     color: themeData.colorScheme.onBackground,
-                                    fontWeight: 500),
+                                    fontWeight: FontWeight.w500),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(8.0),
@@ -646,7 +632,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                   alignment: Alignment.center,
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        DikoubaColors.blue['pri']),
+                                        DikoubaColors.blue['pri']!),
                                   ),)
                               : Container(
                             margin: EdgeInsets.only(top: MySize.size24),
@@ -656,20 +642,23 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                               boxShadow: [
                                 BoxShadow(
                                   color: themeData.cardTheme.shadowColor
-                                      .withAlpha(18),
+                                      !.withAlpha(18),
                                   blurRadius: 4,
                                   offset: Offset(
                                       0, 3),
                                 ),
                               ],
                             ),
-                            child: FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(MySize.size28)),
-                              splashColor: themeData.colorScheme.secondary,
-                              color: DikoubaColors.blue['pri'],
-                              highlightColor: DikoubaColors.blue['lig'],
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(MySize.size28)),
+                                padding: EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
+                                //color: DikoubaColors.blue['pri'],
+                                //splashColor: themeData.colorScheme.secondary,
+                                //highlightColor: DikoubaColors.blue['lig'],
+                              ),
                               onPressed: () {
                                 handlerSaveForm(context);
                                 // Navigator.push(
@@ -683,9 +672,8 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                 children: <Widget>[
                                   Text(
                                     "Modifier".toUpperCase(),
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontWeight: 700,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
                                         color:
                                         themeData.backgroundColor,
                                         letterSpacing: 0.5),
@@ -701,8 +689,6 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                   )
                                 ],
                               ),
-                              padding:
-                              EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
                             ),
                           ),
                           Container(
@@ -713,20 +699,23 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                               boxShadow: [
                                 BoxShadow(
                                   color: themeData.cardTheme.shadowColor
-                                      .withAlpha(18),
+                                      !.withAlpha(18),
                                   blurRadius: 4,
                                   offset: Offset(
                                       0, 3),
                                 ),
                               ],
                             ),
-                            child: FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(MySize.size28)),
-                              splashColor: themeData.colorScheme.secondary,
-                              color: Colors.white,
-                              highlightColor: themeData.colorScheme.primary,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(MySize.size28)),
+                                //splashColor: themeData.colorScheme.secondary,
+                                //color: Colors.white,
+                                //highlightColor: themeData.colorScheme.primary,
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
@@ -735,16 +724,13 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
                                 children: <Widget>[
                                   Text(
                                     "RETOUR",
-                                    style: AppTheme.getTextStyle(
-                                        themeData.textTheme.bodyText2,
-                                        fontWeight: 700,
+                                    style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
                                         color: DikoubaColors.blue['pri'],
                                         letterSpacing: 0.5),
                                   ),
                                 ],
                               ),
-                              padding:
-                              EdgeInsets.only(top: MySize.size12, bottom: MySize.size12),
                             ),
                           ),
                           SizedBox(height: 24,)
@@ -760,7 +746,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
   void handlerSaveForm(BuildContext buildContext) {
     print("${TAG}:handlerSaveForm becomeAnnoncer=${_becomeAnnoncer}");
     // otherwise.
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       // If the form is valid, display a Snackbar.
       print("${TAG}:handlerSaveForm ready to save data ");
       updateUserAccount(buildContext);
@@ -776,7 +762,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
         name: nameCtrler.text,
         email: emailCtrler.text,
         photo_url: widget.userModel.photo_url,
-        email_verified: 'true'
+        email_verified: 'true', id_users: ''
     );
 
     API.updateUser(userModel)
@@ -833,7 +819,7 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
           });
         } else {
 
-          insertUser(userSaved, null);
+          insertUser(userSaved, new AnnoncerModel());
           setState(() {
             _is_creating = false;
           });
@@ -879,18 +865,18 @@ class UpdateUserActivityState extends State<UpdateUserActivity> {
       DatabaseHelper.COLUMN_USER_NBREFOLLOWERS: userModel.nbre_followers,
       DatabaseHelper.COLUMN_USER_NAME: userModel.name,
       DatabaseHelper.COLUMN_USER_IDUSERS: userModel.id_users,
-      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date.seconds,
+      DatabaseHelper.COLUMN_USER_EXPIREDATE: userModel.expire_date!.seconds,
       DatabaseHelper.COLUMN_USER_EMAILVERIFIED: userModel.email_verified,
       DatabaseHelper.COLUMN_USER_EMAIL: userModel.email,
-      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_CREATEDAT: userModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_UPDATEAT: userModel.updated_at!.seconds,
       DatabaseHelper.COLUMN_USER_IDANNONCER: annoncerModel == null ? '' : annoncerModel.id_annoncers,
       DatabaseHelper.COLUMN_USER_ANNONCER_PICTUREPATH: annoncerModel == null ? '' : annoncerModel.picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COVERPICTUREPATH: annoncerModel == null ? '' : annoncerModel.cover_picture_path,
       DatabaseHelper.COLUMN_USER_ANNONCER_COMPAGNY: annoncerModel == null ? '' : annoncerModel.compagny,
       DatabaseHelper.COLUMN_USER_ANNONCER_CHECKOUTPHONE: annoncerModel == null ? '' : annoncerModel.checkout_phone_number,
-      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at.seconds,
-      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_CREATEDAT: annoncerModel == null ? '' : annoncerModel.created_at!.seconds,
+      DatabaseHelper.COLUMN_USER_ANNONCER_UPDATEAT: annoncerModel == null ? '' : annoncerModel.updated_at!.seconds,
     };
     final id = await dbHelper.insert_user(row);
     print('${TAG}:insertUser inserted row id: $id');
